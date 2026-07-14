@@ -125,7 +125,9 @@ func (d *DonorResponse) Cancel(reason string) error {
 	return errors.New("Невозможно отменить отклик. не верный первичный статус")
 }
 
-// IsActiveForDonation checks if the donor response is active for donation purposes
+// IsActiveForDonation checks if the donor response is active for donation purposes.
+// ВНИМАНИЕ: составной критерий (Accepted || Pending || (Completed && !IsConfirmed))
+// используется очень широко и сознательно НЕ продублирован в SQL.
 func (d *DonorResponse) IsActiveForDonation() bool {
 	if d == nil {
 		return false
@@ -142,7 +144,8 @@ func (d *DonorResponse) IsInactive() bool {
 		d.IsFullyCompleted()
 }
 
-// IsFullyCompleted checks if donation is confirmed by recipient
+// IsFullyCompleted checks if donation is confirmed by recipient.
+// ВНИМАНИЕ: критерий продублирован в SQL — EntDonorResponseRepository.CountFullyCompletedByOwnerID.
 func (d *DonorResponse) IsFullyCompleted() bool {
 	return d.Status == DonorResponseStatusCompleted && d.IsConfirmed
 }

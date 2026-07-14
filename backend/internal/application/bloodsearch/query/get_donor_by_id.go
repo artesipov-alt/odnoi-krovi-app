@@ -17,22 +17,20 @@ type GetDonorByIDHandler struct {
 	petReadRepo  pet.PetReadRepository
 	donorRepo    donor.Repository
 	bloodRepo    bloodsearch.Repository
-	petService   pet.PetService
 	bloodCounter *bloodsearch.BloodCounterService
 }
 
-func NewGetDonorByIDHandler(petReadRepo pet.PetReadRepository, donorRepo donor.Repository, bloodRepo bloodsearch.Repository, petService pet.PetService) *GetDonorByIDHandler {
+func NewGetDonorByIDHandler(petReadRepo pet.PetReadRepository, donorRepo donor.Repository, bloodRepo bloodsearch.Repository) *GetDonorByIDHandler {
 	return &GetDonorByIDHandler{
 		petReadRepo:  petReadRepo,
 		donorRepo:    donorRepo,
 		bloodRepo:    bloodRepo,
-		petService:   petService,
 		bloodCounter: bloodsearch.NewBloodCounterService(),
 	}
 }
 
 func (h *GetDonorByIDHandler) Handle(ctx context.Context, petID string, opts pet.PetPreloadOptions) (*petmodel.Pet, *donormodel.DonorResponse, error) {
-	pet, err := h.petReadRepo.GetByID(ctx, petID, opts)
+	donorPet, err := h.petReadRepo.GetByID(ctx, petID, opts)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -57,7 +55,7 @@ func (h *GetDonorByIDHandler) Handle(ctx context.Context, petID string, opts pet
 		bloodReq.RecalculateStatus()
 	}
 
-	h.petService.RecalculateFactorsAndStatus(pet, time.Now(), application, bloodReq)
+	donorPet.RecalculateStatus(time.Now(), pet.BuildDonationContext(application, bloodReq))
 
-	return pet, application, nil
+	return donorPet, application, nil
 }

@@ -55,6 +55,17 @@ type Repository interface {
 	// возвращает отклики по списку ID питомцев
 	GetByPetIDs(ctx context.Context, petIDs []string, ignoreSoftDelete bool) (map[string][]*donormodel.DonorResponse, error)
 
+	// GetLatestByPetIDs возвращает мапу "pet ID → последний по created_at отклик донора".
+	// Не фильтрует по статусу — решение об актуальности отклика принимает
+	// DonorResponse.IsActiveForDonation() на стороне вызывающего кода.
+	GetLatestByPetIDs(ctx context.Context, petIDs []string) (map[string]*donormodel.DonorResponse, error)
+
+	// CountFullyCompletedByOwnerID возвращает количество полностью завершённых
+	// (подтверждённых реципиентом) донаций по всем питомцам владельца, включая
+	// мягко удалённых — статистика не должна теряться при удалении питомца.
+	// Критерий соответствует DonorResponse.IsFullyCompleted().
+	CountFullyCompletedByOwnerID(ctx context.Context, ownerID string) (int, error)
+
 	// возвращает неподтвержденные отклики старше cutoffTime
 	FindNotConfirmed(ctx context.Context, cutoffTime time.Time) ([]*donormodel.DonorResponse, error)
 }

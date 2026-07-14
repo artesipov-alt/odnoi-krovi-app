@@ -29,13 +29,13 @@ import (
 	donorquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/donor/query"
 	filecmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/file/cmd"
 	petcmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/pet/cmd"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/pet/enrich"
 	petquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/pet/query"
 	refquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/reference/query"
 	usercmd "github.com/artesipov-alt/odnoi-krovi-app/internal/application/user/cmd"
 	userquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/user/query"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/ports"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/otp/twin24"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
@@ -151,10 +151,9 @@ func main() {
 
 		// Инициализация сервисов.
 		matchingSvc := *bloodsearch.NewMatchingService()
-		petService := pet.NewPetServiceV2()
 		bonusSvc := bonus.NewBonusService(bonusRepo)
 
-		notificator := service.NewDonorMatchNotifier(petRepo, userRepo, bloodRequestRepo, donorResponseRepo, petService, publisher)
+		notificator := service.NewDonorMatchNotifier(petRepo, userRepo, bloodRequestRepo, donorResponseRepo, publisher)
 
 		// Инициализация reference query handlers
 		getAllBreedsHandler := refquery.NewGetAllBreedsHandler(breedRepo)
@@ -183,9 +182,9 @@ func main() {
 		userGetContactHandler := userquery.NewGetContactHandler(userRepo, publisher)
 		userGetDeletedHandler := userquery.NewGetDeletedUsersHandler(userRepo)
 
-		donorGetRecipientsListHandler := donorquery.NewListRequestsHandler(petRepo, donorResponseRepo, bloodRequestRepo, matchingSvc, petService, userRepo)
+		donorGetRecipientsListHandler := donorquery.NewListRequestsHandler(petRepo, donorResponseRepo, bloodRequestRepo, matchingSvc, userRepo)
 		donorApplyBloodHandler := donorcmd.NewApplyForRequestHandler(bloodRequestRepo, petRepo, donorResponseRepo, userRepo, bonusSvc, publisher, txManager)
-		donorGetRecipientDetailsHandler := donorquery.NewRecipientDetailHandler(donorResponseRepo, petRepo, bloodRequestRepo, userRepo, matchingSvc, petService, bonusSvc)
+		donorGetRecipientDetailsHandler := donorquery.NewRecipientDetailHandler(donorResponseRepo, petRepo, bloodRequestRepo, userRepo, matchingSvc, bonusSvc)
 		donorGetPlannedDonationsHandler := donorquery.NewPlannedDonationsHandler(donorResponseRepo, petRepo, bloodRequestRepo, userRepo, bonusRepo)
 		donorGetCompletedDonationsHandler := donorquery.NewCompletedDonationsHandler(donorResponseRepo, petRepo, bloodRequestRepo, userRepo, bonusRepo)
 		assignedBonusesHandler := donorquery.NewAssignedBonusesHandler(userRepo, bonusRepo)
@@ -198,7 +197,8 @@ func main() {
 		petUpdateHandler := petcmd.NewUpdateHandler(petRepo, petRepo)
 		petDeleteHandler := petcmd.NewDeleteHandler(petRepo, petRepo, bloodRequestRepo)
 		petGetByIDHandler := petquery.NewGetByIDHandler(petRepo, bloodRequestRepo)
-		petGetByUserHandler := petquery.NewGetByUserHandler(petRepo, userRepo, donorResponseRepo, bloodRequestRepo, bonusRepo, petService)
+		petEnricher := enrich.New(donorResponseRepo, bloodRequestRepo)
+		petGetByUserHandler := petquery.NewGetByUserHandler(petRepo, userRepo, bonusRepo, petEnricher)
 
 		// Инициализация bloodsearch handlers
 		bloodCreateHandler := bloodcmd.NewCreateRequestHandler(bloodRequestRepo, petRepo, bonusRepo, notificator, txManager)
@@ -206,8 +206,8 @@ func main() {
 		bloodDeleteHandler := bloodcmd.NewDeleteRequestHandler(bloodRequestRepo, txManager)
 		bloodGetByIDHandler := bloodquery.NewGetByIDHandler(bloodRequestRepo, petRepo)
 		bloodGetByPetIDHandler := bloodquery.NewGetByPetIDHandler(bloodRequestRepo, petRepo)
-		bloodGetDonorByIDHandler := bloodquery.NewGetDonorByIDHandler(petRepo, donorResponseRepo, bloodRequestRepo, petService)
-		bloodGetDonationHandler := bloodquery.NewGetDonationHandler(petRepo, donorResponseRepo, userRepo, bloodRequestRepo, petService)
+		bloodGetDonorByIDHandler := bloodquery.NewGetDonorByIDHandler(petRepo, donorResponseRepo, bloodRequestRepo)
+		bloodGetDonationHandler := bloodquery.NewGetDonationHandler(petRepo, donorResponseRepo, userRepo, bloodRequestRepo)
 		applyResponseHandler := bloodcmd.NewApplyResponseHandler(bloodRequestRepo, donorResponseRepo, petRepo, userRepo, publisher, txManager)
 		confirmDonationHandler := bloodcmd.NewConfirmDonationHandler(bloodRequestRepo, donorResponseRepo, petRepo, userRepo, txManager, publisher, bonusSvc)
 		bloodCloseDonationHandler := bloodcmd.NewCloseRequestHandler(bloodRequestRepo, donorResponseRepo, petRepo, userRepo, txManager, publisher, bonusSvc)

@@ -112,6 +112,17 @@ type PetAnalysis struct {
 	AnalysisDate *time.Time
 }
 
+// DonationContext — факты, извлечённые из DonorResponse и BloodRequest,
+// нужные Pet для пересчёта своего состояния. Специально не содержит
+// ссылок на модели других bounded context'ов — только примитивы,
+// чтобы Pet не зависел от donor/bloodsearch.
+type DonationContext struct {
+	IsRecipient                bool
+	HasActiveDonorApplications bool
+	IsPlanningDonation         bool
+	IsPrioritySearch           bool
+}
+
 // NewPet creates a new Pet aggregate with validation
 func NewPet(
 	name string,
@@ -187,6 +198,37 @@ func (p *Pet) HasStopFactors() bool {
 		return false
 	}
 	return len(p.StopFactors) > 0
+}
+
+// RecalculateStatus — единая точка мутации: пересчитывает факторы,
+// статус и привилегию питомца на основе текущего состояния и фактов извне.
+func (p *Pet) RecalculateStatus(now time.Time, ctx DonationContext) {
+	p.RecalculateFactors(now, ctx.IsRecipient, ctx.IsPlanningDonation)
+	p.PetStatus = p.peekStatus(ctx)
+	if ctx.IsPrioritySearch && p.Privilege == "" {
+		p.Privilege = common.PrivilegePrioritySearch
+	}
+}
+
+// peekStatus — чистая функция, статус без мутации.
+// Приватная, т.к. вызывающему коду вне пакета не нужно звать её отдельно от RecalculateStatus.
+func (p *Pet) peekStatus(ctx DonationContext) PetStatus {
+	if ctx.IsPlanningDonation {
+		return PetStatusPlannedDonation
+	}
+	if ctx.IsRecipient {
+		if ctx.HasActiveDonorApplications {
+			return PetStatusBloodFound
+		}
+		return PetStatusRecipient
+	}
+	if p.IsRecovering() {
+		return PetStatusRecovering
+	}
+	if !p.HasStopFactors() {
+		return PetStatusDonor
+	}
+	return PetStatusNone
 }
 
 func (p *Pet) IsRecovering() bool {
@@ -778,4 +820,23 @@ func (p *Pet) CalculateDonationAmount() float64 {
 	}
 	amount := limitPerKg * p.WeightKg
 	return math.Round(amount*10) / 10
+}
+
+// RecalculateRecoveryDays пересчитывает количество дней до восстановления после донации.
+// Примечание: recoveryPeriodMonths — период восстановления в месяцах, который задаётся
+// конфигурацией для каждого вида питомца (собаки/кошки) отдельно.
+func (p *Pet) RecalculateRecoveryDays(recoveryPeriodMonths int, now time.Time) {
+	if p.Health == nil || p.Health.LastDonation == nil || recoveryPeriodMonths <= 0 {
+		p.RecoveryDays = nil
+		return
+	}
+	nowDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	lastDonationDate := time.Date(p.Health.LastDonation.Year(), p.Health.LastDonation.Month(), p.Health.LastDonation.Day(), 0, 0, 0, 0, p.Health.LastDonation.Location())
+	endDate := lastDonationDate.AddDate(0, recoveryPeriodMonths, 0)
+	if endDate.After(nowDate) {
+		days := int(endDate.Sub(nowDate).Hours() / 24)
+		p.RecoveryDays = &days
+		return
+	}
+	p.RecoveryDays = nil
 }

@@ -20,17 +20,15 @@ type ListRequestsHandler struct {
 	donorRespRepo donor.Repository
 	bloodReqRepo  bloodsearch.Repository
 	matchingSvc   bloodsearch.MatchingService
-	petService    pet.PetService
 	userRepo      user.Repository
 }
 
-func NewListRequestsHandler(petRepo pet.Repository, donorRespRepo donor.Repository, bloodReqRepo bloodsearch.Repository, matchingSvc bloodsearch.MatchingService, petService pet.PetService, userRepo user.Repository) *ListRequestsHandler {
+func NewListRequestsHandler(petRepo pet.Repository, donorRespRepo donor.Repository, bloodReqRepo bloodsearch.Repository, matchingSvc bloodsearch.MatchingService, userRepo user.Repository) *ListRequestsHandler {
 	return &ListRequestsHandler{
 		petRepo:       petRepo,
 		donorRespRepo: donorRespRepo,
 		bloodReqRepo:  bloodReqRepo,
 		matchingSvc:   matchingSvc,
-		petService:    petService,
 		userRepo:      userRepo,
 	}
 }
@@ -73,8 +71,8 @@ func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters
 		return nil, apperrors.Internal(err, "failed to get blood requests")
 	}
 
-	for _, pet := range pets {
-		applications := applicationsMap[pet.ID]
+	for _, recipientPet := range pets {
+		applications := applicationsMap[recipientPet.ID]
 		var application *donormodel.DonorResponse
 		for _, app := range applications {
 			if app.IsActiveForDonation() {
@@ -82,8 +80,8 @@ func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters
 				break
 			}
 		}
-		bloodReq := bloodReqsMap[pet.ID]
-		h.petService.RecalculateFactorsAndStatus(pet, time.Now(), application, bloodReq)
+		bloodReq := bloodReqsMap[recipientPet.ID]
+		recipientPet.RecalculateStatus(time.Now(), pet.BuildDonationContext(application, bloodReq))
 	}
 
 	potentialDonors := petmodel.FilterDonors(pets)

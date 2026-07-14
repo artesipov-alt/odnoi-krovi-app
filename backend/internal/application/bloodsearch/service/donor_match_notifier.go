@@ -23,7 +23,6 @@ type DonorMatchNotifier struct {
 	userRepo        user.Repository
 	bloodSearchRepo bloodsearch.Repository
 	donorRepo       donor.Repository
-	petService      pet.PetService
 	publisher       ports.EventPublisher
 }
 
@@ -32,7 +31,6 @@ func NewDonorMatchNotifier(
 	userRepo user.Repository,
 	bloodSearchRepo bloodsearch.Repository,
 	donorRepo donor.Repository,
-	petService pet.PetService,
 	publisher ports.EventPublisher,
 ) *DonorMatchNotifier {
 	return &DonorMatchNotifier{
@@ -40,7 +38,6 @@ func NewDonorMatchNotifier(
 		userRepo:        userRepo,
 		bloodSearchRepo: bloodSearchRepo,
 		donorRepo:       donorRepo,
-		petService:      petService,
 		publisher:       publisher,
 	}
 }
@@ -71,8 +68,8 @@ func (n *DonorMatchNotifier) NotifyMatchDonors(ctx context.Context, initiatorUse
 		return apperrors.Internal(err, "failed to get pets")
 	}
 
-	for _, pet := range pets {
-		applications := applicationsMap[pet.ID]
+	for _, matchingPet := range pets {
+		applications := applicationsMap[matchingPet.ID]
 		var donorApplication *donormodel.DonorResponse
 		for _, app := range applications {
 			if app.IsActiveForDonation() {
@@ -80,8 +77,9 @@ func (n *DonorMatchNotifier) NotifyMatchDonors(ctx context.Context, initiatorUse
 				break
 			}
 		}
-		donorBloodReq := bloodReqsMap[pet.ID]
-		n.petService.RecalculateFactorsAndStatus(pet, time.Now(), donorApplication, donorBloodReq)
+		donorBloodReq := bloodReqsMap[matchingPet.ID]
+
+		matchingPet.RecalculateStatus(time.Now(), pet.BuildDonationContext(donorApplication, donorBloodReq))
 	}
 
 	var avilableDonors []petmodel.Pet
