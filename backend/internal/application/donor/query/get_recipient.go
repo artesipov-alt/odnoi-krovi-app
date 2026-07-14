@@ -27,18 +27,16 @@ type RecipientDetailHandler struct {
 	bloodReqRepo bloodsearch.Repository
 	userRepo     user.Repository
 	matchingSvc  bloodsearch.MatchingService
-	petService   pet.PetService
 	bonusSvc     *bonus.BonusService
 }
 
-func NewRecipientDetailHandler(donorRepo donor.Repository, petRepo pet.Repository, bloodReqRepo bloodsearch.Repository, userRepo user.Repository, matchingSvc bloodsearch.MatchingService, petService pet.PetService, bonusSvc *bonus.BonusService) *RecipientDetailHandler {
+func NewRecipientDetailHandler(donorRepo donor.Repository, petRepo pet.Repository, bloodReqRepo bloodsearch.Repository, userRepo user.Repository, matchingSvc bloodsearch.MatchingService, bonusSvc *bonus.BonusService) *RecipientDetailHandler {
 	return &RecipientDetailHandler{
 		donorRepo:    donorRepo,
 		petRepo:      petRepo,
 		bloodReqRepo: bloodReqRepo,
 		userRepo:     userRepo,
 		matchingSvc:  matchingSvc,
-		petService:   petService,
 		bonusSvc:     bonusSvc,
 	}
 }
@@ -86,8 +84,8 @@ func (h *RecipientDetailHandler) Handle(ctx context.Context, blodreqID string, u
 		return nil, apperrors.Internal(err, "failed to get blood requests")
 	}
 
-	for _, pet := range pets {
-		applications := applicationsMap[pet.ID]
+	for _, potentialDonorPet := range pets {
+		applications := applicationsMap[potentialDonorPet.ID]
 		var application *donormodel.DonorResponse
 		for _, app := range applications {
 			if app.IsActiveForDonation() {
@@ -95,8 +93,8 @@ func (h *RecipientDetailHandler) Handle(ctx context.Context, blodreqID string, u
 				break
 			}
 		}
-		bloodReq := bloodReqsMap[pet.ID]
-		h.petService.RecalculateFactorsAndStatus(pet, time.Now(), application, bloodReq)
+		bloodReq := bloodReqsMap[potentialDonorPet.ID]
+		potentialDonorPet.RecalculateStatus(time.Now(), pet.BuildDonationContext(application, bloodReq))
 	}
 
 	potentialDonors := petmodel.FilterDonors(pets)

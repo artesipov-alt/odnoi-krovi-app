@@ -30,7 +30,6 @@ type GetByUserHandler struct {
 	donorRespRepo donor.Repository
 	bloodReqRepo  bloodsearch.Repository
 	bonusRepo     bonus.Repository
-	petService    pet.PetService
 }
 
 func NewGetByUserHandler(
@@ -39,7 +38,6 @@ func NewGetByUserHandler(
 	donorRespRepo donor.Repository,
 	bloodReqRepo bloodsearch.Repository,
 	bonusRepo bonus.Repository,
-	petService pet.PetService,
 ) *GetByUserHandler {
 	return &GetByUserHandler{
 		petReadRepo:   petReadRepo,
@@ -47,7 +45,6 @@ func NewGetByUserHandler(
 		bloodReqRepo:  bloodReqRepo,
 		donorRespRepo: donorRespRepo,
 		bonusRepo:     bonusRepo,
-		petService:    petService,
 	}
 }
 
@@ -109,20 +106,20 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 	activePets := make([]*model.Pet, 0, len(allPets))
 	plannedDonations := make([]*donormodel.DonorResponse, 0)
 
-	for _, pet := range allPets {
-		if pet.IsDeleted() {
+	for _, usrPet := range allPets {
+		if usrPet.IsDeleted() {
 			continue
 		}
-		activePets = append(activePets, pet)
+		activePets = append(activePets, usrPet)
 
-		application := findActiveDonation(applicationsMap[pet.ID])
+		application := findActiveDonation(applicationsMap[usrPet.ID])
 		if application != nil {
 			plannedDonations = append(plannedDonations, application)
 		}
 
-		bloodReq := bloodReqsMap[pet.ID]
-		h.petService.RecalculateFactorsAndStatus(pet, time.Now(), application, bloodReq)
-		pet.RecoveryDays = h.petService.CalculateRecoveryDays(pet, recoveryPeriodMonths, time.Now())
+		bloodReq := bloodReqsMap[usrPet.ID]
+		usrPet.RecalculateStatus(time.Now(), pet.BuildDonationContext(application, bloodReq))
+		usrPet.RecalculateRecoveryDays(recoveryPeriodMonths, time.Now())
 	}
 
 	assignedBonuses, err := h.bonusRepo.GetAssignedBonuses(ctx, userID)
