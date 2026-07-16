@@ -90,9 +90,9 @@ func (s *BonusService) AssignBonuses(ctx context.Context, userID string, petType
 	return nil
 }
 
-// UnassignBonuses unassigns bonuses from a user for a specific pet type.
-func (s *BonusService) UnassignReservedBonuses(ctx context.Context, userID string, petType common.PetType) error {
-	return s.repo.UnassignReservedBonuses(ctx, userID, petType)
+// UnassignReservedBonuses unassigns bonuses from a user for a specific donor response.
+func (s *BonusService) UnassignReservedBonuses(ctx context.Context, userID string, petType common.PetType, donorResponseID string) error {
+	return s.repo.UnassignReservedBonuses(ctx, userID, petType, donorResponseID)
 }
 
 // ConfirmBonuses confirms bonuses for a user by setting stage to unused and adds priority search.

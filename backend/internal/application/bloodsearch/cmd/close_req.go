@@ -62,7 +62,7 @@ func (h *CloseRequestHandler) Handle(ctx context.Context, bloodReqID string) err
 		for i := range bloodReq.DonorApplications {
 			application := &bloodReq.DonorApplications[i]
 			if application.IsActiveForDonation() {
-				if err := application.Reject("other"); err != nil {
+				if err := application.Reject("Заявка закрыта реципиентом"); err != nil {
 					return err
 				}
 				if err := h.donorRepo.Update(txCtx, application); err != nil {
@@ -75,7 +75,7 @@ func (h *CloseRequestHandler) Handle(ctx context.Context, bloodReqID string) err
 					if err != nil {
 						return err
 					}
-					if err := h.bonusSvc.UnassignReservedBonuses(txCtx, donorPet.OwnerID, donorPet.Type); err != nil {
+					if err := h.bonusSvc.UnassignReservedBonuses(txCtx, donorPet.OwnerID, donorPet.Type, application.ID); err != nil {
 						return err
 					}
 				}
@@ -119,7 +119,7 @@ func (h *CloseRequestHandler) Handle(ctx context.Context, bloodReqID string) err
 				DonorProviderMaxID:      donorMaxID,
 				DonorProviderTelegramID: donorTelegramID,
 				DonorPetName:            rejectedDonorPet.Name,
-				RejectedReason:          "other",
+				RejectedReason:          "Заявка закрыта реципиентом",
 				CreatedAt:               time.Now(),
 			}
 

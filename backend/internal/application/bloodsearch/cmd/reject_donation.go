@@ -80,7 +80,7 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 			return err
 		}
 		if application.Status == donormodel.DonorResponseStatusRejected {
-			if err := h.bonusSvc.UnassignReservedBonuses(txCtx, donorPet.OwnerID, donorPet.Type); err != nil {
+			if err := h.bonusSvc.UnassignReservedBonuses(txCtx, donorPet.OwnerID, donorPet.Type, donorResponseID); err != nil {
 				return err
 			}
 		}

@@ -86,7 +86,7 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 			for i := range bloodReq.DonorApplications {
 				app := &bloodReq.DonorApplications[i]
 				if app.ID != donorResponseID && app.IsActiveForDonation() {
-					if err := app.Reject("other"); err != nil {
+					if err := app.Reject("Выбран другой донор"); err != nil {
 						return err
 					}
 					if err := h.donorRepo.Update(txCtx, app); err != nil {
@@ -194,7 +194,7 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 				DonorProviderMaxID:      donorMaxID,
 				DonorProviderTelegramID: donorTelegramID,
 				DonorPetName:            rejectedDonorPet.Name,
-				RejectedReason:          "other",
+				RejectedReason:          "Выбран другой донор",
 				CreatedAt:               time.Now(),
 			}
 

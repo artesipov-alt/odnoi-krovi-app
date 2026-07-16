@@ -112,10 +112,11 @@ func (r *EntBonusRepository) AssignBonuses(ctx context.Context, bonusIDs []strin
 	return nil
 }
 
-// UnassignBonuses отменяет присвоение зарезервированных бонусов от пользователя для определенного типа питомца, устанавливая UserID и DonorResponseID в nil и статус на unused.
-func (r *EntBonusRepository) UnassignReservedBonuses(ctx context.Context, userID string, petType common.PetType) error {
+// UnassignReservedBonuses отменяет присвоение зарезервированных бонусов от пользователя для конкретного отклика донора, устанавливая UserID и DonorResponseID в nil и статус на unused.
+func (r *EntBonusRepository) UnassignReservedBonuses(ctx context.Context, userID string, petType common.PetType, donorResponseID string) error {
 	_, err := r.client(ctx).Bonus.Update().
 		Where(entbonus.UserID(userID)).
+		Where(entbonus.DonorResponseID(donorResponseID)).
 		Where(entbonus.TargetIn(entbonus.Target(petType), entbonus.TargetAll)).
 		Where(entbonus.StageEQ(entbonus.StageReserved)).
 		ClearUserID().
