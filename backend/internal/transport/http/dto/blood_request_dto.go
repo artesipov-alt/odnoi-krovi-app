@@ -110,16 +110,15 @@ type GetBloodRequestByPetIDOutput struct {
 
 // SelectDonorInput представляет запрос на выбор донора из списка потенциальных
 type SelectDonorInput struct {
-	commondto.PetIDPath
+	commondto.BloodRequestIDPath
 	Body SelectDonorBody
 }
 
-// SelectDonorBody представляет тело запроса на выбор донора
+// SelectDonorBody представляет тело запроса на выбор донора.
+// Условия донации (тип компенсации и такси) берутся из DonorPreference владельца
+// донора — реципиент их не задаёт.
 type SelectDonorBody struct {
-	RequestID        string `json:"requestId" doc:"ID заявки на поиск крови" minLength:"1" example:"BLS-ABCDEABCDE"`
-	DonorID          string `json:"donorId" doc:"ID питомца-донора" minLength:"1" example:"PET-aBcDeF1234"`
-	CompensationType string `json:"compensationType,omitempty" doc:"Тип компенсации" enum:"free,paid,food"`
-	TaxiCompensation bool   `json:"taxiCompensation" doc:"Компенсация такси"`
+	DonorID string `json:"donorId" doc:"ID питомца-донора" minLength:"1" example:"PET-aBcDeF1234"`
 }
 
 // SelectDonorOutput представляет ответ на выбор донора

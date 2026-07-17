@@ -23,10 +23,12 @@ import type {
   CreateBloodRequestBody,
   CreateBloodRequestResult,
   DonationCard,
+  DonorApplication,
   DonorDetail,
   NotificationRespondBody,
   RejectData,
   ResultMessage,
+  SelectDonorBody,
   UpdateBloodRequestBody,
   UpdateBloodRequestResult,
   UploadURLsResult,
@@ -48,6 +50,8 @@ import {
     CreateBloodRequestResultToJSON,
     DonationCardFromJSON,
     DonationCardToJSON,
+    DonorApplicationFromJSON,
+    DonorApplicationToJSON,
     DonorDetailFromJSON,
     DonorDetailToJSON,
     NotificationRespondBodyFromJSON,
@@ -56,6 +60,8 @@ import {
     RejectDataToJSON,
     ResultMessageFromJSON,
     ResultMessageToJSON,
+    SelectDonorBodyFromJSON,
+    SelectDonorBodyToJSON,
     UpdateBloodRequestBodyFromJSON,
     UpdateBloodRequestBodyToJSON,
     UpdateBloodRequestResultFromJSON,
@@ -121,6 +127,11 @@ export interface RejectDonationByIdRequest {
 export interface RespondToNotificationRequest {
     reqId: string;
     notificationRespondBody: Omit<NotificationRespondBody, '$schema'>;
+}
+
+export interface SelectDonorRequest {
+    reqId: string;
+    selectDonorBody: Omit<SelectDonorBody, '$schema'>;
 }
 
 export interface UpdateBloodRequestRequest {
@@ -687,6 +698,55 @@ export class BloodRequestV1Api extends runtime.BaseAPI {
      */
     async respondToNotification(requestParameters: RespondToNotificationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResultMessage> {
         const response = await this.respondToNotificationRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Реципиент выбирает конкретного донора из списка потенциальных (open for contact). Создаёт DonorResponse со статусом accepted.
+     * Выбрать донора из списка потенциальных
+     */
+    async selectDonorRaw(requestParameters: SelectDonorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<DonorApplication>> {
+        if (requestParameters['reqId'] == null) {
+            throw new runtime.RequiredError(
+                'reqId',
+                'Required parameter "reqId" was null or undefined when calling selectDonor().'
+            );
+        }
+
+        if (requestParameters['selectDonorBody'] == null) {
+            throw new runtime.RequiredError(
+                'selectDonorBody',
+                'Required parameter "selectDonorBody" was null or undefined when calling selectDonor().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+
+        let urlPath = `/v1/blood-request/{req_id}/donor/select`;
+        urlPath = urlPath.replace(`{${"req_id"}}`, encodeURIComponent(String(requestParameters['reqId'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: SelectDonorBodyToJSON(requestParameters['selectDonorBody']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => DonorApplicationFromJSON(jsonValue));
+    }
+
+    /**
+     * Реципиент выбирает конкретного донора из списка потенциальных (open for contact). Создаёт DonorResponse со статусом accepted.
+     * Выбрать донора из списка потенциальных
+     */
+    async selectDonor(requestParameters: SelectDonorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<DonorApplication> {
+        const response = await this.selectDonorRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

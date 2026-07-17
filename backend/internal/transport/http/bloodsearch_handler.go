@@ -188,9 +188,9 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 	huma.Register(api, huma.Operation{
 		OperationID: "select-donor",
 		Method:      http.MethodPost,
-		Path:        "/v1/blood-request/select-donor/{pet_id}",
+		Path:        "/v1/blood-request/{req_id}/donor/select",
 		Summary:     "Выбрать донора из списка потенциальных",
-		Description: "Реципиент выбирает конкретного донора из списка потенциальных (open for contact)",
+		Description: "Реципиент выбирает конкретного донора из списка потенциальных (open for contact). Создаёт DonorResponse со статусом accepted.",
 		Tags:        []string{"blood-request-v1"},
 	}, h.SelectDonor)
 
@@ -279,7 +279,12 @@ func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *co
 }
 
 func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input *commondto.PetIDPath) (*dto.GetBloodRequestByPetIDOutput, error) {
-	result, err := h.getByPetIDHandler.Handle(ctx, input.ID)
+	userID := middleware.GetUserID(ctx)
+	if userID == "" {
+		return nil, apperrors.Unauthorized("user ID is missing in context")
+	}
+
+	result, err := h.getByPetIDHandler.Handle(ctx, input.ID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -410,7 +415,10 @@ func (h *BloodRequestHandler) NotificationRespond(ctx context.Context, input *dt
 	}}, nil
 }
 
-// SelectDonor выбирает донора из списка потенциальных (recipient-initiated)
+// SelectDonor выбирает донора из списка потенциальных (recipient-initiated).
+// Действие адресовано конкретной заявке (req_id в URL), донор передаётся в теле.
+// Условия донации (компенсация, такси) берутся из DonorPreference владельца донора,
+// а не из тела запроса.
 func (h *BloodRequestHandler) SelectDonor(ctx context.Context, input *dto.SelectDonorInput) (*dto.SelectDonorOutput, error) {
 	userID := middleware.GetUserID(ctx)
 	if userID == "" {
@@ -420,10 +428,8 @@ func (h *BloodRequestHandler) SelectDonor(ctx context.Context, input *dto.Select
 	resp, err := h.selectDonorHandler.Handle(
 		ctx,
 		userID,
-		input.Body.RequestID,
+		input.ID,
 		input.Body.DonorID,
-		input.Body.CompensationType,
-		input.Body.TaxiCompensation,
 	)
 	if err != nil {
 		return nil, err

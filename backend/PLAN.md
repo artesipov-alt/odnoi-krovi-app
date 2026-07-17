@@ -54,11 +54,11 @@ Ent schema → миграция БД
 
 ### 3.3 Аутентификация и авторизация
 
-Новый endpoint `POST /v1/blood-requests/{petID}/select-donor` должен работать только от лица владельца питомца-реципиента:
+Новый endpoint `POST /v1/blood-request/{req_id}/donor/select` должен работать только от лица владельца питомца-реципиента:
 - Извлекаем `userID` из контекста (middleware `Auth` уже кладёт).
-- Внутри handler-а получаем `BloodRequest`, проверяем `BloodRequest.PetID → Pet.OwnerID == userID`. Если нет — `apperrors.Forbidden(...)`.
+- Внутри handler-а получаем `BloodRequest` по `req_id`, проверяем `BloodRequest.PetID → Pet.OwnerID == userID`. Если нет — `apperrors.Forbidden(...)`.
 
-`GET /v1/blood-requests/by-pet/{petID}` (уже существующий) — потенциальные доноры возвращаются только владельцу питомца-реципиента (тот же middleware + проверка владельца, если её ещё нет — добавить).
+GET `GET /v1/blood-requests/by-pet/{pet_id}` (уже существующий) — потенциальные доноры возвращаются только владельцу питомца-реципиента. HTTP-layer вытягивает `userID` из контекста и передаёт в query-handler; query-handler требует `callerUserID` (пустой — `Unauthorized`).
 
 ---
 
@@ -86,7 +86,9 @@ go generate ./internal/infra/ent/...
 
 ### 4.3 Миграция
 
-⚠️ Миграция НЕ создавалась — `go generate` обновил схему, миграция применяется отдельно (atlas или ручной SQL).
+⚠️ SQL-файл миграции для `open_for_contact` НЕ создавался — `go generate` только обновил схему. Применяется через atlas или вручную.
+
+**Открытая задача:** приложить `atlas migrate new open_for_contact` или SQL-файл. Подалажётся в §15.
 
 ---
 
@@ -115,7 +117,13 @@ go generate ./internal/infra/ent/...
 
 **Файл:** `backend/internal/application/bloodsearch/query/get_by_pet_id.go`
 
-Добавить зависимость `petEnricher enrich.PetEnricher`. Переиспользовать `RecoveryPeriodMonths` донора из `DonorPreference` при обогащении.
+**✅ Статус: реализовано.**
+
+Реализовано:
+- Добавлена зависимость `petEnricher enrich.PetEnricher`.
+- `Handle(ctx, callerUserID, petID)` — query-handler теперь принимает `callerUserID` и требует, чтобы `recipientPet.OwnerID == callerUserID` (иначе `Forbidden`).
+- Батчевый `Fetch` + поштучный `Recalculate` для каждого потенциального донора; индивидуальный `RecoveryPeriodMonths` берётся из `PotentialDonor.RecoveryPeriodMonths`, который доменный маппер извлекает из `Owner.DonorPreference` (без доп. SQL-запроса).
+- После enrich фильтрует оставшихся до `PetStatusDonor`.
 
 Новая сигнатура:
 
@@ -199,9 +207,9 @@ func (h *GetByPetIDHandler) Handle(ctx context.Context, petID string) (*GetByPet
 }
 ```
 
-> **Замечание про `BloodRequest.Type()`.** Проверить, есть ли метод на доменной модели `BloodRequest`, возвращающий `commonmodel.PetType`. Если нет — добавить геттер или взять тип из реципиента (`petRepo.GetByID(ctx, bloodReq.BloodRequest.PetID, ...)` → `recipient.Type`). Предпочтительно — геттер, чтобы не делать лишний запрос.
+> **Замечание про `BloodRequest.Type()`.** В реализации **отказались** от геттера: `recipientPet.Type` приходит из `petRepo.GetByID` без отдельного запроса. Геттер можно вернуть, если в будущем потребуется избежать этого.
 
-> **Замечание про `RecoveryPeriodMonths`.** Параметр `Options.RecoveryPeriodMonths` = 0 в `enricher.go::Recalculate` означает «не пересчитывать recovery». Это нам подходит, потому что мы хотим только актуальный `PetStatus` (донор/не донор), а не дни до восстановления.
+> **Замечание про `RecoveryPeriodMonths`.** В реализации передаём **доновский** `RecoveryPeriodMonths` из `DonorPreference` владельца донора — не 0. Актуальный период восстановления нужен, чтобы пересчёт `RecoveryDays` был корректным.
 
 ### 6.2 Новый cmd `SelectDonorHandler`
 
@@ -401,10 +409,10 @@ func (h *SelectDonorHandler) Handle(
 ```
 
 > **Адаптации под реальный код:**
-> - `pet.Enricher` / `pet.EnrichOptions` — проверить фактические имена интерфейса и опций в `internal/application/pet/enrich/enricher.go`. В этом пакете интерфейс называется `PetEnricher`, опции — `enrich.Options`. Поправить импорты и сигнатуру.
-> - `apperrors.Forbidden` / `apperrors.NotFound` — проверить наличие этих конструкторов в `internal/apperrors`. Если нет — использовать `apperrors.Internal(err, "forbidden")` или ближайший аналог + корректный `HTTPStatus`.
-> - `donorPet.CalculateDonationAmount()` — метод уже есть (используется в `apply_request.go`).
-> - В транзакции перечитка заявки: возможно, проще сделать `h.bloodRepo.GetByID(txCtx, requestID)` и затем отдельно получить список applications. Выбрать вариант, который уже есть в репозитории и не требует нового метода.
+> - `pet.Enricher` / `pet.EnrichOptions` — проверить фактические имена интерфейса и опций в `internal/application/pet/enrich/enricher.go`. В этом пакете интерфейс называется `PetEnricher`, опции — `enrich.Options`. ✅ Поправлено.
+> - `apperrors.Forbidden` / `apperrors.NotFound` — ✅ присутствуют в `internal/apperrors/errors.go`, используются как есть.
+> - `donorPet.CalculateDonationAmount()` — ✅ метод уже есть, используется.
+> - В транзакции перечитка заявки: выбран `h.bloodRepo.GetByID(txCtx, requestID)` + пересчёт объёмов на `fresh.DonorApplications`. Отдельный `donorRepo.GetDonorResponsesByRequestID` **не используется** — `BloodRequestWithApplications` уже приходит со всеми приложениями.
 
 ### 6.3 Возможные вспомогательные доменные методы
 
@@ -465,16 +473,23 @@ PotentialDonors []DonorApplication `json:"potentialDonors,omitempty" doc:"Пот
 // Recipient selects donor (potential donor flow)
 // ============================================
 
+body:
+```json
+{ "donorId": "PET-ABCDEABCDE" }
+```
+
+Семантика: действие адресовано конкретной заявке (`req_id` в path), донор передаётся в body. Условия донации (тип компенсации, такси) не в body — берутся из `DonorPreference` владельца донора.
+
+### 8.2 Новый endpoint в handler-е
+
+```go
 type SelectDonorInput struct {
-    commondto.PetIDPath  // {petID} из URL — ID питомца-реципиента
+    commondto.BloodRequestIDPath  // {req_id} из URL
     Body SelectDonorBody
 }
 
 type SelectDonorBody struct {
-    RequestID        string `json:"requestId" doc:"ID заявки" minLength:"1" example:"BLS-ABCDEABCDE"`
-    DonorID          string `json:"donorId" doc:"ID питомца-донора" minLength:"1" example:"PET-ABCDEABCDE"`
-    CompensationType string `json:"compensationType,omitempty" doc:"Условия донации" enum:"free,paid,food"`
-    TaxiCompensation bool   `json:"taxiCompensation,omitempty" doc:"Компенсация такси"`
+    DonorID string `json:"donorId" doc:"ID питомца-донора" minLength:"1" example:"PET-ABCDEABCDE"`
 }
 
 type SelectDonorOutput struct {
@@ -500,7 +515,7 @@ selectDonorHandler *cmd.SelectDonorHandler
 huma.Register(api, huma.Operation{
     OperationID: "select-donor",
     Method:      http.MethodPost,
-    Path:        "/v1/blood-requests/by-pet/{petID}/select-donor",
+    Path:        "/v1/blood-request/{req_id}/donor/select",
     Summary:     "Реципиент выбирает донора из списка потенциальных",
     Tags:        []string{"BloodRequests"},
 }, h.SelectDonor)
@@ -764,7 +779,7 @@ bloodRequestHandler := http.NewBloodRequestHandler(
 
 ### Transport
 - [ ] `BloodRequestDetail.PotentialDonors` присутствует в DTO и OpenAPI
-- [ ] `POST /v1/blood-requests/by-pet/{petID}/select-donor` зарегистрирован
+- [ ] `POST /v1/blood-request/{req_id}/donor/select` зарегистрирован
 - [ ] DTO `SelectDonorInput` / `SelectDonorOutput` валидны (Huma-аннотации)
 - [ ] Mapper `ToResponseWithPotential` возвращает потенциальных с пустым `ID`/`Status`
 
@@ -822,10 +837,42 @@ bloodRequestHandler := http.NewBloodRequestHandler(
    - `ToResponseWithPotential` маппит `*GetByPetIDResult` в DTO.
    - `DonorResponseToApplication` принимает `*petmodel.PotentialDonor` и использует `CompensationType`/`TaxiCompensation` из донорских настроек.
 6. ✅ `SelectDonorHandler` (п. 6.2).
-   - **Отличие от плана**: в транзакции использует `GetByID` + `GetDonorResponsesByRequestID` вместо `GetByApplicationID`.
-   - Добавлен хелпер `derefDonorResponses` для совместимости с `BloodCounterService.RecalculateBloodAmount`.
-7. ✅ HTTP endpoint `POST /select-donor` (п. 8.2) + DTOs + тесты.
+   - **Отличие от плана**: в транзакции использует `GetByID` (`fresh.DonorApplications` приходит загруженным, без отдельного `GetDonorResponsesByRequestID`).
+   - Статус `accepted` устанавливается через `donorResponse.Accept()`, а не прямым присваиванием.
+   - Пересчёт статуса донора делается через `petEnricher.Fetch([donorPet.ID])` + `Recalculate` **по его собственным данным** (НЕ по заявке реципиента — иначе `peekStatus` лепит донору `Recipient`/`BloodFound`).
+   - `RecoveryPeriodMonths` для enrich берётся из `DonorPreference` владельца донора (не `0`).
+   - Условия донации (`CompensationType`/`TaxiCompensation`) тоже берутся из `DonorPreference` владельца донора — реципиент их не задаёт (поля убраны из `SelectDonorBody`).
+7. ✅ HTTP endpoint `POST /v1/blood-request/{req_id}/donor/select` (п. 8.2) + DTOs. Действие адресовано конкретной заявке (`req_id` в path совпадает с `path:"req_id"` в `commondto.BloodRequestIDPath`), донор передаётся в body. Путь выровнен с архитектурой остальных bloodrequest-эндпоинтов (singleton resource + action). Ownership-проверка реципиента добавлена и в `GetBloodRequestByPetID` через `callerUserID` в `GetByPetIDHandler.Handle`.
 8. ✅ DI wiring (п. 9).
-9. ⬜ Прогон `go test ./...` + линтер + пересборка OpenAPI.
+9. ⬜ Прогон `go test ./...` + линтер + пересборка OpenAPI + миграция БД.
 
 Каждый шаг — отдельный коммит.
+
+---
+
+## 15. Что осталось (открытые задачи)
+
+### Блокер деплоя
+- [ ] **Миграция БД**: создать SQL/atlas-файл для `open_for_contact` в `donor_preferences`. Применить на dev/staging/prod.
+
+### Желательно до мержа
+- [ ] **Тесты §10.1-§10.5** (все нулевые сейчас). Минимум — unit-тесты для:
+  - `GetByPetIDHandler` с моками (`bloodRepo`/`petRepo`/`petEnricher`) на happy path + forbidden + enrich-failure.
+  - `SelectDonorHandler` happy path (через stub `TxManager` + моки репозиториев) — главное покрыть «accepted через доменный метод», forbidden, donor-not-found, donor-not-available.
+  - Mapper `ToResponseWithPotential` + `DonorResponseToApplication` на nil/empty списках.
+  - §10.4 HTTP-тест через `httptest` — отдельная задача.
+- [ ] **CQRS Read/Write сплит**: единичные `select_donor.go`/`get_by_pet_id.go` уже используют `pet.PetReadRepository`, но остальные соседние cmd-хэндлеры (`accept_response`, `confirm_donation`, `create_req`, `reject_donation`) ещё на `pet.Repository`. Эта унификация лежит отдельно от текущей ветки.
+- [x] ~~**Двойной `userRepo.GetByID` владельца донора**~~ — ✅ объединено в один вызов `{WithDonorPreference: true, WithIdentities: true}`, `donorUser` заменён на `donorOwner` для уведомления.
+- [x] ~~**`recoveryMonths` без fallback**~~ — ✅ дефолт `2` (соответствует `DefaultDonorPreference()`), используется если у владельца нет `DonorPreference` или `RecoveryPeriodMonths == 0`.
+- [x] ~~**`callerUserID == ""` в `GetByPetIDHandler`**~~ — ✅ ужесточено до `Unauthorized` вместо тихого пропуска.
+- [x] ~~**Полировка: `DonorResponseToSelected`**~~ — ✅ поле `WarnFactors` маппера оставлено как есть; это мистический нонсенс, но правка лежит отдельно от текущей ветки (см. ниже).
+- [ ] **`DonorResponseToSelected` читает пустые `WarnFactors`** — мистика: свежесозданный `DonorResponse` приходит без варн-факторов. Либо убрать поле из маппера, либо обогащать в handler-е. Полировка.
+- [ ] **`events.DonorData.UserName` фактически содержит имя питомца** — путаница имён в существующем event-структе (мимоходом, не в этом PR).
+
+### Документация
+- [ ] OpenAPI перегенерирован (`go run ./cmd/api/main.go openapi`) — ✅ локально; проверить что CI тоже гоняет.
+- [ ] TS-клиент обновлён (`task generate-ts`) — ✅ локально.
+
+### Полировка кода (некритично)
+- [ ] Маппер `DonorResponseToSelected` читает `resp.WarnFactors`, но свежесозданный `DonorResponse` приходит из `CreateDonorResponse` без варн-факторов. Поле всегда пустое — стоит либо убрать его из маппера, либо обогащать на стороне cmd-хэндлера.
+- [ ] `events.DonorData.UserName` фактически содержит имя питомца (`donorPet.Name`) — существующая путаница имён (не в этом PR, мимоходом).

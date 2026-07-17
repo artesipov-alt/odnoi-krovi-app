@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	bloodsearchmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	commonmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 )
@@ -35,9 +36,9 @@ type PetReadRepository interface {
 	// FindPotentialDonors возвращает питомцев, открытых для приглашений реципиентов
 	// (donor_preference.open_for_contact = true) с подходящей группой крови,
 	// регионом и типом, исключая самого реципиента и питомцев, уже откликнувшихся
-	// на заявку ExcludeRequestID. Возвращает PotentialDonor — питомца с настройками
-	// донорства его владельца.
-	FindPotentialDonors(ctx context.Context, criteria PotentialDonorsCriteria) ([]*model.PotentialDonor, error)
+	// на заявку ExcludeRequestID. Возвращает bloodsearch-модель PotentialDonor —
+	// питомца с настройками донорства его владельца.
+	FindPotentialDonors(ctx context.Context, criteria PotentialDonorsCriteria) ([]*bloodsearchmodel.PotentialDonor, error)
 }
 
 // PetWriteRepository определяет операции записи для питомцев

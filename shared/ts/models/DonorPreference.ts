@@ -50,6 +50,12 @@ export interface DonorPreference {
      */
     notificationFrequency: DonorPreferenceNotificationFrequencyEnum;
     /**
+     * Разрешает реципиентам находить донора как потенциального
+     * @type {boolean}
+     * @memberof DonorPreference
+     */
+    openForContact: boolean;
+    /**
      * Предпочитаемые ID локаций
      * @type {Array<string>}
      * @memberof DonorPreference
@@ -111,6 +117,7 @@ export function instanceOfDonorPreference(value: object): value is DonorPreferen
     if (!('compensationType' in value) || value['compensationType'] === undefined) return false;
     if (!('id' in value) || value['id'] === undefined) return false;
     if (!('notificationFrequency' in value) || value['notificationFrequency'] === undefined) return false;
+    if (!('openForContact' in value) || value['openForContact'] === undefined) return false;
     if (!('preferredLocationIds' in value) || value['preferredLocationIds'] === undefined) return false;
     if (!('recoveryPeriodMonths' in value) || value['recoveryPeriodMonths'] === undefined) return false;
     if (!('taxiCompensation' in value) || value['taxiCompensation'] === undefined) return false;
@@ -133,6 +140,7 @@ export function DonorPreferenceFromJSONTyped(json: any, ignoreDiscriminator: boo
         'deletedAt': json['deletedAt'] == null ? undefined : (new Date(json['deletedAt'])),
         'id': json['id'],
         'notificationFrequency': json['notificationFrequency'],
+        'openForContact': json['openForContact'],
         'preferredLocationIds': json['preferredLocationIds'] == null ? null : json['preferredLocationIds'],
         'recoveryPeriodMonths': json['recoveryPeriodMonths'],
         'taxiCompensation': json['taxiCompensation'],
@@ -154,6 +162,7 @@ export function DonorPreferenceToJSONTyped(value?: Omit<DonorPreference, 'create
         
         'compensationType': value['compensationType'],
         'notificationFrequency': value['notificationFrequency'],
+        'openForContact': value['openForContact'],
         'preferredLocationIds': value['preferredLocationIds'],
         'recoveryPeriodMonths': value['recoveryPeriodMonths'],
         'taxiCompensation': value['taxiCompensation'],

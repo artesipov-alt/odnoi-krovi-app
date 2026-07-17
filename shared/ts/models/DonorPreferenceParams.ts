@@ -32,6 +32,12 @@ export interface DonorPreferenceParams {
      */
     notificationFrequency?: DonorPreferenceParamsNotificationFrequencyEnum;
     /**
+     * Разрешить реципиентам находить донора как потенциального
+     * @type {boolean}
+     * @memberof DonorPreferenceParams
+     */
+    openForContact?: boolean;
+    /**
      * Предпочитаемые ID локаций
      * @type {Array<string>}
      * @memberof DonorPreferenceParams
@@ -93,6 +99,7 @@ export function DonorPreferenceParamsFromJSONTyped(json: any, ignoreDiscriminato
         
         'compensationType': json['compensationType'] == null ? undefined : json['compensationType'],
         'notificationFrequency': json['notificationFrequency'] == null ? undefined : json['notificationFrequency'],
+        'openForContact': json['openForContact'] == null ? undefined : json['openForContact'],
         'preferredLocationIds': json['preferredLocationIds'] == null ? undefined : json['preferredLocationIds'],
         'recoveryPeriodMonths': json['recoveryPeriodMonths'] == null ? undefined : json['recoveryPeriodMonths'],
         'taxiCompensation': json['taxiCompensation'] == null ? undefined : json['taxiCompensation'],
@@ -112,6 +119,7 @@ export function DonorPreferenceParamsToJSONTyped(value?: DonorPreferenceParams |
         
         'compensationType': value['compensationType'],
         'notificationFrequency': value['notificationFrequency'],
+        'openForContact': value['openForContact'],
         'preferredLocationIds': value['preferredLocationIds'],
         'recoveryPeriodMonths': value['recoveryPeriodMonths'],
         'taxiCompensation': value['taxiCompensation'],

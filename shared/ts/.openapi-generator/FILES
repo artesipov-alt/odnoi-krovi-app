@@ -79,6 +79,7 @@ models/ResetUserResult.ts
 models/RestoreUserResult.ts
 models/RestrictionFactor.ts
 models/ResultMessage.ts
+models/SelectDonorBody.ts
 models/ServiceSignInBody.ts
 models/ServiceSignInResult.ts
 models/SimpleMessage.ts

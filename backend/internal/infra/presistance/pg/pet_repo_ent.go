@@ -12,6 +12,7 @@ import (
 	entsql "entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqljson"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	bloodsearchmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	commonmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
@@ -626,7 +627,7 @@ func (r *EntPetRepository) CountSuitableDonors(ctx context.Context, bloodGroups 
 }
 
 // FindPotentialDonors возвращает питомцев, открытых для приглашений реципиентов.
-func (r *EntPetRepository) FindPotentialDonors(ctx context.Context, criteria pet.PotentialDonorsCriteria) ([]*model.PotentialDonor, error) {
+func (r *EntPetRepository) FindPotentialDonors(ctx context.Context, criteria pet.PotentialDonorsCriteria) ([]*bloodsearchmodel.PotentialDonor, error) {
 	if criteria.Limit <= 0 {
 		criteria.Limit = 50
 	}

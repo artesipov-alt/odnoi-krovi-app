@@ -3,18 +3,19 @@ package query
 import (
 	"context"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/pet/enrich"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
+	bloodsearchmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 )
 
 // GetByPetIDResult содержит результат поиска заявки с подходящими и потенциальными донорами.
 type GetByPetIDResult struct {
-	BloodRequest    *model.BloodRequestWithApplications
+	BloodRequest    *bloodsearchmodel.BloodRequestWithApplications
 	SuitableDonors  int
-	PotentialDonors []*petmodel.PotentialDonor
+	PotentialDonors []*bloodsearchmodel.PotentialDonor
 }
 
 type GetByPetIDHandler struct {
@@ -37,7 +38,13 @@ func NewGetByPetIDHandler(
 	}
 }
 
-func (h *GetByPetIDHandler) Handle(ctx context.Context, petID string) (*GetByPetIDResult, error) {
+func (h *GetByPetIDHandler) Handle(ctx context.Context, callerUserID, petID string) (*GetByPetIDResult, error) {
+	// Строгая авторизация: без userID потенциальные доноры не возвращаются.
+	// HTTP-layer всегда передаёт userID (иначе middleware Auth блокирует раньше),
+	// а прямые вызовы должны идти через HTTP — здесь просто защита от случайного вызова.
+	if callerUserID == "" {
+		return nil, apperrors.Unauthorized("missing user context")
+	}
 	bloodReq, err := h.bloodRepo.GetByPetID(ctx, petID)
 	if err != nil {
 		return nil, err
@@ -52,9 +59,13 @@ func (h *GetByPetIDHandler) Handle(ctx context.Context, petID string) (*GetByPet
 	}
 
 	// Загружаем питомца-реципиента, чтобы получить его тип для поиска потенциальных доноров
+	// и убедиться, что caller — владелец питомца (потенциальные доноры видны только ему).
 	recipientPet, err := h.petRepo.GetByID(ctx, petID, pet.PetPreloadOptions{})
 	if err != nil {
-		return nil, err
+		return nil, apperrors.NotFound("recipient pet not found")
+	}
+	if recipientPet.OwnerID != callerUserID {
+		return nil, apperrors.Forbidden("only the recipient owner can view potential donors")
 	}
 
 	potentialDonors, err := h.petRepo.FindPotentialDonors(ctx, pet.PotentialDonorsCriteria{
@@ -81,7 +92,7 @@ func (h *GetByPetIDHandler) Handle(ctx context.Context, petID string) (*GetByPet
 	}
 
 	// Пересчёт статуса, факторов и recovery для каждого донора с его индивидуальным периодом
-	donors := make([]*petmodel.PotentialDonor, 0, len(potentialDonors))
+	donors := make([]*bloodsearchmodel.PotentialDonor, 0, len(potentialDonors))
 	for _, pd := range potentialDonors {
 		h.petEnricher.Recalculate(pd.Pet, fc, enrich.Options{
 			RecoveryPeriodMonths: pd.RecoveryPeriodMonths,

@@ -28,6 +28,12 @@ import {
  */
 export interface DonorApplication {
     /**
+     * A URL to the JSON Schema for this object.
+     * @type {string}
+     * @memberof DonorApplication
+     */
+    readonly $schema?: string;
+    /**
      * Объем крови в мл
      * @type {number}
      * @memberof DonorApplication
@@ -165,6 +171,7 @@ export function DonorApplicationFromJSONTyped(json: any, ignoreDiscriminator: bo
     }
     return {
         
+        '$schema': json['$schema'] == null ? undefined : json['$schema'],
         'amount': json['amount'],
         'compensationType': json['compensationType'],
         'createdAt': json['createdAt'] == null ? undefined : (new Date(json['createdAt'])),
@@ -186,7 +193,7 @@ export function DonorApplicationToJSON(json: any): DonorApplication {
     return DonorApplicationToJSONTyped(json, false);
 }
 
-export function DonorApplicationToJSONTyped(value?: DonorApplication | null, ignoreDiscriminator: boolean = false): any {
+export function DonorApplicationToJSONTyped(value?: Omit<DonorApplication, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }

@@ -3,7 +3,6 @@ package mapper
 
 import (
 	"math"
-	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/query"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
@@ -27,7 +26,7 @@ func NewBloodRequestMapper(storage filestorage.Repository) *BloodRequestMapper {
 
 // DonorResponseToApplication конвертирует PotentialDonor в DonorApplication DTO
 // для отображения в списке потенциальных доноров.
-func (m *BloodRequestMapper) DonorResponseToApplication(pd *petmodel.PotentialDonor) dto.DonorApplication {
+func (m *BloodRequestMapper) DonorResponseToApplication(pd *model.PotentialDonor) dto.DonorApplication {
 	if pd == nil || pd.Pet == nil {
 		return dto.DonorApplication{}
 	}
@@ -79,7 +78,7 @@ func (m *BloodRequestMapper) DonorResponseToSelected(resp *donormodel.DonorRespo
 		RequestID:        resp.RequestID,
 		DonorID:          resp.DonorID,
 		DonorName:        resp.DonorName,
-		DonorPhotos:      m.storage.BuildPhotoURLs(resp.DonorPhotos, time.Time{}),
+		DonorPhotos:      m.storage.BuildPhotoURLs(resp.DonorPhotos, *resp.UpdatedAt),
 		DonorBloodGroup:  resp.DonorBloodGroup,
 		Amount:           resp.Amount,
 		WarnFactors:      warnFactors,
