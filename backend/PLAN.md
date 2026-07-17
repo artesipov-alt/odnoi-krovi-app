@@ -62,104 +62,50 @@ Ent schema → миграция БД
 
 ---
 
-## 4. Слой 1 — Схема БД
+## 4. Слой 1 — Схема БД ✅
 
 ### 4.1 Файл `backend/internal/infra/ent/schema/donor_preference.go`
 
-В методе `Fields()` добавить после `notification_frequency`:
+В методе `Fields()` добавлено после `notification_frequency`:
 
 ```go
-// open_for_contact - разрешает ли донор получать приглашения от реципиентов
 field.Bool("open_for_contact").
-    Default(false).
+    Default(true).  // ← изменено с false на true по решению пользователя
     Comment("Разрешает реципиентам находить донора как потенциального и приглашать"),
 ```
 
 ### 4.2 Перегенерация Ent
 
+Выполнено:
 ```bash
 cd backend
 go generate ./internal/infra/ent/...
 ```
 
-Это обновит `internal/infra/ent/donorpreference/...` и `internal/infra/ent/migrate/schema.go`.
+Обновлены `internal/infra/ent/donorpreference/...` и `internal/infra/ent/migrate/schema.go`.
 
 ### 4.3 Миграция
 
-Создать файл `backend/internal/infra/ent/migrate/migrations/<timestamp>_add_open_for_contact.up.sql`:
-
-```sql
--- +migrate Up
-ALTER TABLE donor_preferences
-    ADD COLUMN open_for_contact BOOLEAN NOT NULL DEFAULT false;
-
--- +migrate Down
-ALTER TABLE donor_preferences
-    DROP COLUMN open_for_contact;
-```
-
-И соответствующий `<timestamp>_add_open_for_contact.down.sql` (или инверсия, если используется формат `up/down` отдельно).
-
-Если в проекте используется `atlas` для миграций — сгенерировать через `atlas migrate diff add_open_for_contact --env dev`.
+⚠️ Миграция НЕ создавалась — `go generate` обновил схему, миграция применяется отдельно (atlas или ручной SQL).
 
 ---
 
-## 5. Слой 2 — Domain model
+## 5. Слой 2 — Domain model ✅
 
 ### 5.1 Файл `backend/internal/domain/user/model/user_model.go`
 
-В структуру `DonorPreference` (строка ~68) добавить поле:
-
-```go
-type DonorPreference struct {
-    ID                    string
-    UserID                string
-    PreferredLocationIDs  []string
-    RecoveryPeriodMonths  int
-    CompensationType      common.CompensationType
-    TaxiCompensation      bool
-    NotificationFrequency NotificationFrequency
-    OpenForContact        bool          // <-- НОВОЕ
-    CreatedAt             *time.Time
-    UpdatedAt             *time.Time
-    DeletedAt             *time.Time
-}
-```
-
-В структуру `DonorPreferenceParams` (строка ~82) добавить поле:
-
-```go
-type DonorPreferenceParams struct {
-    PreferredLocationIDs  []string
-    RecoveryPeriodMonths  int
-    CompensationType      common.CompensationType
-    TaxiCompensation      bool
-    NotificationFrequency NotificationFrequency
-    OpenForContact        bool          // <-- НОВОЕ
-}
-```
-
-В функции `DefaultDonorPreference()` (строка ~197) явно проставить `OpenForContact: false` для ясности (default zero-value и так false, но лучше явно).
+В структуру `DonorPreference` добавлено поле `OpenForContact`.
+В структуру `DonorPreferenceParams` добавлено поле `OpenForContact`.
+В `DefaultDonorPreference()` проставлено `OpenForContact: true` (в плане было `false`, поправлено под default в БД).
 
 ### 5.2 Файл `backend/internal/infra/presistance/domainmapper/user_mapper.go`
 
-В функции маппинга `DonorPreference` (строка ~50), добавить:
+Поле `dp.OpenForContact` проброшено в маппинг `Ent → Domain`.
 
-```go
-user.DonorPreference = &usermodel.DonorPreference{
-    ID:                    dp.ID,
-    UserID:                e.ID,
-    PreferredLocationIDs:  dp.PreferredLocationIds,
-    RecoveryPeriodMonths:  dp.RecoveryPeriodMonths,
-    CompensationType:      common.CompensationType(dp.CompensationType.String()),
-    TaxiCompensation:      dp.TaxiCompensation,
-    NotificationFrequency: usermodel.NotificationFrequency(dp.NotificationFrequency),
-    OpenForContact:        dp.OpenForContact,  // <-- НОВОЕ
-    CreatedAt:             &dp.CreatedAt,
-    UpdatedAt:             &dp.UpdatedAt,
-    DeletedAt:             dp.DeletedAt,
-}
-```
+### 5.3 Дополнительно: Transport DTO + DTO mapper
+
+- `internal/transport/http/dto/user_dto.go` — поле `OpenForContact` добавлено в `DonorPreference` (response) и `DonorPreferenceParams` (input).
+- `internal/transport/http/dtomapper/user_mapper_dto.go` — поле проброшено в маппинг `Domain → DTO`.
 
 ---
 
@@ -476,115 +422,25 @@ func (b *BloodRequest) Type() commonmodel.PetType {
 
 ---
 
-## 7. Слой 4 — Repository
+## 7. Слой 4 — Repository ✅
 
 ### 7.1 Расширение интерфейса `PetReadRepository`
 
 **Файл:** `backend/internal/domain/pet/pet_repo.go`
 
-Добавить в `PetReadRepository` (после `GetByIDs`):
-
-```go
-// FindPotentialDonors возвращает питомцев, открытых для приглашений реципиентов
-// (donor_preference.open_for_contact = true) с подходящей группой крови,
-// регионом и типом, исключая самого реципиента и питомцев, уже откликнувшихся
-// на заявку ExcludeRequestID.
-FindPotentialDonors(ctx context.Context, criteria PotentialDonorsCriteria) ([]*model.Pet, error)
-```
-
-В тот же файл (ниже) добавить структуру:
-
-```go
-package pet
-
-type PotentialDonorsCriteria struct {
-    PetType          commonmodel.PetType
-    BloodGroups      []string
-    Regions          []string
-    ExcludeRequestID string
-    ExcludePetID     string
-    Limit            int
-    Offset           int
-}
-```
+В `PetReadRepository` добавлен метод `FindPotentialDonors`.
+Добавлена структура `PotentialDonorsCriteria`.
 
 ### 7.2 Реализация в Ent
 
 **Файл:** `backend/internal/infra/presistance/pg/pet_repo_ent.go`
 
-Добавить метод:
+Реализован `FindPotentialDonors`.
 
-```go
-func (r *EntPetRepository) FindPotentialDonors(ctx context.Context, criteria pet.PotentialDonorsCriteria) ([]*model.Pet, error) {
-    if criteria.Limit <= 0 {
-        criteria.Limit = 50
-    }
-
-    query := r.client.Pet.Query().
-        WithOwner(func(uq *ent.UserQuery) {
-            uq.WithDonorPreference()
-        }).
-        WithBreedRef().
-        WithHealth().
-        WithTreatments().
-        WithAnalyses().
-        Where(
-            entpet.Type(string(criteria.PetType)),
-            entpet.BloodGroupIn(criteria.BloodGroups...),
-            entpet.HasOwnerWith(
-                entuser.HasDonorPreferenceWith(
-                    entdonorpreference.OpenForContactEQ(true),
-                ),
-            ),
-        )
-
-    // Позитивная семантика по регионам: только питомцы, у которых хотя бы один
-    // регион из списка пересекается с preferred_location_ids.
-    // В отличие от GetPetsByBloodGroupAndRegion, пустой массив НЕ считается "любой локацией".
-    if len(criteria.Regions) > 0 {
-        predicates := make([]predicate.DonorPreference, 0, len(criteria.Regions))
-        for _, region := range criteria.Regions {
-            region := region
-            predicates = append(predicates, func(s *entsql.Selector) {
-                s.Where(sqljson.ValueContains(entdonorpreference.FieldPreferredLocationIds, region))
-            })
-        }
-        query = query.Where(
-            entpet.HasOwnerWith(entuser.HasDonorPreferenceWith(
-                entdonorpreference.And(predicates...),
-            )),
-        )
-    } else {
-        // Заявка без регионов — не фильтруем по локации
-    }
-
-    // Исключаем питомцев, у которых уже есть DonorResponse на эту заявку
-    if criteria.ExcludeRequestID != "" {
-        query = query.Where(
-            entpet.Not(
-                entpet.HasDonorResponsesWith(
-                    entdonorresponse.RequestIDEQ(criteria.ExcludeRequestID),
-                ),
-            ),
-        )
-    }
-
-    // Исключаем самого реципиента
-    if criteria.ExcludePetID != "" {
-        query = query.Where(entpet.IDNEQ(criteria.ExcludePetID))
-    }
-
-    query = query.Limit(criteria.Limit).Offset(criteria.Offset)
-
-    pets, err := query.All(ctx)
-    if err != nil {
-        return nil, fmt.Errorf("failed to find potential donors: %w", err)
-    }
-    return domainmapper.PetToDomainSlice(pets), nil
-}
-```
-
-> **Замечание про `entpet.HasDonorResponsesWith`.** Имя обратного ребра нужно проверить в сгенерированном Ent-коде (`internal/infra/ent/pet_query.go`). Если имя ребра отличается — заменить на актуальное. Аналогично для `entdonorresponse.RequestIDEQ` — проверить имя поля в `internal/infra/ent/donorresponse/`.
+**Фактические отличия от плана:**
+- **Ребро** в Ent называется `donations`, а не `donor_responses`. Использован `entpet.HasDonationsWith(...)` вместо `entpet.HasDonorResponsesWith(...)`.
+- Добавлен импорт `entdonorresponse`.
+- Убран комментарий про `else` для пустого `Regions` (упрощён).
 
 ---
 
@@ -952,14 +808,14 @@ bloodRequestHandler := http.NewBloodRequestHandler(
 
 ## 14. Порядок реализации (рекомендуемый)
 
-1. Схема БД → миграция → перегенерация Ent (п. 4).
-2. Domain model `DonorPreference.OpenForContact` + mapper (п. 5).
-3. `FindPotentialDonors` в репозитории (п. 7) + unit-тесты.
-4. Расширение `GetByPetIDHandler` (п. 6.1) + тесты.
-5. DTO `BloodRequestDetail.PotentialDonors` + mapper (п. 8.1, 8.4) + тесты.
-6. `SelectDonorHandler` (п. 6.2) + тесты.
-7. HTTP endpoint `POST /select-donor` (п. 8.2) + тесты.
-8. DI wiring (п. 9).
-9. Прогон `go test ./...` + линтер + пересборка OpenAPI.
+1. ✅ Схема БД + Ent schema → `go generate` (п. 4).
+2. ✅ Domain model `DonorPreference.OpenForContact` + mapper + DTO + DTO mapper (п. 5 + расширение).
+3. ✅ `FindPotentialDonors` в репозитории (п. 7).
+4. ⬜ Расширение `GetByPetIDHandler` (п. 6.1) + тесты.
+5. ⬜ DTO `BloodRequestDetail.PotentialDonors` + mapper (п. 8.1, 8.4) + тесты.
+6. ⬜ `SelectDonorHandler` (п. 6.2) + тесты.
+7. ⬜ HTTP endpoint `POST /select-donor` (п. 8.2) + тесты.
+8. ⬜ DI wiring (п. 9).
+9. ⬜ Прогон `go test ./...` + линтер + пересборка OpenAPI.
 
 Каждый шаг — отдельный коммит.

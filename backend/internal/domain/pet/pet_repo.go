@@ -31,6 +31,12 @@ type PetReadRepository interface {
 
 	// GetByIDs загружает питомцев по слайсу ID с полными данными
 	GetByIDs(ctx context.Context, ids []string, opts PetPreloadOptions) ([]*model.Pet, error)
+
+	// FindPotentialDonors возвращает питомцев, открытых для приглашений реципиентов
+	// (donor_preference.open_for_contact = true) с подходящей группой крови,
+	// регионом и типом, исключая самого реципиента и питомцев, уже откликнувшихся
+	// на заявку ExcludeRequestID.
+	FindPotentialDonors(ctx context.Context, criteria PotentialDonorsCriteria) ([]*model.Pet, error)
 }
 
 // PetWriteRepository определяет операции записи для питомцев
@@ -69,6 +75,17 @@ type PetPreloadOptions struct {
 	WithBonuses      bool
 	WithAll          bool
 	IgnoreSoftDelete bool
+}
+
+// PotentialDonorsCriteria содержит критерии для поиска потенциальных доноров.
+type PotentialDonorsCriteria struct {
+	PetType          commonmodel.PetType
+	BloodGroups      []string
+	Regions          []string
+	ExcludeRequestID string
+	ExcludePetID     string
+	Limit            int
+	Offset           int
 }
 
 func (pr *PetPreloadOptions) SetIgnoreSoftDelete() {
