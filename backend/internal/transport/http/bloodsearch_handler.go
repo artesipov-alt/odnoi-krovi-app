@@ -284,7 +284,7 @@ func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input 
 		return nil, apperrors.Unauthorized("user ID is missing in context")
 	}
 
-	result, err := h.getByPetIDHandler.Handle(ctx, input.ID, userID)
+	result, err := h.getByPetIDHandler.Handle(ctx, userID, input.ID)
 	if err != nil {
 		return nil, err
 	}
