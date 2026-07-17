@@ -23,6 +23,12 @@
   - `GET /v1/blood-request/pet/{pet_id}` теперь возвращает список потенциальных доноров и проверяет, что caller — владелец питомца-реципиента (раньше чек владельца отсутствовал).
   - `POST /v1/blood-request/{req_id}/donor/select` — новый адрес ресурсо-ориентированный путь (был план `/v1/blood-requests/by-pet/{pet_id}/select-donor`). Путь выровнен с паттерном остальных bloodrequest-эндпоинтов (singular resource + action verb).
   - `compensationType`/`taxiCompensation` убраны из DTO `SelectDonorBody` — эти поля принадлежат донору и его `DonorPreference`.
+  - `GetByPetIDHandler` не ищет потенциальных доноров, если заявка полностью зарезервирована: после `RecalculateStatus()` при `IsReservedFull()` возвращается только заявка и счётчик `SuitableDonors` (экономия запросов `GetByID`/`FindPotentialDonors`/`PetEnricher.Fetch`).
+  - `PotentialDonorsCriteria`: поле `ExcludePetID` удалено, добавлено `ExcludeOwnerID` — исключает всех питомцев владельца реципиента (включая самого реципиента), а не только одного питомца по ID.
+
+### Добавлено (доменная модель)
+
+- Метод `BloodRequest.IsReservedFull()` — доменный предикат статуса `reserved_full` в стиле `IsActive`/`IsClosed` (с nil-проверкой). Прикладной слой больше не сравнивает `Status == BloodRequestStatusReservedFull` напрямую.
 
 ### Исправлено
 

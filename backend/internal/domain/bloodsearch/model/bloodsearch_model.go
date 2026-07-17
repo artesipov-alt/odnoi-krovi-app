@@ -57,6 +57,15 @@ func (b *BloodRequest) IsClosed() bool {
 	return b.Status == BloodRequestStatusClosed
 }
 
+// IsReservedFull checks if the request is fully reserved —
+// нужный объём крови уже обеспечен откликнувшимися донорами.
+func (b *BloodRequest) IsReservedFull() bool {
+	if b == nil {
+		return false
+	}
+	return b.Status == BloodRequestStatusReservedFull
+}
+
 // Close marks the request as closed
 func (b *BloodRequest) Close() {
 	b.Status = BloodRequestStatusClosed

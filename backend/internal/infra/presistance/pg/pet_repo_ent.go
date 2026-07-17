@@ -679,9 +679,10 @@ func (r *EntPetRepository) FindPotentialDonors(ctx context.Context, criteria pet
 		)
 	}
 
-	// Исключаем самого реципиента
-	if criteria.ExcludePetID != "" {
-		query = query.Where(entpet.IDNEQ(criteria.ExcludePetID))
+	// Исключаем всех питомцев владельца реципиента — он ищет кровь,
+	// его собственные питомцы не могут быть донорами.
+	if criteria.ExcludeOwnerID != "" {
+		query = query.Where(entpet.HasOwnerWith(entuser.IDNEQ(criteria.ExcludeOwnerID)))
 	}
 
 	query = query.Limit(criteria.Limit).Offset(criteria.Offset)

@@ -52,10 +52,20 @@ func (h *GetByPetIDHandler) Handle(ctx context.Context, callerUserID, petID stri
 
 	donated, reserved := h.bloodCounter.RecalculateBloodAmount(bloodReq.BloodRequest, bloodReq.DonorApplications)
 	bloodReq.BloodRequest.SetBloodVolume(donated, reserved)
+	bloodReq.BloodRequest.RecalculateStatus()
 
 	suitableDonors, err := h.petRepo.CountSuitableDonors(ctx, bloodReq.BloodRequest.BloodGroupNames)
 	if err != nil {
 		return nil, err
+	}
+
+	// Если заявка полностью зарезервирована, нет смысла искать новых
+	// потенциальных доноров — нужный объём крови уже обеспечен откликнувшимися.
+	if bloodReq.BloodRequest.IsReservedFull() {
+		return &GetByPetIDResult{
+			BloodRequest:   bloodReq,
+			SuitableDonors: suitableDonors,
+		}, nil
 	}
 
 	// Загружаем питомца-реципиента, чтобы получить его тип для поиска потенциальных доноров
@@ -73,7 +83,7 @@ func (h *GetByPetIDHandler) Handle(ctx context.Context, callerUserID, petID stri
 		BloodGroups:      bloodReq.SearchingBloodGroupNames(),
 		Regions:          bloodReq.BloodRequest.Regions,
 		ExcludeRequestID: bloodReq.BloodRequest.ID,
-		ExcludePetID:     petID,
+		ExcludeOwnerID:   callerUserID,
 	})
 	if err != nil {
 		return nil, err
