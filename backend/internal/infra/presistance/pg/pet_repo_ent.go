@@ -626,7 +626,7 @@ func (r *EntPetRepository) CountSuitableDonors(ctx context.Context, bloodGroups 
 }
 
 // FindPotentialDonors возвращает питомцев, открытых для приглашений реципиентов.
-func (r *EntPetRepository) FindPotentialDonors(ctx context.Context, criteria pet.PotentialDonorsCriteria) ([]*model.Pet, error) {
+func (r *EntPetRepository) FindPotentialDonors(ctx context.Context, criteria pet.PotentialDonorsCriteria) ([]*model.PotentialDonor, error) {
 	if criteria.Limit <= 0 {
 		criteria.Limit = 50
 	}
@@ -689,7 +689,8 @@ func (r *EntPetRepository) FindPotentialDonors(ctx context.Context, criteria pet
 	if err != nil {
 		return nil, fmt.Errorf("failed to find potential donors: %w", err)
 	}
-	return domainmapper.PetToDomainSlice(pets), nil
+
+	return domainmapper.PetToPotentialDonorSlice(pets), nil
 }
 
 // Exists проверяет существование питомца (алиас для ExistsByID для совместимости с PetReadRepository)

@@ -156,6 +156,7 @@ type BloodRequestDetail struct {
 	Responses                []DonorApplication `json:"responses,omitempty" doc:"Отклики доноров"`
 	AcceptedDonors           []DonorApplication `json:"acceptedDonors,omitempty" doc:"Принятые отклики доноров"`
 	CompletedDonations       []DonorApplication `json:"completedDonations,omitempty" doc:"Завершенные донации"`
+	PotentialDonors          []DonorApplication `json:"potentialDonors,omitempty" doc:"Потенциальные доноры (открытые для приглашений)"`
 	SuitableDonors           int                `json:"suitableDonors" doc:"Количество подходящих доноров"`
 	CreatedAt                *time.Time         `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	UpdatedAt                *time.Time         `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`

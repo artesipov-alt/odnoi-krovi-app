@@ -4,6 +4,7 @@ package mapper
 import (
 	"math"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/query"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
@@ -21,6 +22,53 @@ func NewBloodRequestMapper(storage filestorage.Repository) *BloodRequestMapper {
 	return &BloodRequestMapper{
 		storage: storage,
 	}
+}
+
+// DonorResponseToApplication конвертирует PotentialDonor в DonorApplication DTO
+// для отображения в списке потенциальных доноров.
+func (m *BloodRequestMapper) DonorResponseToApplication(pd *petmodel.PotentialDonor) dto.DonorApplication {
+	if pd == nil || pd.Pet == nil {
+		return dto.DonorApplication{}
+	}
+
+	pet := pd.Pet
+
+	var warnFactors []dto.RestrictionFactor
+	for _, code := range pet.WarnFactors {
+		desc := petmodel.GetFactorDescription(petmodel.FactorCode(code))
+		warnFactors = append(warnFactors, dto.RestrictionFactor{
+			Code:           code,
+			Description:    desc.Description,
+			SubDescription: desc.SubDescription,
+		})
+	}
+
+	return dto.DonorApplication{
+		DonorID:          pet.ID,
+		DonorName:        pet.Name,
+		DonorBloodGroup:  pet.BloodGroupName,
+		Amount:           pet.CalculateDonationAmount(),
+		WarnFactors:      warnFactors,
+		CompensationType: string(pd.CompensationType),
+		TaxiCompensation: pd.TaxiCompensation,
+		Status:           "",
+		IsConfirmed:      false,
+	}
+}
+
+func (m *BloodRequestMapper) ToResponseWithPotential(result *query.GetByPetIDResult) dto.BloodRequestDetail {
+	if result == nil {
+		return dto.BloodRequestDetail{}
+	}
+
+	detail := m.ToResponse(result.BloodRequest, &result.SuitableDonors)
+
+	detail.PotentialDonors = make([]dto.DonorApplication, 0, len(result.PotentialDonors))
+	for _, pd := range result.PotentialDonors {
+		detail.PotentialDonors = append(detail.PotentialDonors, m.DonorResponseToApplication(pd))
+	}
+
+	return detail
 }
 
 func (m *BloodRequestMapper) ToResponse(req *model.BloodRequestWithApplications, suitableDonors *int) dto.BloodRequestDetail {

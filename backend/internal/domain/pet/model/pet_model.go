@@ -112,10 +112,22 @@ type PetAnalysis struct {
 	AnalysisDate *time.Time
 }
 
-// DonationContext — факты, извлечённые из DonorResponse и BloodRequest,
-// нужные Pet для пересчёта своего состояния. Специально не содержит
-// ссылок на модели других bounded context'ов — только примитивы,
-// чтобы Pet не зависел от donor/bloodsearch.
+// DonorPreferenceData содержит данные из DonorPreference владельца питомца,
+// необходимые для отображения потенциального донора.
+type DonorPreferenceData struct {
+	CompensationType     common.CompensationType
+	TaxiCompensation     bool
+	RecoveryPeriodMonths int
+}
+
+// PotentialDonor представляет питомца, открытого для приглашений реципиентов
+// (donor_preference.open_for_contact = true), вместе с настройками донорства его владельца.
+type PotentialDonor struct {
+	Pet                  *Pet
+	CompensationType     common.CompensationType
+	TaxiCompensation     bool
+	RecoveryPeriodMonths int
+}
 type DonationContext struct {
 	IsRecipient                bool
 	HasActiveDonorApplications bool

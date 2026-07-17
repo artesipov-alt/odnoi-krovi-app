@@ -267,12 +267,12 @@ func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *co
 }
 
 func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input *commondto.PetIDPath) (*dto.GetBloodRequestByPetIDOutput, error) {
-	bloodReq, situatableDonors, err := h.getByPetIDHandler.Handle(ctx, input.ID)
+	result, err := h.getByPetIDHandler.Handle(ctx, input.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	return &dto.GetBloodRequestByPetIDOutput{Body: h.bloodRequestMapper.ToResponse(bloodReq, &situatableDonors)}, nil
+	return &dto.GetBloodRequestByPetIDOutput{Body: h.bloodRequestMapper.ToResponseWithPotential(result)}, nil
 }
 
 func (h *BloodRequestHandler) GetDonorByID(ctx context.Context, input *commondto.PetIDPath) (*dto.GetDonorByIDOutput, error) {

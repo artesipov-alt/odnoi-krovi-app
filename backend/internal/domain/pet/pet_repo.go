@@ -35,8 +35,9 @@ type PetReadRepository interface {
 	// FindPotentialDonors возвращает питомцев, открытых для приглашений реципиентов
 	// (donor_preference.open_for_contact = true) с подходящей группой крови,
 	// регионом и типом, исключая самого реципиента и питомцев, уже откликнувшихся
-	// на заявку ExcludeRequestID.
-	FindPotentialDonors(ctx context.Context, criteria PotentialDonorsCriteria) ([]*model.Pet, error)
+	// на заявку ExcludeRequestID. Возвращает PotentialDonor — питомца с настройками
+	// донорства его владельца.
+	FindPotentialDonors(ctx context.Context, criteria PotentialDonorsCriteria) ([]*model.PotentialDonor, error)
 }
 
 // PetWriteRepository определяет операции записи для питомцев

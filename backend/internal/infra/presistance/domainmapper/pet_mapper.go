@@ -91,3 +91,37 @@ func PetToDomainSlice(pets []*ent.Pet) []*model.Pet {
 	}
 	return result
 }
+
+// PetToPotentialDonor converts ent.Pet to domain model.PotentialDonor,
+// извлекая настройки донорства из Owner.DonorPreference.
+func PetToPotentialDonor(e *ent.Pet) *model.PotentialDonor {
+	pet := PetToDomain(e)
+	if pet == nil {
+		return nil
+	}
+
+	pd := &model.PotentialDonor{
+		Pet: pet,
+	}
+
+	if e.Edges.Owner != nil && e.Edges.Owner.Edges.DonorPreference != nil {
+		dp := e.Edges.Owner.Edges.DonorPreference
+		pd.CompensationType = common.CompensationType(dp.CompensationType.String())
+		pd.TaxiCompensation = dp.TaxiCompensation
+		pd.RecoveryPeriodMonths = dp.RecoveryPeriodMonths
+	}
+
+	return pd
+}
+
+// PetToPotentialDonorSlice converts slice of ent.Pet to slice of domain model.PotentialDonor
+func PetToPotentialDonorSlice(pets []*ent.Pet) []*model.PotentialDonor {
+	if pets == nil {
+		return nil
+	}
+	result := make([]*model.PotentialDonor, len(pets))
+	for i, p := range pets {
+		result[i] = PetToPotentialDonor(p)
+	}
+	return result
+}
