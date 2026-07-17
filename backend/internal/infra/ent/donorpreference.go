@@ -37,6 +37,8 @@ type DonorPreference struct {
 	TaxiCompensation bool `json:"taxi_compensation,omitempty"`
 	// NotificationFrequency holds the value of the "notification_frequency" field.
 	NotificationFrequency donorpreference.NotificationFrequency `json:"notification_frequency,omitempty"`
+	// Разрешает реципиентам находить донора как потенциального и приглашать
+	OpenForContact bool `json:"open_for_contact,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the DonorPreferenceQuery when eager-loading is set.
 	Edges        DonorPreferenceEdges `json:"edges"`
@@ -70,7 +72,7 @@ func (*DonorPreference) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case donorpreference.FieldPreferredLocationIds:
 			values[i] = new([]byte)
-		case donorpreference.FieldTaxiCompensation:
+		case donorpreference.FieldTaxiCompensation, donorpreference.FieldOpenForContact:
 			values[i] = new(sql.NullBool)
 		case donorpreference.FieldRecoveryPeriodMonths:
 			values[i] = new(sql.NullInt64)
@@ -156,6 +158,12 @@ func (_m *DonorPreference) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.NotificationFrequency = donorpreference.NotificationFrequency(value.String)
 			}
+		case donorpreference.FieldOpenForContact:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field open_for_contact", values[i])
+			} else if value.Valid {
+				_m.OpenForContact = value.Bool
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -225,6 +233,9 @@ func (_m *DonorPreference) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("notification_frequency=")
 	builder.WriteString(fmt.Sprintf("%v", _m.NotificationFrequency))
+	builder.WriteString(", ")
+	builder.WriteString("open_for_contact=")
+	builder.WriteString(fmt.Sprintf("%v", _m.OpenForContact))
 	builder.WriteByte(')')
 	return builder.String()
 }

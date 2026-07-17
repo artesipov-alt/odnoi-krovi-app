@@ -3425,6 +3425,7 @@ type DonorPreferenceMutation struct {
 	compensation_type            *donorpreference.CompensationType
 	taxi_compensation            *bool
 	notification_frequency       *donorpreference.NotificationFrequency
+	open_for_contact             *bool
 	clearedFields                map[string]struct{}
 	user                         *string
 	cleareduser                  bool
@@ -3950,6 +3951,42 @@ func (m *DonorPreferenceMutation) ResetNotificationFrequency() {
 	m.notification_frequency = nil
 }
 
+// SetOpenForContact sets the "open_for_contact" field.
+func (m *DonorPreferenceMutation) SetOpenForContact(b bool) {
+	m.open_for_contact = &b
+}
+
+// OpenForContact returns the value of the "open_for_contact" field in the mutation.
+func (m *DonorPreferenceMutation) OpenForContact() (r bool, exists bool) {
+	v := m.open_for_contact
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOpenForContact returns the old "open_for_contact" field's value of the DonorPreference entity.
+// If the DonorPreference object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DonorPreferenceMutation) OldOpenForContact(ctx context.Context) (v bool, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOpenForContact is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOpenForContact requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOpenForContact: %w", err)
+	}
+	return oldValue.OpenForContact, nil
+}
+
+// ResetOpenForContact resets all changes to the "open_for_contact" field.
+func (m *DonorPreferenceMutation) ResetOpenForContact() {
+	m.open_for_contact = nil
+}
+
 // ClearUser clears the "user" edge to the User entity.
 func (m *DonorPreferenceMutation) ClearUser() {
 	m.cleareduser = true
@@ -4011,7 +4048,7 @@ func (m *DonorPreferenceMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *DonorPreferenceMutation) Fields() []string {
-	fields := make([]string, 0, 9)
+	fields := make([]string, 0, 10)
 	if m.created_at != nil {
 		fields = append(fields, donorpreference.FieldCreatedAt)
 	}
@@ -4039,6 +4076,9 @@ func (m *DonorPreferenceMutation) Fields() []string {
 	if m.notification_frequency != nil {
 		fields = append(fields, donorpreference.FieldNotificationFrequency)
 	}
+	if m.open_for_contact != nil {
+		fields = append(fields, donorpreference.FieldOpenForContact)
+	}
 	return fields
 }
 
@@ -4065,6 +4105,8 @@ func (m *DonorPreferenceMutation) Field(name string) (ent.Value, bool) {
 		return m.TaxiCompensation()
 	case donorpreference.FieldNotificationFrequency:
 		return m.NotificationFrequency()
+	case donorpreference.FieldOpenForContact:
+		return m.OpenForContact()
 	}
 	return nil, false
 }
@@ -4092,6 +4134,8 @@ func (m *DonorPreferenceMutation) OldField(ctx context.Context, name string) (en
 		return m.OldTaxiCompensation(ctx)
 	case donorpreference.FieldNotificationFrequency:
 		return m.OldNotificationFrequency(ctx)
+	case donorpreference.FieldOpenForContact:
+		return m.OldOpenForContact(ctx)
 	}
 	return nil, fmt.Errorf("unknown DonorPreference field %s", name)
 }
@@ -4163,6 +4207,13 @@ func (m *DonorPreferenceMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetNotificationFrequency(v)
+		return nil
+	case donorpreference.FieldOpenForContact:
+		v, ok := value.(bool)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOpenForContact(v)
 		return nil
 	}
 	return fmt.Errorf("unknown DonorPreference field %s", name)
@@ -4281,6 +4332,9 @@ func (m *DonorPreferenceMutation) ResetField(name string) error {
 		return nil
 	case donorpreference.FieldNotificationFrequency:
 		m.ResetNotificationFrequency()
+		return nil
+	case donorpreference.FieldOpenForContact:
+		m.ResetOpenForContact()
 		return nil
 	}
 	return fmt.Errorf("unknown DonorPreference field %s", name)

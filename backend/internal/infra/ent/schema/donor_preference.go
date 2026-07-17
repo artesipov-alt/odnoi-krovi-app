@@ -37,6 +37,10 @@ func (DonorPreference) Fields() []ent.Field {
 		field.Enum("notification_frequency").
 			Values("immediately", "daily", "weekly", "never").
 			Default("immediately"),
+		// open_for_contact - разрешает ли донор получать приглашения от реципиентов
+		field.Bool("open_for_contact").
+			Default(true).
+			Comment("Разрешает реципиентам находить донора как потенциального и приглашать"),
 	}
 }
 

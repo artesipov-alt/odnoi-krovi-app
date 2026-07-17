@@ -58,6 +58,7 @@ func EntToModel(e *ent.User) *usermodel.User {
 			CompensationType:      common.CompensationType(dp.CompensationType.String()),
 			TaxiCompensation:      dp.TaxiCompensation,
 			NotificationFrequency: usermodel.NotificationFrequency(dp.NotificationFrequency),
+			OpenForContact:        dp.OpenForContact,
 			CreatedAt:             &dp.CreatedAt,
 			UpdatedAt:             &dp.UpdatedAt,
 			DeletedAt:             dp.DeletedAt,
