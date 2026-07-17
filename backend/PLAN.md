@@ -824,8 +824,8 @@ bloodRequestHandler := http.NewBloodRequestHandler(
 6. ✅ `SelectDonorHandler` (п. 6.2).
    - **Отличие от плана**: в транзакции использует `GetByID` + `GetDonorResponsesByRequestID` вместо `GetByApplicationID`.
    - Добавлен хелпер `derefDonorResponses` для совместимости с `BloodCounterService.RecalculateBloodAmount`.
-7. ⬜ HTTP endpoint `POST /select-donor` (п. 8.2) + DTOs + тесты.
-8. ⬜ DI wiring (п. 9).
+7. ✅ HTTP endpoint `POST /select-donor` (п. 8.2) + DTOs + тесты.
+8. ✅ DI wiring (п. 9).
 9. ⬜ Прогон `go test ./...` + линтер + пересборка OpenAPI.
 
 Каждый шаг — отдельный коммит.

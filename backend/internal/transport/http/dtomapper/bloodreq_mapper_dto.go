@@ -3,6 +3,7 @@ package mapper
 
 import (
 	"math"
+	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/query"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
@@ -53,6 +54,41 @@ func (m *BloodRequestMapper) DonorResponseToApplication(pd *petmodel.PotentialDo
 		TaxiCompensation: pd.TaxiCompensation,
 		Status:           "",
 		IsConfirmed:      false,
+	}
+}
+
+// DonorResponseToSelected конвертирует DonorResponse (созданный при выборе донора)
+// в DonorApplication DTO для ответа на запрос select-donor.
+func (m *BloodRequestMapper) DonorResponseToSelected(resp *donormodel.DonorResponse) dto.DonorApplication {
+	if resp == nil {
+		return dto.DonorApplication{}
+	}
+
+	var warnFactors []dto.RestrictionFactor
+	for _, code := range resp.WarnFactors {
+		desc := petmodel.GetFactorDescription(petmodel.FactorCode(code))
+		warnFactors = append(warnFactors, dto.RestrictionFactor{
+			Code:           code,
+			Description:    desc.Description,
+			SubDescription: desc.SubDescription,
+		})
+	}
+
+	return dto.DonorApplication{
+		ID:               resp.ID,
+		RequestID:        resp.RequestID,
+		DonorID:          resp.DonorID,
+		DonorName:        resp.DonorName,
+		DonorPhotos:      m.storage.BuildPhotoURLs(resp.DonorPhotos, time.Time{}),
+		DonorBloodGroup:  resp.DonorBloodGroup,
+		Amount:           resp.Amount,
+		WarnFactors:      warnFactors,
+		CompensationType: resp.CompensationType,
+		TaxiCompensation: resp.TaxiCompensation,
+		Status:           string(resp.Status),
+		IsConfirmed:      resp.IsConfirmed,
+		CreatedAt:        resp.CreatedAt,
+		UpdatedAt:        resp.UpdatedAt,
 	}
 }
 
