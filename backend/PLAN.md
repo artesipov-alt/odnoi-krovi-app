@@ -811,10 +811,20 @@ bloodRequestHandler := http.NewBloodRequestHandler(
 1. ✅ Схема БД + Ent schema → `go generate` (п. 4).
 2. ✅ Domain model `DonorPreference.OpenForContact` + mapper + DTO + DTO mapper (п. 5 + расширение).
 3. ✅ `FindPotentialDonors` в репозитории (п. 7).
-4. ⬜ Расширение `GetByPetIDHandler` (п. 6.1) + тесты.
-5. ⬜ DTO `BloodRequestDetail.PotentialDonors` + mapper (п. 8.1, 8.4) + тесты.
-6. ⬜ `SelectDonorHandler` (п. 6.2) + тесты.
-7. ⬜ HTTP endpoint `POST /select-donor` (п. 8.2) + тесты.
+   - **Отличие от плана**: возвращает `[]*model.PotentialDonor`, а не `[]*model.Pet`.
+   - Добавлен `PotentialDonor` — обёртка над `Pet` + `CompensationType`, `TaxiCompensation`, `RecoveryPeriodMonths` из `Owner.DonorPreference`.
+   - Добавлен `PetToPotentialDonor`/`PetToPotentialDonorSlice` в domainmapper.
+4. ✅ Расширение `GetByPetIDHandler` (п. 6.1).
+   - **Отличие от плана**: возвращает `*GetByPetIDResult` с `PotentialDonors []*petmodel.PotentialDonor`.
+   - Использует `petEnricher.Fetch` + per-pet `Recalculate` с индивидуальным `RecoveryPeriodMonths`.
+   - Тип питомца получает через `petRepo.GetByID` (в `BloodRequest` нет поля `PetType`).
+5. ✅ DTO `BloodRequestDetail.PotentialDonors` + mapper (п. 8.1, 8.4).
+   - `ToResponseWithPotential` маппит `*GetByPetIDResult` в DTO.
+   - `DonorResponseToApplication` принимает `*petmodel.PotentialDonor` и использует `CompensationType`/`TaxiCompensation` из донорских настроек.
+6. ✅ `SelectDonorHandler` (п. 6.2).
+   - **Отличие от плана**: в транзакции использует `GetByID` + `GetDonorResponsesByRequestID` вместо `GetByApplicationID`.
+   - Добавлен хелпер `derefDonorResponses` для совместимости с `BloodCounterService.RecalculateBloodAmount`.
+7. ⬜ HTTP endpoint `POST /select-donor` (п. 8.2) + DTOs + тесты.
 8. ⬜ DI wiring (п. 9).
 9. ⬜ Прогон `go test ./...` + линтер + пересборка OpenAPI.
 
