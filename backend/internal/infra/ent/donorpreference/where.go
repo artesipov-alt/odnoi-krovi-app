@@ -95,6 +95,11 @@ func TaxiCompensation(v bool) predicate.DonorPreference {
 	return predicate.DonorPreference(sql.FieldEQ(FieldTaxiCompensation, v))
 }
 
+// OpenForContact applies equality check predicate on the "open_for_contact" field. It's identical to OpenForContactEQ.
+func OpenForContact(v bool) predicate.DonorPreference {
+	return predicate.DonorPreference(sql.FieldEQ(FieldOpenForContact, v))
+}
+
 // CreatedAtEQ applies the EQ predicate on the "created_at" field.
 func CreatedAtEQ(v time.Time) predicate.DonorPreference {
 	return predicate.DonorPreference(sql.FieldEQ(FieldCreatedAt, v))
@@ -408,6 +413,16 @@ func NotificationFrequencyIn(vs ...NotificationFrequency) predicate.DonorPrefere
 // NotificationFrequencyNotIn applies the NotIn predicate on the "notification_frequency" field.
 func NotificationFrequencyNotIn(vs ...NotificationFrequency) predicate.DonorPreference {
 	return predicate.DonorPreference(sql.FieldNotIn(FieldNotificationFrequency, vs...))
+}
+
+// OpenForContactEQ applies the EQ predicate on the "open_for_contact" field.
+func OpenForContactEQ(v bool) predicate.DonorPreference {
+	return predicate.DonorPreference(sql.FieldEQ(FieldOpenForContact, v))
+}
+
+// OpenForContactNEQ applies the NEQ predicate on the "open_for_contact" field.
+func OpenForContactNEQ(v bool) predicate.DonorPreference {
+	return predicate.DonorPreference(sql.FieldNEQ(FieldOpenForContact, v))
 }
 
 // HasUser applies the HasEdge predicate on the "user" edge.

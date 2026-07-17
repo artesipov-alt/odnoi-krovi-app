@@ -13,78 +13,61 @@
  */
 
 import { mapValues } from '../runtime';
-import type { UserDetail } from './UserDetail';
-import {
-    UserDetailFromJSON,
-    UserDetailFromJSONTyped,
-    UserDetailToJSON,
-    UserDetailToJSONTyped,
-} from './UserDetail';
-
 /**
  * 
  * @export
- * @interface DeletedUsersList
+ * @interface SelectDonorBody
  */
-export interface DeletedUsersList {
+export interface SelectDonorBody {
     /**
      * A URL to the JSON Schema for this object.
      * @type {string}
-     * @memberof DeletedUsersList
+     * @memberof SelectDonorBody
      */
     readonly $schema?: string;
     /**
-     * Информационное сообщение
+     * ID питомца-донора
      * @type {string}
-     * @memberof DeletedUsersList
+     * @memberof SelectDonorBody
      */
-    message: string;
-    /**
-     * Список удаленных пользователей
-     * @type {Array<UserDetail>}
-     * @memberof DeletedUsersList
-     */
-    users: Array<UserDetail> | null;
+    donorId: string;
 }
 
 /**
- * Check if a given object implements the DeletedUsersList interface.
+ * Check if a given object implements the SelectDonorBody interface.
  */
-export function instanceOfDeletedUsersList(value: object): value is DeletedUsersList {
-    if (!('message' in value) || value['message'] === undefined) return false;
-    if (!('users' in value) || value['users'] === undefined) return false;
+export function instanceOfSelectDonorBody(value: object): value is SelectDonorBody {
+    if (!('donorId' in value) || value['donorId'] === undefined) return false;
     return true;
 }
 
-export function DeletedUsersListFromJSON(json: any): DeletedUsersList {
-    return DeletedUsersListFromJSONTyped(json, false);
+export function SelectDonorBodyFromJSON(json: any): SelectDonorBody {
+    return SelectDonorBodyFromJSONTyped(json, false);
 }
 
-export function DeletedUsersListFromJSONTyped(json: any, ignoreDiscriminator: boolean): DeletedUsersList {
+export function SelectDonorBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): SelectDonorBody {
     if (json == null) {
         return json;
     }
     return {
         
         '$schema': json['$schema'] == null ? undefined : json['$schema'],
-        'message': json['message'],
-        'users': (json['users'] == null ? null : (json['users'] as Array<any>).map(UserDetailFromJSON)),
+        'donorId': json['donorId'],
     };
 }
 
-export function DeletedUsersListToJSON(json: any): DeletedUsersList {
-    return DeletedUsersListToJSONTyped(json, false);
+export function SelectDonorBodyToJSON(json: any): SelectDonorBody {
+    return SelectDonorBodyToJSONTyped(json, false);
 }
 
-export function DeletedUsersListToJSONTyped(value?: Omit<DeletedUsersList, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
+export function SelectDonorBodyToJSONTyped(value?: Omit<SelectDonorBody, '$schema'> | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }
 
     return {
         
-        'message': value['message'],
-        'users': (value['users'] == null ? null : (value['users'] as Array<any>).map(UserDetailToJSON)),
+        'donorId': value['donorId'],
     };
 }
 

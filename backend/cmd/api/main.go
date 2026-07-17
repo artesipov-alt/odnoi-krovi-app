@@ -125,10 +125,10 @@ func main() {
 		}
 
 		// Запуск миграций закомментирован, так как они больше не нужны.
-		// if err := config.RunMigrations(db, rawdb); err != nil {
-		// 	slog.Error("Ошибка выполнения миграций", "error", err)
-		// 	os.Exit(1)
-		// }
+		if err := config.RunMigrations(db, rawdb); err != nil {
+			slog.Error("Ошибка выполнения миграций", "error", err)
+			os.Exit(1)
+		}
 
 		//Миграции
 		// ctx := context.Background()
@@ -205,7 +205,7 @@ func main() {
 		bloodUpdateHandler := bloodcmd.NewUpdateRequestHandler(bloodRequestRepo)
 		bloodDeleteHandler := bloodcmd.NewDeleteRequestHandler(bloodRequestRepo, txManager)
 		bloodGetByIDHandler := bloodquery.NewGetByIDHandler(bloodRequestRepo, petRepo)
-		bloodGetByPetIDHandler := bloodquery.NewGetByPetIDHandler(bloodRequestRepo, petRepo)
+		bloodGetByPetIDHandler := bloodquery.NewGetByPetIDHandler(bloodRequestRepo, petRepo, petEnricher)
 		bloodGetDonorByIDHandler := bloodquery.NewGetDonorByIDHandler(petRepo, donorResponseRepo, bloodRequestRepo)
 		bloodGetDonationHandler := bloodquery.NewGetDonationHandler(petRepo, donorResponseRepo, userRepo, bloodRequestRepo)
 		applyResponseHandler := bloodcmd.NewApplyResponseHandler(bloodRequestRepo, donorResponseRepo, petRepo, userRepo, publisher, txManager)
@@ -213,6 +213,7 @@ func main() {
 		bloodCloseDonationHandler := bloodcmd.NewCloseRequestHandler(bloodRequestRepo, donorResponseRepo, petRepo, userRepo, txManager, publisher, bonusSvc)
 		rejectDonationHandler := bloodcmd.NewRejectDonationHandler(bloodRequestRepo, donorResponseRepo, petRepo, userRepo, txManager, publisher, bonusSvc)
 		notificationRespondHandler := bloodcmd.NewNotificationRespondHandler(bloodCloseDonationHandler, cache)
+		selectDonorHandler := bloodcmd.NewSelectDonorHandler(bloodRequestRepo, donorResponseRepo, petRepo, petEnricher, userRepo, bonusSvc, publisher, txManager)
 
 		// Инициализация file handlers
 		fileGetPresignedHandler := filecmd.NewGetPresignedURLsHandler(fileStorage, petRepo, userRepo, bloodRequestRepo)
@@ -265,6 +266,7 @@ func main() {
 			rejectDonationHandler,
 			bloodCloseDonationHandler,
 			notificationRespondHandler,
+			selectDonorHandler,
 			fileStorage,
 		)
 		donorHandler := transport.NewDonorHandler(

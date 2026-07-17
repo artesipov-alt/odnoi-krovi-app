@@ -34,6 +34,8 @@ const (
 	FieldTaxiCompensation = "taxi_compensation"
 	// FieldNotificationFrequency holds the string denoting the notification_frequency field in the database.
 	FieldNotificationFrequency = "notification_frequency"
+	// FieldOpenForContact holds the string denoting the open_for_contact field in the database.
+	FieldOpenForContact = "open_for_contact"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
 	// Table holds the table name of the donorpreference in the database.
@@ -59,6 +61,7 @@ var Columns = []string{
 	FieldCompensationType,
 	FieldTaxiCompensation,
 	FieldNotificationFrequency,
+	FieldOpenForContact,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -88,6 +91,8 @@ var (
 	DefaultRecoveryPeriodMonths int
 	// DefaultTaxiCompensation holds the default value on creation for the "taxi_compensation" field.
 	DefaultTaxiCompensation bool
+	// DefaultOpenForContact holds the default value on creation for the "open_for_contact" field.
+	DefaultOpenForContact bool
 	// DefaultID holds the default value on creation for the "id" field.
 	DefaultID func() string
 )
@@ -190,6 +195,11 @@ func ByTaxiCompensation(opts ...sql.OrderTermOption) OrderOption {
 // ByNotificationFrequency orders the results by the notification_frequency field.
 func ByNotificationFrequency(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldNotificationFrequency, opts...).ToFunc()
+}
+
+// ByOpenForContact orders the results by the open_for_contact field.
+func ByOpenForContact(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOpenForContact, opts...).ToFunc()
 }
 
 // ByUserField orders the results by user field.

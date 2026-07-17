@@ -112,10 +112,9 @@ type PetAnalysis struct {
 	AnalysisDate *time.Time
 }
 
-// DonationContext — факты, извлечённые из DonorResponse и BloodRequest,
-// нужные Pet для пересчёта своего состояния. Специально не содержит
-// ссылок на модели других bounded context'ов — только примитивы,
-// чтобы Pet не зависел от donor/bloodsearch.
+// PotentialDonor перенесён в domain/bloodsearch/model.
+// Для агрегации питомца с настройками донорства владельца используйте bloodsearch.model.PotentialDonor.
+
 type DonationContext struct {
 	IsRecipient                bool
 	HasActiveDonorApplications bool

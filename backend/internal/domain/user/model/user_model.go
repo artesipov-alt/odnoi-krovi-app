@@ -74,6 +74,7 @@ type DonorPreference struct {
 	CompensationType      common.CompensationType
 	TaxiCompensation      bool
 	NotificationFrequency NotificationFrequency
+	OpenForContact        bool
 	CreatedAt             *time.Time
 	UpdatedAt             *time.Time
 	DeletedAt             *time.Time
@@ -86,6 +87,7 @@ type DonorPreferenceParams struct {
 	CompensationType      common.CompensationType
 	TaxiCompensation      bool
 	NotificationFrequency NotificationFrequency
+	OpenForContact        bool
 }
 
 // NewUser создаёт новый агрегат User с валидацией
@@ -201,5 +203,6 @@ func DefaultDonorPreference() *DonorPreference {
 		CompensationType:      "",
 		TaxiCompensation:      false,
 		NotificationFrequency: NotifyImmediately,
+		OpenForContact:        true,
 	}
 }

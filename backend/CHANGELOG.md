@@ -5,6 +5,40 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.24.0] - 2026-07-17
+
+### Добавлено
+
+- **Потенциальные доноры и выбор реципиентом:**
+  - В `DonorPreference` добавлено поле `OpenForContact` (`open_for_contact`) — позволяет донору быть видимым в списке потенциальных для реципиентов, открывших заявку.
+  - Новый метод `PetReadRepository.FindPotentialDonors(criteria)` + Ent-реализация: возвращает питомцев, открытых для приглашений, с подходящей группой крови, регионом и типом, исключая самого реципиента и уже откликнувшихся на заявку доноров. Семантика по регионам — позитивная (пустой `preferred_location_ids` = донор НЕ открыт).
+  - `GetByPetIDHandler` расширен: владелец реципиента теперь видит список потенциальных доноров (ранее возвращался только `SuitableDonors`-счётчик). Пересчёт статуса донора идёт по его собственным данным через `PetEnricher.Fetch` + `Recalculate` с индивидуальным `RecoveryPeriodMonths` из `DonorPreference`.
+  - `cmd.SelectDonorHandler`: реципиент выбирает конкретного донора из списка потенциальных. Создаётся `DonorResponse` сразу со статусом `accepted` (финальное принятие). Донору уходит уведомление через Redis publisher (`EventDonorApply`/`ApplyDonor`).
+  - HTTP-эндпоинт: `POST /v1/blood-request/{req_id}/donor/select`, body `{ donorId }`. Действие адресовано конкретной заявке (`req_id` в path), донор передаётся в теле. Условия донации (`compensationType`, `taxiCompensation`) реципиент не задаёт — берутся из `DonorPreference` владельца донора.
+  - Новый DTO `PotentialDonor` в `bloodsearch/model` (обёртка над `Pet` + `CompensationType`/`TaxiCompensation`/`RecoveryPeriodMonths` из `Owner.DonorPreference`). Мапперы `PetToPotentialDonor`/`PetToPotentialDonorSlice` в `domainmapper`. `BloodRequestDetail.PotentialDonors` в DTO/OpenAPI.
+
+### Изменено
+
+- **Семантика эндпоинтов bloodrequest:**
+  - `GET /v1/blood-request/pet/{pet_id}` теперь возвращает список потенциальных доноров и проверяет, что caller — владелец питомца-реципиента (раньше чек владельца отсутствовал).
+  - `POST /v1/blood-request/{req_id}/donor/select` — новый адрес ресурсо-ориентированный путь (был план `/v1/blood-requests/by-pet/{pet_id}/select-donor`). Путь выровнен с паттерном остальных bloodrequest-эндпоинтов (singular resource + action verb).
+  - `compensationType`/`taxiCompensation` убраны из DTO `SelectDonorBody` — эти поля принадлежат донору и его `DonorPreference`.
+
+### Исправлено
+
+- **Корректность пересчёта статуса донора в `SelectDonorHandler`:** ранее вызывался `RecalculateOne(donorPet, nil, recipientBloodReq, ...)` — заявка реципиента подсовывалась в контекст донора, и `Pet.peekStatus` лепил донору `Recipient`/`BloodFound` либо `PlannedDonation`. Заменено на `Fetch([donorPet.ID]) + Recalculate` по его собственным данным. `RecoveryPeriodMonths` берётся из `DonorPreference` владельца донора (fallback = `2`).
+- **`donorResponse.Status = ...` → `donorResponse.Accept()`:** прямой set через публичное поле заменён на доменный метод, который проверяет допустимость перехода.
+- **`recipient pet not found`:** с `Internal` (HTTP 500) на `NotFound` (HTTP 404).
+- **«Донор недоступен»:** код ошибки с `ErrInvalidBloodRequestStatus` (400 «неверный статус заявки») на `Validation` (422, корректная семантика «донор сейчас не может сдавать»).
+- **Двойной `userRepo.GetByID` для владельца донора** в `SelectDonorHandler`: объединено в один вызов с `{WithDonorPreference: true, WithIdentities: true}`. `donorUser` для уведомления заменён на `donorOwner`.
+- **`GetByPetIDHandler` auth:** пустой `callerUserID` теперь возвращает `Unauthorized` вместо тихого пропуска проверки владельца.
+- **Лишний `donorRepo.GetDonorResponsesByRequestID`** убран из транзакции в `SelectDonorHandler` — `BloodRequestWithApplications` уже приходит с приложениями; хелпер `derefDonorResponses` более не нужен.
+
+### Технические детали
+
+- Валидация: `go build ./...` — чисто; OpenAPI перегенерирован; `task generate-ts` — успех.
+- План реализации см. в `backend/PLAN.md` (§4-§8, §15 — что осталось до мержа: миграция БД на `open_for_contact`, тесты §10.1-§10.5, CQRS Read/Write сплит в остальных cmd-хэндлерах).
+
 ## [3.23.1] - 2026-07-16
 
 ### Исправлено

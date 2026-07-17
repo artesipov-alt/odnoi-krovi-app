@@ -125,6 +125,10 @@ func init() {
 	donorpreferenceDescTaxiCompensation := donorpreferenceFields[4].Descriptor()
 	// donorpreference.DefaultTaxiCompensation holds the default value on creation for the taxi_compensation field.
 	donorpreference.DefaultTaxiCompensation = donorpreferenceDescTaxiCompensation.Default.(bool)
+	// donorpreferenceDescOpenForContact is the schema descriptor for open_for_contact field.
+	donorpreferenceDescOpenForContact := donorpreferenceFields[6].Descriptor()
+	// donorpreference.DefaultOpenForContact holds the default value on creation for the open_for_contact field.
+	donorpreference.DefaultOpenForContact = donorpreferenceDescOpenForContact.Default.(bool)
 	// donorpreferenceDescID is the schema descriptor for id field.
 	donorpreferenceDescID := donorpreferenceMixinFields0[0].Descriptor()
 	// donorpreference.DefaultID holds the default value on creation for the id field.

@@ -71,6 +71,7 @@ export * from './ResetUserResult';
 export * from './RestoreUserResult';
 export * from './RestrictionFactor';
 export * from './ResultMessage';
+export * from './SelectDonorBody';
 export * from './ServiceSignInBody';
 export * from './ServiceSignInResult';
 export * from './SimpleMessage';

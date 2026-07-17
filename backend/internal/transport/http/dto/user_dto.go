@@ -259,6 +259,7 @@ type DonorPreference struct {
 	CompensationType      string     `json:"compensationType" doc:"Тип компенсации" enum:"free,paid,food"`
 	TaxiCompensation      bool       `json:"taxiCompensation" doc:"Компенсация такси"`
 	NotificationFrequency string     `json:"notificationFrequency" doc:"Частота уведомлений" enum:"immediately,daily,weekly,never"`
+	OpenForContact        bool       `json:"openForContact" doc:"Разрешает реципиентам находить донора как потенциального"`
 	CreatedAt             *time.Time `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	UpdatedAt             *time.Time `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	DeletedAt             *time.Time `json:"deletedAt,omitempty" doc:"Дата удаления" example:"2023-10-01T12:00:00Z" readOnly:"true"`
@@ -271,6 +272,7 @@ type DonorPreferenceParams struct {
 	CompensationType      *string  `json:"compensationType,omitempty" doc:"Тип компенсации" enum:"free,paid,food"`
 	TaxiCompensation      *bool    `json:"taxiCompensation,omitempty" doc:"Компенсация такси"`
 	NotificationFrequency *string  `json:"notificationFrequency,omitempty" doc:"Частота уведомлений" enum:"immediately,daily,weekly,never"`
+	OpenForContact        *bool    `json:"openForContact,omitempty" doc:"Разрешить реципиентам находить донора как потенциального"`
 }
 
 type Identity struct {

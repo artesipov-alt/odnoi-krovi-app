@@ -32,6 +32,7 @@ type BloodRequestHandler struct {
 	rejectDonationHandler      *bloodcmd.RejectDonationHandler
 	closeRequestHandler        *bloodcmd.CloseRequestHandler
 	notificationRespondHandler *bloodcmd.NotificationRespondHandler
+	selectDonorHandler         *bloodcmd.SelectDonorHandler
 	bloodRequestMapper         *mapper.BloodRequestMapper
 	petMapper                  *mapper.PetMapper
 	storage                    filestorage.Repository
@@ -50,6 +51,7 @@ func NewBloodRequestHandler(
 	rejectDonationHandler *bloodcmd.RejectDonationHandler,
 	closeRequestHandler *bloodcmd.CloseRequestHandler,
 	notificationRespondHandler *bloodcmd.NotificationRespondHandler,
+	selectDonorHandler *bloodcmd.SelectDonorHandler,
 	storage filestorage.Repository,
 ) *BloodRequestHandler {
 	return &BloodRequestHandler{
@@ -65,6 +67,7 @@ func NewBloodRequestHandler(
 		rejectDonationHandler:      rejectDonationHandler,
 		closeRequestHandler:        closeRequestHandler,
 		notificationRespondHandler: notificationRespondHandler,
+		selectDonorHandler:         selectDonorHandler,
 		bloodRequestMapper:         mapper.NewBloodRequestMapper(storage),
 		petMapper:                  mapper.NewPetMapper(storage),
 		storage:                    storage,
@@ -182,6 +185,15 @@ func (h *BloodRequestHandler) Register(api huma.API) {
 		Tags:        []string{"blood-request-v1"},
 	}, h.NotificationRespond)
 
+	huma.Register(api, huma.Operation{
+		OperationID: "select-donor",
+		Method:      http.MethodPost,
+		Path:        "/v1/blood-request/{req_id}/donor/select",
+		Summary:     "Выбрать донора из списка потенциальных",
+		Description: "Реципиент выбирает конкретного донора из списка потенциальных (open for contact). Создаёт DonorResponse со статусом accepted.",
+		Tags:        []string{"blood-request-v1"},
+	}, h.SelectDonor)
+
 }
 
 // Handlers
@@ -267,12 +279,17 @@ func (h *BloodRequestHandler) GetBloodRequestByID(ctx context.Context, input *co
 }
 
 func (h *BloodRequestHandler) GetBloodRequestByPetID(ctx context.Context, input *commondto.PetIDPath) (*dto.GetBloodRequestByPetIDOutput, error) {
-	bloodReq, situatableDonors, err := h.getByPetIDHandler.Handle(ctx, input.ID)
+	userID := middleware.GetUserID(ctx)
+	if userID == "" {
+		return nil, apperrors.Unauthorized("user ID is missing in context")
+	}
+
+	result, err := h.getByPetIDHandler.Handle(ctx, input.ID, userID)
 	if err != nil {
 		return nil, err
 	}
 
-	return &dto.GetBloodRequestByPetIDOutput{Body: h.bloodRequestMapper.ToResponse(bloodReq, &situatableDonors)}, nil
+	return &dto.GetBloodRequestByPetIDOutput{Body: h.bloodRequestMapper.ToResponseWithPotential(result)}, nil
 }
 
 func (h *BloodRequestHandler) GetDonorByID(ctx context.Context, input *commondto.PetIDPath) (*dto.GetDonorByIDOutput, error) {
@@ -396,4 +413,27 @@ func (h *BloodRequestHandler) NotificationRespond(ctx context.Context, input *dt
 	return &commondto.DefaultMessageOutput{Body: commondto.ResultMessage{
 		Message: "Ответ принят",
 	}}, nil
+}
+
+// SelectDonor выбирает донора из списка потенциальных (recipient-initiated).
+// Действие адресовано конкретной заявке (req_id в URL), донор передаётся в теле.
+// Условия донации (компенсация, такси) берутся из DonorPreference владельца донора,
+// а не из тела запроса.
+func (h *BloodRequestHandler) SelectDonor(ctx context.Context, input *dto.SelectDonorInput) (*dto.SelectDonorOutput, error) {
+	userID := middleware.GetUserID(ctx)
+	if userID == "" {
+		return nil, apperrors.Unauthorized("user ID is missing in context")
+	}
+
+	resp, err := h.selectDonorHandler.Handle(
+		ctx,
+		userID,
+		input.ID,
+		input.Body.DonorID,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.SelectDonorOutput{Body: h.bloodRequestMapper.DonorResponseToSelected(resp)}, nil
 }
