@@ -125,10 +125,10 @@ func main() {
 		}
 
 		// Запуск миграций закомментирован, так как они больше не нужны.
-		// if err := config.RunMigrations(db, rawdb); err != nil {
-		// 	slog.Error("Ошибка выполнения миграций", "error", err)
-		// 	os.Exit(1)
-		// }
+		if err := config.RunMigrations(db, rawdb); err != nil {
+			slog.Error("Ошибка выполнения миграций", "error", err)
+			os.Exit(1)
+		}
 
 		//Миграции
 		// ctx := context.Background()
