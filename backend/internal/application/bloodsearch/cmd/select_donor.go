@@ -88,7 +88,7 @@ func (h *SelectDonorHandler) Handle(
 	// реципиента — иначе peekStatus в Pet.peekStatus переводит донора в Recipient/BloodFound.
 	donorPet, err := h.petRepo.GetByID(ctx, donorPetID, pet.PetPreloadOptions{WithAll: true})
 	if err != nil {
-		return nil, apperrors.NotFound("donor pet not found")
+		return nil, err
 	}
 	// Тянем владельца донора один раз: и DonorPreference (для enrich + условий донации),
 	// и Identities (для уведомления после транзакции) — два обхода БД не нужны.

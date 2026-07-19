@@ -41,7 +41,7 @@ func (h *CreateRequestHandler) Handle(ctx context.Context, req *model.BloodReque
 	// Проверяем существование питомца
 	petRecipient, err := h.petRepo.GetByID(ctx, req.PetID, pet.PetPreloadOptions{})
 	if err != nil {
-		return nil, apperrors.Internal(err, "Ошибка поиска питомца")
+		return nil, err
 	}
 
 	// Проверяем, нет ли уже активной заявки для этого питомца
