@@ -11,20 +11,24 @@ import (
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
+	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 )
 
 type GetDonorByIDHandler struct {
 	petReadRepo  pet.PetReadRepository
 	donorRepo    donor.Repository
+	userRepo     user.Repository
 	bloodRepo    bloodsearch.Repository
 	bloodCounter *bloodsearch.BloodCounterService
 	enricher     enrich.PetEnricher
 }
 
-func NewGetDonorByIDHandler(petReadRepo pet.PetReadRepository, donorRepo donor.Repository, bloodRepo bloodsearch.Repository, enricher enrich.PetEnricher) *GetDonorByIDHandler {
+func NewGetDonorByIDHandler(petReadRepo pet.PetReadRepository, donorRepo donor.Repository, userRepo user.Repository, bloodRepo bloodsearch.Repository, enricher enrich.PetEnricher) *GetDonorByIDHandler {
 	return &GetDonorByIDHandler{
 		petReadRepo:  petReadRepo,
 		donorRepo:    donorRepo,
+		userRepo:     userRepo,
 		bloodRepo:    bloodRepo,
 		bloodCounter: bloodsearch.NewBloodCounterService(),
 		enricher:     enricher,
@@ -47,14 +51,32 @@ func (h *GetDonorByIDHandler) Handle(ctx context.Context, petID string, opts pet
 		return nil, nil, err
 	}
 
-	if bloodReq := fc.BloodReqs[petID]; bloodReq != nil {
-		donated, reserved := h.bloodCounter.RecalculateBloodAmount(bloodReq.BloodRequest, bloodReq.DonorApplications)
+	h.enricher.Recalculate(donorPet, fc, enrich.Options{})
 
-		bloodReq.BloodRequest.SetBloodVolume(donated, reserved)
-		bloodReq.RecalculateStatus()
+	// Если отклика нет, инициализируем пустой с компенсацией из предпочтений владельца
+	if application == nil {
+		prefs := usermodel.DefaultDonorPreference()
+
+		owner, err := h.userRepo.GetByID(ctx, donorPet.OwnerID, user.UserPreloadOptions{
+			WithDonorPreference: true,
+		})
+		if err == nil && owner.DonorPreference != nil {
+			prefs = owner.DonorPreference
+		}
+
+		application = &donormodel.DonorResponse{
+			CompensationType: string(prefs.CompensationType),
+			TaxiCompensation: prefs.TaxiCompensation,
+			Status:           donormodel.DonorResponseStatusPending,
+		}
 	}
 
-	h.enricher.Recalculate(donorPet, fc, enrich.Options{})
+	// if bloodReq := fc.BloodReqs[petID]; bloodReq != nil {
+	// 	donated, reserved := h.bloodCounter.RecalculateBloodAmount(bloodReq.BloodRequest, bloodReq.DonorApplications)
+
+	// 	bloodReq.BloodRequest.SetBloodVolume(donated, reserved)
+	// 	bloodReq.RecalculateStatus()
+	// }
 
 	return donorPet, application, nil
 }
