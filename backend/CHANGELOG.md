@@ -5,6 +5,24 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.24.2] - 2026-07-22
+
+### Добавлено
+
+- **Авто-простановка `blood_found` в списке питомцев пользователя:** если у питомца-реципиента есть потенциальные доноры, его статус автоматически устанавливается в `PetStatusBloodFound` при загрузке через `GetByUserHandler`. Новый метод `GetPotentialDonors` переиспользует `PetEnricher.Fetch` + `Recalculate` для фильтрации только актуальных доноров.
+- Метод `BloodRequestWithApplications.SearchingRegions()` — nil-safe получение регионов поиска (по аналогии с `SearchingBloodGroupNames`).
+- Методы `Pet.IsRecipient()` и `Pet.SetStatus(status)` на доменной модели.
+- Функция `model.CollectIDs(pets)` — утилита для сбора ID питомцев, заменяет дублированные `petIDsOf`.
+
+### Исправлено
+
+- **Error masking в `SelectDonorHandler`:** оригинальная ошибка теперь сохраняется через `.WithInternal(err)` при обёртке в `NotFound`/`Internal`, что позволяет логировать истинную причину (таймаут БД, отмена контекста и т.д.).
+
+### Технические детали
+
+- Удалён дублированный `petIDsOf` из `enricher.go` и `get_by_user.go` — заменён на `model.CollectIDs`.
+- `go build ./...` — чисто.
+
 ## [3.24.0] - 2026-07-17
 
 ### Добавлено

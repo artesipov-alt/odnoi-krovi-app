@@ -51,3 +51,9 @@ func (r *BloodRequestWithApplications) SearchingBloodGroupNames() []string {
 	}
 	return searchingBloodGroupNames
 }
+
+func (r *BloodRequestWithApplications) SearchingRegions() []string {
+	var searchingRegions []string
+	searchingRegions = append(searchingRegions, r.BloodRequest.Regions...)
+	return searchingRegions
+}

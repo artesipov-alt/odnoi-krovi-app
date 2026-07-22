@@ -244,6 +244,23 @@ func (p *Pet) IsDeleted() bool {
 	return p.DeletedAt != nil
 }
 
+func (p *Pet) IsRecipient() bool {
+	return p.PetStatus == PetStatusRecipient
+}
+
+func (p *Pet) SetStatus(status PetStatus) {
+	p.PetStatus = status
+}
+
+// CollectIDs возвращает ID всех питомцев в слайсе.
+func CollectIDs(pets []*Pet) []string {
+	ids := make([]string, len(pets))
+	for i, p := range pets {
+		ids[i] = p.ID
+	}
+	return ids
+}
+
 // FactorCode — общий тип-код для факторов и предупреждений
 type FactorCode string
 

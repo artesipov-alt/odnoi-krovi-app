@@ -90,7 +90,7 @@ func (e *Enricher) Recalculate(p *model.Pet, fc *FetchContext, opts Options) *do
 }
 
 func (e *Enricher) RecalculateAll(ctx context.Context, pets []*model.Pet, opts Options) (*FetchContext, error) {
-	fc, err := e.Fetch(ctx, petIDsOf(pets))
+	fc, err := e.Fetch(ctx, model.CollectIDs(pets))
 	if err != nil {
 		return nil, err
 	}
@@ -108,12 +108,4 @@ func (e *Enricher) RecalculateOne(p *model.Pet, app *donormodel.DonorResponse, b
 
 func (e *Enricher) CountFullyCompletedDonations(ctx context.Context, ownerID string) (int, error) {
 	return e.donorRespRepo.CountFullyCompletedByOwnerID(ctx, ownerID)
-}
-
-func petIDsOf(pets []*model.Pet) []string {
-	ids := make([]string, len(pets))
-	for i, p := range pets {
-		ids[i] = p.ID
-	}
-	return ids
 }

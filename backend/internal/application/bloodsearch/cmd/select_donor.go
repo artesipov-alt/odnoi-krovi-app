@@ -76,7 +76,7 @@ func (h *SelectDonorHandler) Handle(
 	// 2. Получаем реципиента и проверяем, что caller — владелец
 	recipientPet, err := h.petRepo.GetByID(ctx, req.BloodRequest.PetID, pet.PetPreloadOptions{})
 	if err != nil {
-		return nil, apperrors.NotFound("recipient pet not found")
+		return nil, apperrors.NotFound("recipient pet not found").WithInternal(err)
 	}
 	if recipientPet.OwnerID != callerUserID {
 		return nil, apperrors.Forbidden("only the recipient owner can select donors")
@@ -88,7 +88,7 @@ func (h *SelectDonorHandler) Handle(
 	// реципиента — иначе peekStatus в Pet.peekStatus переводит донора в Recipient/BloodFound.
 	donorPet, err := h.petRepo.GetByID(ctx, donorPetID, pet.PetPreloadOptions{WithAll: true})
 	if err != nil {
-		return nil, err
+		return nil, apperrors.NotFound("donor pet not found").WithInternal(err)
 	}
 	// Тянем владельца донора один раз: и DonorPreference (для enrich + условий донации),
 	// и Identities (для уведомления после транзакции) — два обхода БД не нужны.
@@ -97,11 +97,11 @@ func (h *SelectDonorHandler) Handle(
 		WithIdentities:      true,
 	})
 	if err != nil {
-		return nil, apperrors.NotFound("donor owner not found")
+		return nil, apperrors.NotFound("donor owner not found").WithInternal(err)
 	}
 	fc, err := h.petEnricher.Fetch(ctx, []string{donorPet.ID})
 	if err != nil {
-		return nil, apperrors.Internal(err, "failed to load donor context")
+		return nil, apperrors.Internal(err, "failed to load donor context").WithInternal(err)
 	}
 	// Если у владельца нет DonorPreference (новый аккаунт без настроек), берём дефолт
 	// из usermodel.DefaultDonorPreference(), чтобы RecalculateRecoveryDays пересчитал дни.
