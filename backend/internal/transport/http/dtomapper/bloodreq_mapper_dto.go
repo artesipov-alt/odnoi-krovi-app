@@ -47,6 +47,7 @@ func (m *BloodRequestMapper) DonorResponseToApplication(pd *model.PotentialDonor
 		DonorID:          pet.ID,
 		DonorName:        pet.Name,
 		DonorBloodGroup:  pet.BloodGroupName,
+		DonorPhotos:      m.storage.BuildPhotoURLs(pet.PhotoURLs, *pet.UpdatedAt),
 		Amount:           pet.CalculateDonationAmount(),
 		WarnFactors:      warnFactors,
 		CompensationType: string(pd.CompensationType),
