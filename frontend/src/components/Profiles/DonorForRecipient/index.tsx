@@ -36,7 +36,7 @@ import { applyDonorRespond } from 'api/apiServices/applyDonorRespond';
 import { getDonorInfo } from 'api/apiServices/getDonorInfo';
 import { getPets } from 'api/apiServices/getPets';
 import { getUserIdentities } from 'api/apiServices/getUserIdentities';
-import { GetDonorInfoResponse } from 'api/bloodRequest';
+import { ApplyDonorRespondResponse, GetDonorInfoResponse } from 'api/bloodRequest';
 import { Pet } from 'api/pets';
 import { queryClient } from 'api/queryClient';
 import { PetType } from 'api/types';
@@ -46,6 +46,7 @@ import Curtain from 'components/Curtain';
 import Layout from 'components/Layout';
 import Loading from 'components/Loading';
 
+import { selectDonor } from '../../../api/apiServices/selectDonor';
 import AnalysesStep from '../Steps/Analyses';
 import HealthStep from '../Steps/Health';
 import ParamsStep from '../Steps/Params';
@@ -76,9 +77,11 @@ type ChatCurtain = {
 type Props = {
     userId: string;
     donorId: string;
+    searchId: string;
     responseId: string;
     onClose: () => void;
     onBackToSearch: () => void;
+    poolRequestRefetch: () => void;
 };
 
 const dogAnalizesCount = 6;
@@ -99,7 +102,15 @@ const curtainList = [
     'Не передавайте свои паспортные данные',
 ];
 
-const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, onBackToSearch }) => {
+const DonorForRecipient: FC<Props> = ({
+    userId,
+    donorId,
+    onClose,
+    searchId,
+    responseId,
+    onBackToSearch,
+    poolRequestRefetch,
+}) => {
     const [isLoading, setIsLoading] = useState(false);
     const [isGlobalLoading, setIsGlobalLoading] = useState(true);
     const [isConditionsOpen, setIsConditionsOpen] = useState(false);
@@ -125,14 +136,18 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
     useBodyScrollLock(isGlobalLoading || isLoading);
 
     const showToast = useCallback(
-        (text: string) => {
+        (text: string, withInvalidate?: boolean) => {
             toast.warn(text, {
                 onClose: () => {
+                    if (withInvalidate) {
+                        poolRequestRefetch();
+                    }
+
                     onClose();
                 },
             });
         },
-        [onClose],
+        [onClose, poolRequestRefetch],
     );
 
     const fetchInfo = useCallback(async () => {
@@ -140,6 +155,12 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
 
         if (!response) {
             showToast('Не удалось получить информацию о доноре');
+
+            return;
+        }
+
+        if (response.data.petStatus !== Role.DONOR && response.data.petStatus !== Role.PLANNED_DONATION) {
+            showToast('У этого питомца уже запланирована донация', true);
 
             return;
         }
@@ -229,7 +250,14 @@ const DonorForRecipient: FC<Props> = ({ onClose, donorId, userId, responseId, on
     };
 
     const onMessengerClickHandler = async () => {
-        const response = await applyDonorRespond(responseId);
+        let response: { data: void } | { data: ApplyDonorRespondResponse } | null;
+
+        // responseId === '' - это потенциальный донор
+        if (responseId === '') {
+            response = await selectDonor({ id: searchId, donorId });
+        } else {
+            response = await applyDonorRespond(responseId);
+        }
 
         if (!response) {
             showToast('Не удалось откликнуться на предложение донора');

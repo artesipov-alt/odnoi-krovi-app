@@ -39,6 +39,7 @@ export type DonorPreference = {
     createdAt: string;
     deletedAt?: string;
     updatedAt?: string;
+    openForContact: boolean;
     taxiCompensation: boolean;
     recoveryPeriodMonths: number;
     preferredLocationIds: string[];
@@ -87,6 +88,7 @@ export type UpdateUserRequest = {
         | 'preferredLocationIds'
         | 'recoveryPeriodMonths'
         | 'taxiCompensation'
+        | 'openForContact'
     >;
 };
 

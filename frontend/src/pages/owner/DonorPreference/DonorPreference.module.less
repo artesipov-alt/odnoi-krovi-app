@@ -302,6 +302,23 @@
         }
     }
 
+    & .openForContact {
+        margin-bottom: 0;
+
+        & .buttons {
+            display: flex;
+            gap: 8px;
+
+            & .button:first-child {
+                width: 40%;
+            }
+
+            & .button:last-child {
+                flex-grow: 1;
+            }
+        }
+    }
+
     .confirm {
         margin-top: 30px; // пока notifications display: none;
         height: 60px;
