@@ -96,7 +96,7 @@ const DonorsShowcase: FC<Props> = ({
         <div className={styles.showcase}>
             {list?.map((pet) => (
                 <div
-                    key={`${pet?.id}`}
+                    key={`${pet?.id ? pet?.id : pet?.donorId}`}
                     onClick={onDonorClickHandler(pet.donorId)}
                     className={cn(styles.pet, { [styles[petType]]: true })}
                 >
