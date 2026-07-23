@@ -106,6 +106,17 @@ func (b *BloodRequest) SetBloodVolume(donated float64, reserved float64) {
 	b.BloodVolumeReserved = reserved
 }
 
+// IsCoversNededAmount (Количество-крови) Бизнес-логика, донор должен покрывать весь объем или хотя бы половину от остатка если реципиент разрешил
+func (b *BloodRequest) IsCoversNededAmount(avilableDonorAmount float64) bool {
+	halfVolume := (b.BloodVolumeNeeded - b.BloodVolumeReserved) / 2
+	if b.BloodVolumeReserved+avilableDonorAmount >= b.BloodVolumeNeeded {
+		return true
+	} else if b.SmallPetsNotifyAllowed && avilableDonorAmount >= halfVolume {
+		return true
+	}
+	return false
+}
+
 // BloodRequestFilter represents filter options for listing requests
 type BloodRequestFilter struct {
 	PetID   string

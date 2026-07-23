@@ -87,7 +87,6 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 		if err != nil {
 			return err
 		}
-
 		// Закрепляем бонусы за пользователем
 		if err := h.bonusSvc.AssignBonuses(txCtx, donorPet.OwnerID, donorPet.Type, donorResponse.ID); err != nil {
 			return err

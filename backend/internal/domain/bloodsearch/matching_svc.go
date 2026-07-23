@@ -29,8 +29,8 @@ func (r *MatchingService) MatchDonor(bloodreq *bloodreqmodel.BloodRequestWithMat
 
 	var sameBlood, sameType, sameRegion, sameOwner, coversNeededAmount bool
 
-	avilableDonorAmount := donorPet.CalculateDonationAmount()
-	halfVolume := (bloodreq.BloodRequest.BloodVolumeNeeded - bloodreq.BloodRequest.BloodVolumeReserved) / 2
+	coversNeededAmount = bloodreq.BloodRequest.IsCoversNededAmount(donorPet.CalculateDonationAmount())
+
 	bloodSearchRegions := bloodreq.BloodRequest.Regions
 
 	// (Тип-питомца) Бизнес-логика, типы питомцев должны совпадать
@@ -44,13 +44,6 @@ func (r *MatchingService) MatchDonor(bloodreq *bloodreqmodel.BloodRequestWithMat
 
 	// (Владелец) Не может быть свой питомец
 	sameOwner = bloodreq.RecipientData.OwnerID == donorPet.OwnerID
-
-	// (Количество-крови) Бизнес-логика, донор должен покрывать весь объем или хотя бы половину от остатка если реципиент разрешил
-	if bloodreq.BloodRequest.BloodVolumeReserved+avilableDonorAmount >= bloodreq.BloodRequest.BloodVolumeNeeded {
-		coversNeededAmount = true
-	} else if bloodreq.BloodRequest.SmallPetsNotifyAllowed && avilableDonorAmount >= halfVolume {
-		coversNeededAmount = true
-	}
 
 	if !sameOwner && sameType && sameBlood && sameRegion && coversNeededAmount {
 		return bloodreqmodel.MatchingDonorReadModel{

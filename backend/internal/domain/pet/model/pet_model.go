@@ -814,11 +814,15 @@ func (p *Pet) UpdateFrom(other *Pet) error {
 func FilterDonors(pets []*Pet) []*Pet {
 	var donors []*Pet
 	for _, p := range pets {
-		if p.PetStatus == PetStatusDonor {
+		if p.IsDonor() {
 			donors = append(donors, p)
 		}
 	}
 	return donors
+}
+
+func (p *Pet) IsDonor() bool {
+	return p.PetStatus == PetStatusDonor
 }
 
 // calculateDonationAmount вычисляет максимальный объем донации крови для питомца (до 20% циркулирующей крови, но не более лимита)

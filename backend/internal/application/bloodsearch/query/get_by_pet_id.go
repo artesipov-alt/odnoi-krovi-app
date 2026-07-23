@@ -79,11 +79,10 @@ func (h *GetByPetIDHandler) Handle(ctx context.Context, callerUserID, petID stri
 	}
 
 	potentialDonors, err := h.petRepo.FindPotentialDonors(ctx, pet.PotentialDonorsCriteria{
-		PetType:          recipientPet.Type,
-		BloodGroups:      bloodReq.SearchingBloodGroupNames(),
-		Regions:          bloodReq.BloodRequest.Regions,
-		ExcludeRequestID: bloodReq.BloodRequest.ID,
-		ExcludeOwnerID:   callerUserID,
+		PetType:        recipientPet.Type,
+		BloodGroups:    bloodReq.SearchingBloodGroupNames(),
+		Regions:        bloodReq.BloodRequest.Regions,
+		ExcludeOwnerID: callerUserID,
 	})
 	if err != nil {
 		return nil, err
@@ -108,9 +107,15 @@ func (h *GetByPetIDHandler) Handle(ctx context.Context, callerUserID, petID stri
 			RecoveryPeriodMonths: pd.RecoveryPeriodMonths,
 		})
 
-		if pd.Pet.PetStatus == petmodel.PetStatusDonor {
-			donors = append(donors, pd)
+		if !pd.Pet.IsDonor() {
+			continue
 		}
+
+		if !bloodReq.BloodRequest.IsCoversNededAmount(pd.Pet.CalculateDonationAmount()) {
+			continue
+		}
+
+		donors = append(donors, pd)
 	}
 
 	return &GetByPetIDResult{
