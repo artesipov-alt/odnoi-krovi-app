@@ -10,10 +10,14 @@ interface DonorSelectedEvent {
     providerTelegram: string;
   };
   recipientData: {
+    userName: string;
     petName: string;
     petType: string; // "cat" или "dog"
     volume: number; // мл
     bloodGroup: string;
+    phone: string;
+    providerMaxId: string;
+    providerTelegram: string;
   };
 }
 
@@ -28,6 +32,10 @@ const petTypeLabel = (petType: string): string => {
   }
 };
 
+const generateVCF = (name: string, phone: string): string => {
+  return `BEGIN:VCARD\r\nVERSION:3.0\r\nFN:${name}\r\nTEL:${phone}\r\nEND:VCARD`;
+};
+
 export const handleDonorSelected = async (event: DonorSelectedEvent) => {
   const { donorData, recipientData } = event;
 
@@ -39,6 +47,21 @@ export const handleDonorSelected = async (event: DonorSelectedEvent) => {
   }
 
   try {
+    // Сначала отправляем контакт реципиента
+    await sendMessageToUser(donorProviderMaxID, "", {
+      attachments: [
+        {
+          type: "contact",
+          payload: {
+            name: recipientData.userName,
+            contact_id: Number(recipientData.providerMaxId),
+            vcf_phone: recipientData.phone,
+            vcf_info: generateVCF(recipientData.userName, recipientData.phone),
+          },
+        },
+      ],
+    });
+
     const typeLabel = petTypeLabel(recipientData.petType);
     const bloodGroup =
       recipientData.bloodGroup === "UNKNOWN"

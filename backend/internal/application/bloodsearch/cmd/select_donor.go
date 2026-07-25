@@ -172,17 +172,28 @@ func (h *SelectDonorHandler) Handle(
 
 	// 6. Уведомление донору (вне транзакции — ошибка некритична).
 	// donorOwner уже загружен на шаге 3 с WithIdentities=true — переиспользуем.
+	recipientUser, err := h.userRepo.GetByID(ctx, recipientPet.OwnerID, user.UserPreloadOptions{WithIdentities: true})
+	if err != nil {
+		slog.Error("failed to get recipient user for notification", "err", err)
+		return donorResponse, nil
+	}
+
 	donorMaxID, donorTgID := donorOwner.MessengerContacts()
+	recipientMaxID, recipientTgID := recipientUser.MessengerContacts()
 
 	donorEventData := events.DonorSelectedDonorData{
 		ProviderMaxID:    donorMaxID,
 		ProviderTelegram: donorTgID,
 	}
 	recipientEventData := events.DonorSelectedRecipientData{
-		PetName:    recipientPet.Name,
-		PetType:    string(recipientPet.Type),
-		Volume:     req.BloodRequest.BloodVolumeNeeded,
-		BloodGroup: recipientPet.BloodGroupName,
+		UserName:         recipientUser.FullName,
+		PetName:          recipientPet.Name,
+		PetType:          string(recipientPet.Type),
+		Volume:           req.BloodRequest.BloodVolumeNeeded,
+		BloodGroup:       recipientPet.BloodGroupName,
+		Phone:            recipientUser.Phone,
+		ProviderMaxID:    recipientMaxID,
+		ProviderTelegram: recipientTgID,
 	}
 	if err := h.publisher.PublishEvent(ctx, ports.EventDonorSelected, events.DonorSelected{
 		DonorData:     donorEventData,

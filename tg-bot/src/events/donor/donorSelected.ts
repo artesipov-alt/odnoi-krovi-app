@@ -1,5 +1,5 @@
 import { pinologger } from "../../instances";
-import { sendTelegramMessage } from "../../telegram";
+import { sendTelegramMessage, sendTelegramContact } from "../../telegram";
 import { createOpenAppKeyboard } from "../../telegramButtons";
 
 // Реципиент выбрал донора из списка потенциальных.
@@ -10,10 +10,14 @@ interface DonorSelectedEvent {
     providerTelegram: string;
   };
   recipientData: {
+    userName: string;
     petName: string;
     petType: string; // "cat" или "dog"
     volume: number; // мл
     bloodGroup: string;
+    phone: string;
+    providerMaxId: string;
+    providerTelegram: string;
   };
 }
 
@@ -41,6 +45,17 @@ export const handleDonorSelected = async (event: DonorSelectedEvent) => {
   }
 
   try {
+    // Сначала отправляем контакт реципиента
+    if (recipientData.providerTelegram && recipientData.phone) {
+      const nameParts = recipientData.userName.split(" ");
+      await sendTelegramContact(
+        donorProviderTelegram,
+        recipientData.phone,
+        nameParts[0] || recipientData.userName,
+        { last_name: nameParts.slice(1).join(" ") || undefined },
+      );
+    }
+
     const typeLabel = petTypeLabel(recipientData.petType);
     const bloodGroup =
       recipientData.bloodGroup === "UNKNOWN"

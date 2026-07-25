@@ -16,10 +16,14 @@ type DonorSelectedDonorData struct {
 	ProviderTelegram string `json:"providerTelegram"`
 }
 
-// DonorSelectedRecipientData — данные реципиента для текста уведомления.
+// DonorSelectedRecipientData — данные реципиента для текста уведомления и контакта.
 type DonorSelectedRecipientData struct {
-	PetName    string  `json:"petName"`
-	PetType    string  `json:"petType"` // "cat" или "dog"
-	Volume     float64 `json:"volume"`  // мл
-	BloodGroup string  `json:"bloodGroup"`
+	UserName         string  `json:"userName"`
+	PetName          string  `json:"petName"`
+	PetType          string  `json:"petType"` // "cat" или "dog"
+	Volume           float64 `json:"volume"`  // мл
+	BloodGroup       string  `json:"bloodGroup"`
+	Phone            string  `json:"phone"`
+	ProviderMaxID    string  `json:"providerMaxId"`
+	ProviderTelegram string  `json:"providerTelegram"`
 }
