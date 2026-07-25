@@ -10,8 +10,12 @@ type DonorSelected struct {
 	CreatedAt     time.Time                  `json:"createdAt"`
 }
 
-// DonorSelectedDonorData — данные донора для роутинга уведомления.
+// DonorSelectedDonorData — данные донора для роутинга уведомления и контакта.
 type DonorSelectedDonorData struct {
+	UserName         string `json:"userName"`
+	PetName          string `json:"petName"`
+	Phone            string `json:"phone"`
+	BloodGroup       string `json:"bloodGroup"`
 	ProviderMaxID    string `json:"providerMaxId"`
 	ProviderTelegram string `json:"providerTelegram"`
 }

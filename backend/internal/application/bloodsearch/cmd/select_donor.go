@@ -182,6 +182,10 @@ func (h *SelectDonorHandler) Handle(
 	recipientMaxID, recipientTgID := recipientUser.MessengerContacts()
 
 	donorEventData := events.DonorSelectedDonorData{
+		UserName:         donorOwner.FullName,
+		PetName:          donorPet.Name,
+		Phone:            donorOwner.Phone,
+		BloodGroup:       donorPet.BloodGroupName,
 		ProviderMaxID:    donorMaxID,
 		ProviderTelegram: donorTgID,
 	}

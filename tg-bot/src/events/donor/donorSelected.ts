@@ -2,10 +2,14 @@ import { pinologger } from "../../instances";
 import { sendTelegramMessage, sendTelegramContact } from "../../telegram";
 import { createOpenAppKeyboard } from "../../telegramButtons";
 
-// Реципиент выбрал донора из списка потенциальных.
-// Уведомление отправляется только донору.
+// DonorSelected — реципиент выбрал донора из списка потенциальных.
+// Уведомления отправляются и донору, и реципиенту.
 interface DonorSelectedEvent {
   donorData: {
+    userName: string;
+    petName: string;
+    phone: string;
+    bloodGroup: string;
     providerMaxId: string;
     providerTelegram: string;
   };
@@ -36,49 +40,82 @@ export const handleDonorSelected = async (event: DonorSelectedEvent) => {
   const { donorData, recipientData } = event;
 
   const donorProviderTelegram = donorData.providerTelegram;
+  const recipientProviderTelegram = recipientData.providerTelegram;
 
-  if (!donorProviderTelegram || donorProviderTelegram.trim() === "") {
-    pinologger.warn(
-      "Donor providerTelegram is empty, skipping notification",
-    );
-    return;
-  }
+  // ── Донору: контакт реципиента + уведомление ──
+  if (donorProviderTelegram && donorProviderTelegram.trim() !== "") {
+    try {
+      if (recipientData.providerTelegram && recipientData.phone) {
+        const nameParts = recipientData.userName.split(" ");
+        await sendTelegramContact(
+          donorProviderTelegram,
+          recipientData.phone,
+          nameParts[0] || recipientData.userName,
+          { last_name: nameParts.slice(1).join(" ") || undefined },
+        );
+      }
 
-  try {
-    // Сначала отправляем контакт реципиента
-    if (recipientData.providerTelegram && recipientData.phone) {
-      const nameParts = recipientData.userName.split(" ");
-      await sendTelegramContact(
-        donorProviderTelegram,
-        recipientData.phone,
-        nameParts[0] || recipientData.userName,
-        { last_name: nameParts.slice(1).join(" ") || undefined },
+      const typeLabel = petTypeLabel(recipientData.petType);
+      const bloodGroup =
+        recipientData.bloodGroup === "UNKNOWN"
+          ? "не определена"
+          : recipientData.bloodGroup;
+
+      const message = `На Портале ищут донора для питомца - ${typeLabel} ${recipientData.petName} (${recipientData.volume} мл, группа ${bloodGroup})\n\nРанее Вы разрешили связаться с Вами, если нужна помощь.\nХозяин реципиента получил Ваши контакты. Дождитесь, пока с Вами свяжутся, или напишите хозяину реципиента`;
+
+      await sendTelegramMessage(donorProviderTelegram, message, {
+        reply_markup: createOpenAppKeyboard(),
+      });
+
+      pinologger.info(
+        { donorId: donorProviderTelegram, recipientPetName: recipientData.petName },
+        "Sent donor selected notification to donor",
+      );
+    } catch (err) {
+      pinologger.error(
+        { error: err, donorId: donorProviderTelegram },
+        "Failed to send donor selected notification to donor",
       );
     }
+  } else {
+    pinologger.warn("Donor providerTelegram is empty, skipping donor notification");
+  }
 
-    const typeLabel = petTypeLabel(recipientData.petType);
-    const bloodGroup =
-      recipientData.bloodGroup === "UNKNOWN"
-        ? "не определена"
-        : recipientData.bloodGroup;
+  // ── Реципиенту: контакт донора + уведомление ──
+  if (recipientProviderTelegram && recipientProviderTelegram.trim() !== "") {
+    try {
+      if (donorData.providerTelegram && donorData.phone) {
+        const nameParts = donorData.userName.split(" ");
+        await sendTelegramContact(
+          recipientProviderTelegram,
+          donorData.phone,
+          nameParts[0] || donorData.userName,
+          { last_name: nameParts.slice(1).join(" ") || undefined },
+        );
+      }
 
-    const message = `На Портале ищут донора для питомца - ${typeLabel} ${recipientData.petName} (${recipientData.volume} мл, группа ${bloodGroup})\n\nРанее Вы разрешили связаться с Вами, если нужна помощь.\nХозяин реципиента получил Ваши контакты. Дождитесь, пока с Вами свяжутся, или напишите хозяину реципиента`;
+      const donorBloodGroup =
+        donorData.bloodGroup === "UNKNOWN"
+          ? "не определена"
+          : donorData.bloodGroup;
 
-    await sendTelegramMessage(donorProviderTelegram, message, {
-      reply_markup: createOpenAppKeyboard(),
-    });
+      const message = `Вы выбрали донора — ${donorData.petName} (группа ${donorBloodGroup}).\n\nКонтакты хозяина донора направлены. Свяжитесь с ним для обсуждения донации.`;
 
-    pinologger.info(
-      {
-        donorId: donorProviderTelegram,
-        recipientPetName: recipientData.petName,
-      },
-      "Sent donor selected notification",
-    );
-  } catch (err) {
-    pinologger.error(
-      { error: err, donorId: donorProviderTelegram },
-      "Failed to send donor selected notification",
-    );
+      await sendTelegramMessage(recipientProviderTelegram, message, {
+        reply_markup: createOpenAppKeyboard(),
+      });
+
+      pinologger.info(
+        { recipientId: recipientProviderTelegram, donorPetName: donorData.petName },
+        "Sent donor selected notification to recipient",
+      );
+    } catch (err) {
+      pinologger.error(
+        { error: err, recipientId: recipientProviderTelegram },
+        "Failed to send donor selected notification to recipient",
+      );
+    }
+  } else {
+    pinologger.warn("Recipient providerTelegram is empty, skipping recipient notification");
   }
 };
