@@ -39,7 +39,7 @@ func (DonorPreference) Fields() []ent.Field {
 			Default("immediately"),
 		// open_for_contact - разрешает ли донор получать приглашения от реципиентов
 		field.Bool("open_for_contact").
-			Default(true).
+			Default(false).
 			Comment("Разрешает реципиентам находить донора как потенциального и приглашать"),
 	}
 }
