@@ -99,7 +99,7 @@ export const handleDonorSelected = async (event: DonorSelectedEvent) => {
           ? "не определена"
           : donorData.bloodGroup;
 
-      const message = `Вы выбрали донора — ${donorData.petName} (группа ${donorBloodGroup}).\n\nКонтакты хозяина донора направлены. Свяжитесь с ним для обсуждения донации.`;
+      const message = `\nКонтакты хозяина донора - ${donorData.petName} (группа ${donorBloodGroup})\n\nНаправляем контакты хозяина донора - обсудите возможность донации.\nБудьте вежливы и доброжелательны в общении!\nЕсли не получится договориться о донации, можете продолжить поиск в приложении.\n`;
 
       await sendTelegramMessage(recipientProviderTelegram, message, {
         reply_markup: createOpenAppKeyboard(),
