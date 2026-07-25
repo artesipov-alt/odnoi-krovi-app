@@ -58,7 +58,7 @@ backend/
 | **User** | User, DonorPreference | UserRepository | — | register, update, delete, reset, restore | get_by_id, get_contact, get_deleted |
 | **Auth** | Identity (value object) | — (через UserRepo) | AuthService | external_sign_in, mini_app_sign_in | — |
 | **Pet** | Pet, PetHealth, PetTreatment, PetAnalysis | PetReadRepository + PetWriteRepository | PetService | create, update, delete, revalidate_donor | get_by_id, get_by_user |
-| **BloodSearch** | BloodRequest | Repository | MatchingService | create, update, delete, accept_response, confirm_donation, reject_donation, close_request | get_by_id, get_by_pet_id, get_donor_by_id, get_donation |
+| **BloodSearch** | BloodRequest | Repository | MatchingService | create, update, delete, select_donor, accept_response, confirm_donation, reject_donation, close_request | get_by_id, get_by_pet_id, get_donor_by_id, get_donation |
 | **Donor** | DonorResponse | DonorResponseRepository | — | apply, complete_donation, cancel_donation | list_requests, get_recipient, get_planned, get_completed, get_bonuses |
 | **Bonus** | Bonus (value object) | BonusRepository | BonusService | import_bonuses | — |
 | **FileStorage** | — | FileRepository | FileService | get_presigned_urls, confirm_upload | — |
@@ -70,7 +70,7 @@ backend/
 - **Domain Model** (`internal/domain/{ctx}/model/`) — чистые Go-структуры без тегов ORM, с методами-конструкторами (`NewPet(...)`), методами поведения (`RecalculateFactors(...)`, `UpdateFrom(...)`).
 - **Repository Interface** (`internal/domain/{ctx}/*_repo.go`) — порты для persistence, разделены на write-only и read-only (см. PetWriteRepository / PetReadRepository).
 - **Domain Service** (`*_service.go`) — stateless, содержит логику, требующую координации нескольких aggregate (например, `PetService.CalculateAndSetStatus` оперирует Pet + DonorResponse + BloodRequest).
-- **Domain Events** (`internal/domain/{ctx}/events/`) — структуры данных событий (BloodRequestCreated, DonationConfirmed, DonorCompleted и т.д.).
+- **Domain Events** (`internal/domain/{ctx}/events/`) — структуры данных событий (BloodRequestCreated, ApplyDonor, DonorSelected, DonationConfirmed, DonorCompleted и т.д.).
 - **Ports** (`internal/domain/ports/`) — интерфейсы для внешних систем (EventPublisher).
 
 ## CQRS: как реализовано

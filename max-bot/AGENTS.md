@@ -66,8 +66,11 @@ max-bot/
 │       │   ├── donorCompleted.ts      # Донор сообщил о завершении донации
 │       │   ├── donorNotConfirmed.ts   # Реципиент не подтвердил донацию
 │       │   ├── donorReject.ts         # Реципиент отклонил донацию
-│       │   ├── recipientApply.ts      # Отклик реципиента на донора (принятие заявки)
-│       │   └── helpers.ts             # Утилиты (generateMessage)
+│       │   ├── donorSelected.ts       # Реципиент выбрал донора (контакты + уведомление обоим)
+│       │   └── recipientApply.ts      # Отклик реципиента на донора (принятие заявки)
+│       ├── notification/
+│       │   ├── handleNotification.ts       # Обработка уведомлений с кнопками
+│       │   └── handleNotificationRespond.ts # Обработка ответов на уведомления
 │       ├── recipient/
 │       │   ├── donorApply.ts          # Отклик донора на реципиента
 │       │   ├── donationConfirmed.ts   # Подтверждение донации (от реципиента донору)
@@ -169,13 +172,14 @@ Max Platform → POST /webhook (X-Max-Bot-Api-Secret)
 2. **sendMessageToUser** (src/max.ts) — единая точка отправки сообщений с валидацией MaxID (числовой, не пустой). Всегда использовать её вместо прямого вызова `bot.api.sendMessageToUser`.
 3. **Contact attachments** — для передачи контактов используется `generateVCF()` и `type: "contact"` attachment.
 4. **Кнопка «Открыть приложение»** — во всех уведомлениях (кроме `handleUserContact`) добавляется `getAppOpenKeyboard()` из `src/keyboards.ts`. Это Link Button, открывающая Mini App Max по ссылке `https://max.ru/{BOT_ID}_bot?startapp`.
-5. **Разделение контакта и кнопки** — в сценариях, где нужен и контакт, и кнопка (donorApply, donorNotConfirmed, handleUserContact), отправка разбивается на **два последовательных вызова** `sendMessageToUser`:
-   - Сначала текст-уведомление + кнопка (`getAppOpenKeyboard()`)
-   - Затем пустое сообщение + contact attachment (VCF)
-   Это сделано, чтобы избежать проблем с отображением в Max.
-9. **In-memory кэш токенов (`authStore`)** — JWT токены кэшируются в `Map<MaxId, AuthData>` для избежания повторной аутентификации при каждом callback-нажатии. Токен живёт 24ч, проверка — с запасом 5 минут. При 401 ответе от бэкенда — `invalidateToken()` + retry.
-10. **Callback-кнопки в уведомлениях** — `callbackData` передаёт action и requestId через формат `notification_{yes|no}_{requestId}`. Обработка через `bot.action(regex, handler)`.
-11. **action вместо callbackQuery** — в Max API используется `bot.action(triggers, handler)`, а не `bot.callbackQuery()`. Тип контекста — `FilteredContext<Ctx, 'message_callback'>`. `ctx.match` — `RegExpExecArray`.
-12. **answerOnCallback** — метод `ctx.answerOnCallback({ notification: string, message?: ... })`. Нет `show_alert`. notification — текст всплывающего уведомления.
-13. **ctx.user вместо ctx.from** — нет `ctx.from`. Пользователь: `ctx.user` с полями `user_id`, `first_name`, `last_name`, `username`.
-14. **editMessage()** — в Max API `ctx.editMessage({ text, format, attachments })`, а не `ctx.editMessageText(text, extra)`. `attachments` = массив клавиатур. Для удаления кнопок — `attachments: [Keyboard.inlineKeyboard([])]` (пустой массив `attachments` не снимает уже отрисованные кнопки).
+5. **Разделение контакта и кнопки** — в сценариях, где нужен и контакт, и кнопка (donorApply, donorNotConfirmed, donorSelected, handleUserContact), отправка разбивается на **два последовательных вызова** `sendMessageToUser`:
+   - Сначала контакт (contact attachment / VCF)
+   - Затем текст-уведомление + кнопка (`getAppOpenKeyboard()`)
+   Такой порядок (контакт → текст) выбран после 0.10.0, чтобы контакт не терялся за текстом.
+6. **In-memory кэш токенов (`authStore`)**
+6. **In-memory кэш токенов (`authStore`)** — JWT токены кэшируются в `Map<MaxId, AuthData>` для избежания повторной аутентификации при каждом callback-нажатии. Токен живёт 24ч, проверка — с запасом 5 минут. При 401 ответе от бэкенда — `invalidateToken()` + retry.
+7. **Callback-кнопки в уведомлениях** — `callbackData` передаёт action и requestId через формат `notification_{yes|no}_{requestId}`. Обработка через `bot.action(regex, handler)`.
+8. **action вместо callbackQuery** — в Max API используется `bot.action(triggers, handler)`, а не `bot.callbackQuery()`. Тип контекста — `FilteredContext<Ctx, 'message_callback'>`. `ctx.match` — `RegExpExecArray`.
+9. **answerOnCallback** — метод `ctx.answerOnCallback({ notification: string, message?: ... })`. Нет `show_alert`. notification — текст всплывающего уведомления.
+10. **ctx.user вместо ctx.from** — нет `ctx.from`. Пользователь: `ctx.user` с полями `user_id`, `first_name`, `last_name`, `username`.
+11. **editMessage()** — в Max API `ctx.editMessage({ text, format, attachments })`, а не `ctx.editMessageText(text, extra)`. `attachments` = массив клавиатур. Для замены кнопок после ответа — `attachments: [getAppOpenKeyboard()]` (пустой массив `attachments` не снимает уже отрисованные кнопки).
