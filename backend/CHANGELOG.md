@@ -5,6 +5,18 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.24.4] - 2026-07-25
+
+### Добавлено
+
+- **Новое событие `donor_selected` для `SelectDonorHandler`.**
+  Вместо переиспользования `donor_response_apply` создан отдельный тип события `EventDonorSelected` с собственной структурой payload `DonorSelected`. Событие отправляет уведомление только донору (не реципиенту) с информацией о питомце-реципиенте: тип (кошка/собака), имя, объём, группа крови.
+  Затронутые файлы: `internal/domain/ports/event_publisher.go`, `internal/domain/bloodsearch/events/donor_selected.go`, `internal/application/bloodsearch/cmd/select_donor.go`.
+
+### Изменено
+
+- **`select_donor.go` больше не загружает `recipientUser`** — контакты реципиента не нужны для нового события (уведомление идёт только донору).
+
 ## [3.24.3] - 2026-07-23
 
 ### Изменено

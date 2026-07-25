@@ -4,6 +4,7 @@
 export const EVENT_TYPES = {
   BLOOD_REQUEST_CREATED: "blood_request_created",
   DONOR_APPLY: "donor_response_apply",
+  DONOR_SELECTED: "donor_selected",
   DONATION_CONFIRMED: "donation_confirmed",
   RECIPIENT_APPLY: "recipient_response_apply",
   DONOR_CANCEL: "donor_cancel",

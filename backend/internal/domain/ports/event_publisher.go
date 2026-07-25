@@ -33,6 +33,7 @@ type EventType string
 const (
 	EventBloodRequestCreated EventType = "blood_request_created"
 	EventDonorApply          EventType = "donor_response_apply"
+	EventDonorSelected       EventType = "donor_selected"
 	EventDonationConfirmed   EventType = "donation_confirmed"
 	EventRecipientApply      EventType = "recipient_response_apply"
 	EventDonorCancel         EventType = "donor_cancel"

@@ -172,35 +172,21 @@ func (h *SelectDonorHandler) Handle(
 
 	// 6. Уведомление донору (вне транзакции — ошибка некритична).
 	// donorOwner уже загружен на шаге 3 с WithIdentities=true — переиспользуем.
-	recipientUser, err := h.userRepo.GetByID(ctx, recipientPet.OwnerID, user.UserPreloadOptions{WithIdentities: true})
-	if err != nil {
-		slog.Error("failed to get recipient user for notification", "err", err)
-		return donorResponse, nil
-	}
-
 	donorMaxID, donorTgID := donorOwner.MessengerContacts()
-	recipientMaxID, recipientTgID := recipientUser.MessengerContacts()
 
-	donorData := events.DonorData{
-		UserName:         donorOwner.FullName,
-		PetName:          donorPet.Name,
-		Phone:            donorOwner.Phone,
-		BloodGroup:       donorPet.BloodGroupName,
+	donorEventData := events.DonorSelectedDonorData{
 		ProviderMaxID:    donorMaxID,
 		ProviderTelegram: donorTgID,
 	}
-	recipientData := events.RecipientData{
-		UserName:         recipientUser.FullName,
-		PetName:          recipientPet.Name,
-		Phone:            recipientUser.Phone,
-		BloodGroup:       recipientPet.BloodGroupName,
-		Volume:           req.BloodRequest.BloodVolumeNeeded,
-		ProviderMaxID:    recipientMaxID,
-		ProviderTelegram: recipientTgID,
+	recipientEventData := events.DonorSelectedRecipientData{
+		PetName:    recipientPet.Name,
+		PetType:    string(recipientPet.Type),
+		Volume:     req.BloodRequest.BloodVolumeNeeded,
+		BloodGroup: recipientPet.BloodGroupName,
 	}
-	if err := h.publisher.PublishEvent(ctx, ports.EventDonorApply, events.ApplyDonor{
-		DonorData:     donorData,
-		RecipientData: recipientData,
+	if err := h.publisher.PublishEvent(ctx, ports.EventDonorSelected, events.DonorSelected{
+		DonorData:     donorEventData,
+		RecipientData: recipientEventData,
 		CreatedAt:     time.Now(),
 	}); err != nil {
 		slog.Error("failed to publish donor selected notification", "err", err, "donorResponseID", donorResponse.ID)
