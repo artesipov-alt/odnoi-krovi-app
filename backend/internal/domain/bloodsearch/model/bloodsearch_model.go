@@ -91,6 +91,9 @@ func (b *BloodRequest) SetBloodGroups(groups []string) {
 }
 
 func (b *BloodRequest) RecalculateStatus() {
+	if b.Status == BloodRequestStatusClosed {
+		return
+	}
 	if b.BloodVolumeReserved >= b.BloodVolumeNeeded {
 		b.MarkReservedFull()
 	} else {
