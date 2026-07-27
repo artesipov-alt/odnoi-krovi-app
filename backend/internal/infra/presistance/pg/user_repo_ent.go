@@ -437,6 +437,7 @@ func (r *EntUserRepository) UpsertDonorPreference(ctx context.Context, userID st
 	}
 	prefBuilder.SetTaxiCompensation(prefs.TaxiCompensation)
 	prefBuilder.SetNotificationFrequency(donorpreference.NotificationFrequency(prefs.NotificationFrequency))
+	prefBuilder.SetOpenForContact(prefs.OpenForContact)
 
 	err := prefBuilder.
 		OnConflict(sql.ConflictColumns("user_id")).

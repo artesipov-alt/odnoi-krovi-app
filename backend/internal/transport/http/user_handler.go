@@ -219,6 +219,9 @@ func (h *UserHandler) UpdateUser(ctx context.Context, input *dto.UpdateUserInput
 		if input.Body.DonorPreference.NotificationFrequency != nil {
 			user.DonorPreference.NotificationFrequency = usermodel.NotificationFrequency(*input.Body.DonorPreference.NotificationFrequency)
 		}
+		if input.Body.DonorPreference.OpenForContact != nil {
+			user.DonorPreference.OpenForContact = *input.Body.DonorPreference.OpenForContact
+		}
 	}
 
 	user, err := h.updateHandler.Handle(ctx, input.ID, user)

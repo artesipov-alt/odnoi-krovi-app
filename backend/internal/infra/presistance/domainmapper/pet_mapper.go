@@ -1,7 +1,8 @@
 package domainmapper
 
 import (
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
+	bloodsearchmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
+	common "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 )
@@ -88,6 +89,40 @@ func PetToDomainSlice(pets []*ent.Pet) []*model.Pet {
 	result := make([]*model.Pet, len(pets))
 	for i, p := range pets {
 		result[i] = PetToDomain(p)
+	}
+	return result
+}
+
+// PetToPotentialDonor converts ent.Pet to bloodsearch model.PotentialDonor,
+// извлекая настройки донорства из Owner.DonorPreference.
+func PetToPotentialDonor(e *ent.Pet) *bloodsearchmodel.PotentialDonor {
+	pet := PetToDomain(e)
+	if pet == nil {
+		return nil
+	}
+
+	pd := &bloodsearchmodel.PotentialDonor{
+		Pet: pet,
+	}
+
+	if e.Edges.Owner != nil && e.Edges.Owner.Edges.DonorPreference != nil {
+		dp := e.Edges.Owner.Edges.DonorPreference
+		pd.CompensationType = common.CompensationType(dp.CompensationType.String())
+		pd.TaxiCompensation = dp.TaxiCompensation
+		pd.RecoveryPeriodMonths = dp.RecoveryPeriodMonths
+	}
+
+	return pd
+}
+
+// PetToPotentialDonorSlice converts slice of ent.Pet to slice of domain bloodsearch model.PotentialDonor.
+func PetToPotentialDonorSlice(pets []*ent.Pet) []*bloodsearchmodel.PotentialDonor {
+	if pets == nil {
+		return nil
+	}
+	result := make([]*bloodsearchmodel.PotentialDonor, len(pets))
+	for i, p := range pets {
+		result[i] = PetToPotentialDonor(p)
 	}
 	return result
 }

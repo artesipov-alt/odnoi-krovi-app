@@ -19,13 +19,14 @@ import (
 )
 
 type ConfirmDonationHandler struct {
-	bloodRepo bloodsearch.Repository
-	donorRepo donor.Repository
-	petRepo   pet.Repository
-	userRepo  user.Repository
-	txManager *presistance.TxManager
-	publisher ports.EventPublisher
-	bonusSvc  *bonus.BonusService
+	bloodRepo    bloodsearch.Repository
+	donorRepo    donor.Repository
+	petRepo      pet.Repository
+	userRepo     user.Repository
+	txManager    *presistance.TxManager
+	publisher    ports.EventPublisher
+	bonusSvc     *bonus.BonusService
+	bloodCounter *bloodsearch.BloodCounterService
 }
 
 func NewConfirmDonationHandler(
@@ -38,13 +39,14 @@ func NewConfirmDonationHandler(
 	bonusSvc *bonus.BonusService,
 ) *ConfirmDonationHandler {
 	return &ConfirmDonationHandler{
-		bloodRepo: bloodRepo,
-		donorRepo: donorRepo,
-		petRepo:   petRepo,
-		userRepo:  userRepo,
-		txManager: txManager,
-		publisher: publisher,
-		bonusSvc:  bonusSvc,
+		bloodRepo:    bloodRepo,
+		donorRepo:    donorRepo,
+		petRepo:      petRepo,
+		userRepo:     userRepo,
+		txManager:    txManager,
+		publisher:    publisher,
+		bonusSvc:     bonusSvc,
+		bloodCounter: bloodsearch.NewBloodCounterService(),
 	}
 }
 
@@ -71,10 +73,12 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 			return err
 		}
 
-		bloodReq.RecalculateBloodAmount()
+		donated, reserved := h.bloodCounter.RecalculateBloodAmount(bloodReq.BloodRequest, bloodReq.DonorApplications)
+
+		bloodReq.BloodRequest.SetBloodVolume(donated, reserved)
 		bloodReq.RecalculateStatus()
 
-		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.ID, bloodReq.Status); err != nil {
+		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.BloodRequest.ID, bloodReq.BloodRequest.Status); err != nil {
 			return err
 		}
 
@@ -82,7 +86,7 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 			for i := range bloodReq.DonorApplications {
 				app := &bloodReq.DonorApplications[i]
 				if app.ID != donorResponseID && app.IsActiveForDonation() {
-					if err := app.Reject("other"); err != nil {
+					if err := app.Reject("Выбран другой донор"); err != nil {
 						return err
 					}
 					if err := h.donorRepo.Update(txCtx, app); err != nil {
@@ -92,7 +96,7 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 				}
 			}
 			// Установить флаг переливания для recipient'а
-			if err := h.petRepo.SetTransfused(txCtx, bloodReq.PetID, true); err != nil {
+			if err := h.petRepo.SetTransfused(txCtx, bloodReq.BloodRequest.PetID, true); err != nil {
 				return err
 			}
 		}
@@ -139,13 +143,13 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 	if err != nil {
 		return err
 	}
-	recipientPet, err := h.petRepo.GetByID(ctx, bloodReq.PetID, pet.PetPreloadOptions{})
+	recipientPet, err := h.petRepo.GetByID(ctx, bloodReq.BloodRequest.PetID, pet.PetPreloadOptions{})
 	if err != nil {
 		return err
 	}
 
 	// Extract Provider IDs
-	donorMaxID, donorTelegramID := extractProviderIDs(donorUser)
+	donorMaxID, donorTelegramID := donorUser.MessengerContacts()
 
 	event := bloodsearchevent.DonationConfirmed{
 		DonorData: bloodsearchevent.DonorInfo{
@@ -182,7 +186,7 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 				return err
 			}
 
-			donorMaxID, donorTelegramID := extractProviderIDs(rejectedDonorUser)
+			donorMaxID, donorTelegramID := rejectedDonorUser.MessengerContacts()
 
 			rejectEvent := donorevent.DonorReject{
 				RecipientPetName:        recipientPet.Name,
@@ -190,7 +194,7 @@ func (h *ConfirmDonationHandler) Handle(ctx context.Context, donorResponseID str
 				DonorProviderMaxID:      donorMaxID,
 				DonorProviderTelegramID: donorTelegramID,
 				DonorPetName:            rejectedDonorPet.Name,
-				RejectedReason:          "other",
+				RejectedReason:          "Выбран другой донор",
 				CreatedAt:               time.Now(),
 			}
 

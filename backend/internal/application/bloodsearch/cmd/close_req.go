@@ -56,13 +56,13 @@ func (h *CloseRequestHandler) Handle(ctx context.Context, bloodReqID string) err
 	var rejectedDonorIDs []string
 
 	err = h.txManager.WithTx(ctx, func(txCtx context.Context) error {
-		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.ID, bloodreqmodel.BloodRequestStatusClosed); err != nil {
+		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.BloodRequest.ID, bloodreqmodel.BloodRequestStatusClosed); err != nil {
 			return err
 		}
 		for i := range bloodReq.DonorApplications {
 			application := &bloodReq.DonorApplications[i]
 			if application.IsActiveForDonation() {
-				if err := application.Reject("other"); err != nil {
+				if err := application.Reject("Заявка закрыта реципиентом"); err != nil {
 					return err
 				}
 				if err := h.donorRepo.Update(txCtx, application); err != nil {
@@ -75,7 +75,7 @@ func (h *CloseRequestHandler) Handle(ctx context.Context, bloodReqID string) err
 					if err != nil {
 						return err
 					}
-					if err := h.bonusSvc.UnassignReservedBonuses(txCtx, donorPet.OwnerID, donorPet.Type); err != nil {
+					if err := h.bonusSvc.UnassignReservedBonuses(txCtx, donorPet.OwnerID, donorPet.Type, application.ID); err != nil {
 						return err
 					}
 				}
@@ -91,7 +91,7 @@ func (h *CloseRequestHandler) Handle(ctx context.Context, bloodReqID string) err
 
 	// Publish rejection events for donors who were auto-rejected when the request closed
 	if len(rejectedDonorIDs) > 0 {
-		recipientPet, err := h.petRepo.GetByID(ctx, bloodReq.PetID, pet.PetPreloadOptions{})
+		recipientPet, err := h.petRepo.GetByID(ctx, bloodReq.BloodRequest.PetID, pet.PetPreloadOptions{})
 		if err != nil {
 			slog.Error("failed to get recipient pet for close request notifications", "err", err, "bloodReqID", bloodReqID)
 			return nil
@@ -111,7 +111,7 @@ func (h *CloseRequestHandler) Handle(ctx context.Context, bloodReqID string) err
 				continue
 			}
 
-			donorMaxID, donorTelegramID := extractProviderIDs(rejectedDonorUser)
+			donorMaxID, donorTelegramID := rejectedDonorUser.MessengerContacts()
 
 			rejectEvent := donorevent.DonorReject{
 				RecipientPetName:        recipientPet.Name,
@@ -119,7 +119,7 @@ func (h *CloseRequestHandler) Handle(ctx context.Context, bloodReqID string) err
 				DonorProviderMaxID:      donorMaxID,
 				DonorProviderTelegramID: donorTelegramID,
 				DonorPetName:            rejectedDonorPet.Name,
-				RejectedReason:          "other",
+				RejectedReason:          "Заявка закрыта реципиентом",
 				CreatedAt:               time.Now(),
 			}
 

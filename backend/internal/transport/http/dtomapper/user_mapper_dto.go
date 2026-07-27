@@ -75,6 +75,7 @@ func (m *UserMapper) ToResponse(u *model.User) dto.UserDetail {
 			CompensationType:      string(u.DonorPreference.CompensationType),
 			TaxiCompensation:      u.DonorPreference.TaxiCompensation,
 			NotificationFrequency: string(u.DonorPreference.NotificationFrequency),
+			OpenForContact:        u.DonorPreference.OpenForContact,
 			CreatedAt:             u.DonorPreference.CreatedAt,
 			UpdatedAt:             u.DonorPreference.UpdatedAt,
 			DeletedAt:             u.DonorPreference.DeletedAt,

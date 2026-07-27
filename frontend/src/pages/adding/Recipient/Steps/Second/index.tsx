@@ -112,16 +112,19 @@ const Second: FC<Props> = ({
             return;
         }
 
+        const preparedValue = Number(newValue.replace(',', '.'));
+        const preparedWeight = Number(weight.replace(',', '.'));
+
         if (
             petType === PetType.CAT &&
-            Number(newValue.replace(',', '.')) > Number((Number(weight.replace(',', '.')) * 66).toFixed(2))
+            (preparedValue > Number((preparedWeight * 66).toFixed(2)) || preparedValue > 150)
         ) {
             return;
         }
 
         if (
             petType === PetType.DOG &&
-            Number(newValue.replace(',', '.')) > Number((Number(weight.replace(',', '.')) * 88).toFixed(2))
+            (preparedValue > Number((preparedWeight * 88).toFixed(2)) || preparedValue > 2500)
         ) {
             return;
         }

@@ -18,13 +18,14 @@ import (
 )
 
 type RejectDonationHandler struct {
-	bloodRepo bloodsearch.Repository
-	donorRepo donor.Repository
-	petRepo   pet.Repository
-	userRepo  user.Repository
-	txManager *presistance.TxManager
-	publisher ports.EventPublisher
-	bonusSvc  *bonus.BonusService
+	bloodRepo    bloodsearch.Repository
+	donorRepo    donor.Repository
+	petRepo      pet.Repository
+	userRepo     user.Repository
+	txManager    *presistance.TxManager
+	publisher    ports.EventPublisher
+	bonusSvc     *bonus.BonusService
+	bloodCounter *bloodsearch.BloodCounterService
 }
 
 func NewRejectDonationHandler(
@@ -37,13 +38,14 @@ func NewRejectDonationHandler(
 	bonusSvc *bonus.BonusService,
 ) *RejectDonationHandler {
 	return &RejectDonationHandler{
-		bloodRepo: bloodRepo,
-		donorRepo: donorRepo,
-		petRepo:   petRepo,
-		userRepo:  userRepo,
-		txManager: txManager,
-		publisher: publisher,
-		bonusSvc:  bonusSvc,
+		bloodRepo:    bloodRepo,
+		donorRepo:    donorRepo,
+		petRepo:      petRepo,
+		userRepo:     userRepo,
+		txManager:    txManager,
+		publisher:    publisher,
+		bonusSvc:     bonusSvc,
+		bloodCounter: bloodsearch.NewBloodCounterService(),
 	}
 }
 
@@ -66,9 +68,11 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 		if err != nil {
 			return err
 		}
-		bloodReq.RecalculateBloodAmount()
+		donated, reserved := h.bloodCounter.RecalculateBloodAmount(bloodReq.BloodRequest, bloodReq.DonorApplications)
+
+		bloodReq.BloodRequest.SetBloodVolume(donated, reserved)
 		bloodReq.RecalculateStatus()
-		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.ID, bloodReq.Status); err != nil {
+		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.BloodRequest.ID, bloodReq.BloodRequest.Status); err != nil {
 			return err
 		}
 		donorPet, err = h.petRepo.GetByID(txCtx, application.DonorID, pet.PetPreloadOptions{})
@@ -76,7 +80,7 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 			return err
 		}
 		if application.Status == donormodel.DonorResponseStatusRejected {
-			if err := h.bonusSvc.UnassignReservedBonuses(txCtx, donorPet.OwnerID, donorPet.Type); err != nil {
+			if err := h.bonusSvc.UnassignReservedBonuses(txCtx, donorPet.OwnerID, donorPet.Type, donorResponseID); err != nil {
 				return err
 			}
 		}
@@ -93,7 +97,7 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 		return err
 	}
 
-	recipientPet, err := h.petRepo.GetByID(ctx, bloodReq.PetID, pet.PetPreloadOptions{})
+	recipientPet, err := h.petRepo.GetByID(ctx, bloodReq.BloodRequest.PetID, pet.PetPreloadOptions{})
 	if err != nil {
 		return err
 	}
@@ -112,7 +116,7 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 		return err
 	}
 
-	donorProviderMaxID, donorProviderTelegramID := extractProviderIDs(donorUser)
+	donorProviderMaxID, donorProviderTelegramID := donorUser.MessengerContacts()
 
 	switch application.Status {
 	case donormodel.DonorResponseStatusRejected:
@@ -130,7 +134,7 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 			slog.Error("failed to publish donor reject notification", "err", err, "donorResponseID", donorResponseID)
 		}
 	case donormodel.DonorResponseStatusAccepted:
-		recipientProviderMaxID, recipientProviderTelegramID := extractProviderIDs(recipientUser)
+		recipientProviderMaxID, recipientProviderTelegramID := recipientUser.MessengerContacts()
 
 		notConfirmedEvent := donorevent.DonorNotConfirmed{
 			DonorPetName:        donorPet.Name,

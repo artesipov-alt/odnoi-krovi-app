@@ -105,6 +105,28 @@ type GetBloodRequestByPetIDOutput struct {
 }
 
 // ============================================
+// Select Donor (recipient selects from potential donors)
+// ============================================
+
+// SelectDonorInput представляет запрос на выбор донора из списка потенциальных
+type SelectDonorInput struct {
+	commondto.BloodRequestIDPath
+	Body SelectDonorBody
+}
+
+// SelectDonorBody представляет тело запроса на выбор донора.
+// Условия донации (тип компенсации и такси) берутся из DonorPreference владельца
+// донора — реципиент их не задаёт.
+type SelectDonorBody struct {
+	DonorID string `json:"donorId" doc:"ID питомца-донора" minLength:"1" example:"PET-aBcDeF1234"`
+}
+
+// SelectDonorOutput представляет ответ на выбор донора
+type SelectDonorOutput struct {
+	Body DonorApplication
+}
+
+// ============================================
 // Apply Response
 // ============================================
 
@@ -156,6 +178,7 @@ type BloodRequestDetail struct {
 	Responses                []DonorApplication `json:"responses,omitempty" doc:"Отклики доноров"`
 	AcceptedDonors           []DonorApplication `json:"acceptedDonors,omitempty" doc:"Принятые отклики доноров"`
 	CompletedDonations       []DonorApplication `json:"completedDonations,omitempty" doc:"Завершенные донации"`
+	PotentialDonors          []DonorApplication `json:"potentialDonors,omitempty" doc:"Потенциальные доноры (открытые для приглашений)"`
 	SuitableDonors           int                `json:"suitableDonors" doc:"Количество подходящих доноров"`
 	CreatedAt                *time.Time         `json:"createdAt,omitempty" doc:"Дата создания" example:"2023-10-01T12:00:00Z" readOnly:"true"`
 	UpdatedAt                *time.Time         `json:"updatedAt,omitempty" doc:"Дата обновления" example:"2023-10-01T12:00:00Z" readOnly:"true"`

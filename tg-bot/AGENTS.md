@@ -65,8 +65,12 @@ tg-bot/
 │       │   ├── donorCompleted.ts      # Донор сообщил о завершении донации
 │       │   ├── donorNotConfirmed.ts   # Реципиент не подтвердил донацию
 │       │   ├── donorReject.ts         # Реципиент отклонил донацию
-│       │   ├── recipientApply.ts      # Отклик реципиента на донора (принятие заявки)
-│       │   └── helpers.ts             # Утилиты (generateMessage)
+│       │   ├── donorSelected.ts       # Реципиент выбрал донора (контакты + уведомление обоим)
+│       │   ├── helpers.ts             # Утилиты (generateMessage)
+│       │   └── recipientApply.ts      # Отклик реципиента на донора (принятие заявки)
+│       ├── notification/
+│       │   ├── handleNotification.ts       # Обработка уведомлений с кнопками
+│       │   └── handleNotificationRespond.ts # Обработка ответов на уведомления
 │       ├── recipient/
 │       │   ├── donorApply.ts          # Отклик донора на реципиента
 │       │   ├── donationConfirmed.ts   # Подтверждение донации (от реципиента донору)
@@ -145,8 +149,5 @@ Backend → Redis PUBLISH "prod:events" { "type": "donor_response_apply", "paylo
    - dev → `https://dev.1krovi.app`
    - prod → `https://1krovi.app`
    Кнопка передаётся как `reply_markup` в `sendTelegramMessage`.
-14. **In-memory кэш токенов (`authStore`)** — JWT токены кэшируются в `Map<telegramId, AuthData>` для избежания повторной аутентификации при каждом callback-нажатии. Токен живёт 24ч, проверка — с запасом 5 минут. При 401 ответе от бэкенда — `invalidateToken()` + retry с новым токеном.
-15. **Callback-кнопки в уведомлениях** — `callback_data` передаёт action и requestId через формат `notification_{yes|no}_{requestId}`. Обработка через `bot.callbackQuery()` с regex-матчингом. После обработки — `ctx.answerCallbackQuery()` (подавление прелоадера).
-16. **Разные API для callbackQuery и action** — в `grammy` используется `bot.callbackQuery(regex, handler)`, в `@maxhub/max-bot-api` — `bot.action(regex, handler)`. Сигнатуры хендлеров идентичны.
-17. **answerOnCallback вместо answerCallbackQuery** — в Max API метод называется `ctx.answerOnCallback({ notification: string })` вместо `ctx.answerCallbackQuery({ text, show_alert })`. Параметры: `notification` (строка, всплывающее уведомление), `message` (опционально, новое сообщение). `show_alert` отсутствует.
-18. **ctx.user вместо ctx.from** — в Max API нет `ctx.from`, есть `ctx.user` с полями `user_id`, `first_name`, `last_name`, `username`.
+5. **In-memory кэш токенов (`authStore`)** — JWT токены кэшируются в `Map<telegramId, AuthData>` для избежания повторной аутентификации при каждом callback-нажатии. Токен живёт 24ч, проверка — с запасом 5 минут. При 401 ответе от бэкенда — `invalidateToken()` + retry с новым токеном.
+6. **Callback-кнопки в уведомлениях** — `callback_data` передаёт action и requestId через формат `notification_{yes|no}_{requestId}`. Обработка через `bot.callbackQuery()` с regex-матчингом. После обработки — `ctx.answerCallbackQuery()` (подавление прелоадера).

@@ -162,6 +162,36 @@ func (r *EntBloodRequestRepository) GetByApplicationID(ctx context.Context, id s
 	return domainmapper.BloodReqToDomain(req), nil
 }
 
+// GetByApplicationIDs возвращает мапу "application ID (DonorResponse.ID) → BloodRequest" одним
+// запросом вместо N обращений по одному ID (устраняет N+1).
+func (r *EntBloodRequestRepository) GetByApplicationIDs(ctx context.Context, applicationIDs []string, ignoreSoftDelete bool) (map[string]*bloodreqmodel.BloodRequestWithApplications, error) {
+	if len(applicationIDs) == 0 {
+		return make(map[string]*bloodreqmodel.BloodRequestWithApplications), nil
+	}
+
+	queryCtx := ctx
+	if ignoreSoftDelete {
+		queryCtx = schema.SkipSoftDelete(ctx)
+	}
+
+	reqs, err := r.client(ctx).BloodSearchRequest.Query().
+		Where(bloodsearchrequest.HasResponsesWith(donorresponse.IDIn(applicationIDs...))).
+		WithResponses().
+		All(queryCtx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get blood requests by application IDs: %w", err)
+	}
+
+	result := make(map[string]*bloodreqmodel.BloodRequestWithApplications, len(applicationIDs))
+	for _, req := range reqs {
+		domainReq := domainmapper.BloodReqToDomain(req)
+		for _, app := range domainReq.DonorApplications {
+			result[app.ID] = domainReq
+		}
+	}
+	return result, nil
+}
+
 // Update обновляет информацию о заявке
 func (r *EntBloodRequestRepository) Update(ctx context.Context, id string, req *bloodreqmodel.BloodRequest) (*bloodreqmodel.BloodRequestWithApplications, error) {
 	if req == nil {

@@ -156,8 +156,14 @@ const Search: FC<Props> = ({ userId }) => {
                 userId={userId}
                 onClose={onDonorToggle}
                 donorId={donorDetails.id}
+                searchId={poolRequest?.id!}
+                poolRequestRefetch={poolRequestRefetch}
                 onBackToSearch={onOpenCardFromDonorRespond}
-                responseId={poolRequest?.responses?.find(({ donorId }) => donorId === donorDetails.id)?.id!}
+                responseId={
+                    [...(poolRequest?.responses || []), ...(poolRequest?.potentialDonors || [])].find(
+                        ({ donorId }) => donorId === donorDetails.id,
+                    )?.id!
+                }
             />
         );
     }
@@ -166,7 +172,11 @@ const Search: FC<Props> = ({ userId }) => {
         return (
             <DonationQuestions
                 onClose={onOpenWarnFactorsToggle}
-                factors={poolRequest.responses?.find(({ donorId }) => donorId === donorWarnFactors?.id)?.warnFactors}
+                factors={
+                    [...(poolRequest?.responses || []), ...(poolRequest?.potentialDonors || [])].find(
+                        ({ donorId }) => donorId === donorWarnFactors?.id,
+                    )?.warnFactors
+                }
             />
         );
     }
@@ -273,29 +283,31 @@ const Search: FC<Props> = ({ userId }) => {
                             {title}
                             {ind === 0 &&
                                 isBloodFound &&
-                                poolRequest?.responses?.length &&
-                                renderTabCounter(poolRequest.responses.length)}
+                                (poolRequest?.responses?.length || poolRequest?.potentialDonors?.length) &&
+                                renderTabCounter(
+                                    (poolRequest?.responses?.length || 0) + (poolRequest?.potentialDonors?.length || 0),
+                                )}
                             {ind === 1 && isPacketsBloodFound && renderTabCounter()}
                         </div>
                     ))}
                 </div>
             </div>
             <div className={styles.content}>
-                {tab === 0 && !isLoading && !poolRequest?.responses && (
+                {tab === 0 && !isLoading && !poolRequest?.responses && !poolRequest?.potentialDonors && (
                     <NoResults tab={tab} suitableDonors={poolRequest?.suitableDonors} />
                 )}
                 {tab === 1 && !isLoading && !isPacketsBloodFound && <NoResults tab={tab} />}
-                {tab === 0 && !isLoading && !!poolRequest?.responses && (
+                {tab === 0 && !isLoading && (!!poolRequest?.responses || !!poolRequest?.potentialDonors) && (
                     <DonorsShowcase
                         userId={userId}
                         goToOwner={goToOwner}
                         searchId={poolRequest.id}
                         petType={selectedPet?.type}
                         onDonorClick={onDonorToggle}
-                        list={poolRequest.responses}
                         showStartView={showStartView}
                         onOpenWarnFactors={onOpenWarnFactorsToggle}
                         setIsStartViewShown={setIsStartViewShownHandler}
+                        list={[...(poolRequest.responses || []), ...(poolRequest.potentialDonors || [])]}
                     />
                 )}
             </div>

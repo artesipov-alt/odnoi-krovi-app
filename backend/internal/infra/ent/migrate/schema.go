@@ -106,6 +106,7 @@ var (
 		{Name: "compensation_type", Type: field.TypeEnum, Nullable: true, Enums: []string{"free", "paid", "food"}},
 		{Name: "taxi_compensation", Type: field.TypeBool, Default: false},
 		{Name: "notification_frequency", Type: field.TypeEnum, Enums: []string{"immediately", "daily", "weekly", "never"}, Default: "immediately"},
+		{Name: "open_for_contact", Type: field.TypeBool, Default: false},
 		{Name: "user_id", Type: field.TypeString, Unique: true},
 	}
 	// DonorPreferencesTable holds the schema information for the "donor_preferences" table.
@@ -116,7 +117,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "donor_preferences_users_donor_preference",
-				Columns:    []*schema.Column{DonorPreferencesColumns[9]},
+				Columns:    []*schema.Column{DonorPreferencesColumns[10]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

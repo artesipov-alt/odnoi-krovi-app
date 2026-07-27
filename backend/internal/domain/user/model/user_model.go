@@ -9,7 +9,7 @@ import (
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 )
 
-// UserRole represents user role types
+// UserRole представляет типы ролей пользователя
 type UserRole string
 
 const (
@@ -44,7 +44,7 @@ type User struct {
 	LastSeenAt          *time.Time
 }
 
-// NewUserParams holds the parameters for creating a new User
+// NewUserParams содержит параметры для создания нового пользователя
 type NewUserParams struct {
 	FullName   string
 	Phone      string
@@ -55,7 +55,7 @@ type NewUserParams struct {
 	MetaData   map[string]any
 }
 
-// NotificationFrequency represents how often donor wants to be notified
+// NotificationFrequency определяет, как часто донор хочет получать уведомления
 type NotificationFrequency string
 
 const (
@@ -65,7 +65,7 @@ const (
 	NotifyNever       NotificationFrequency = "never"       // Никогда
 )
 
-// DonorPreference represents donor's default preferences for blood donation responses
+// DonorPreference представляет предпочтения донора по умолчанию для откликов на донации
 type DonorPreference struct {
 	ID                    string
 	UserID                string
@@ -74,23 +74,25 @@ type DonorPreference struct {
 	CompensationType      common.CompensationType
 	TaxiCompensation      bool
 	NotificationFrequency NotificationFrequency
+	OpenForContact        bool
 	CreatedAt             *time.Time
 	UpdatedAt             *time.Time
 	DeletedAt             *time.Time
 }
 
-// DonorPreferenceParams holds the parameters for creating or updating a DonorPreference.
+// DonorPreferenceParams содержит параметры для создания или обновления DonorPreference
 type DonorPreferenceParams struct {
 	PreferredLocationIDs  []string
 	RecoveryPeriodMonths  int
 	CompensationType      common.CompensationType
 	TaxiCompensation      bool
 	NotificationFrequency NotificationFrequency
+	OpenForContact        bool
 }
 
-// NewUser creates a new User aggregate with validation
+// NewUser создаёт новый агрегат User с валидацией
 func NewUser(userparams NewUserParams) (*User, error) {
-	// Validation
+	// Валидация
 	if userparams.FullName == "" {
 		userparams.FullName = "Пользователь портала"
 	}
@@ -98,13 +100,13 @@ func NewUser(userparams NewUserParams) (*User, error) {
 		return nil, errors.New("full name must be less than 100 characters")
 	}
 	if userparams.Role == "" {
-		userparams.Role = RoleUser // default role
+		userparams.Role = RoleUser // роль по умолчанию
 	}
 	if userparams.Role != RoleUser && userparams.Role != RoleAdmin {
 		return nil, errors.New("invalid user role")
 	}
 	if userparams.Email != "" {
-		// Basic email validation could be added here
+		// Базовая валидация email
 		if len(userparams.Email) > 100 {
 			return nil, errors.New("email must be less than 100 characters")
 		}
@@ -113,7 +115,7 @@ func NewUser(userparams NewUserParams) (*User, error) {
 		return nil, errors.New("phone must be less than 20 characters")
 	}
 
-	// Extract OriginSource from metadata (utm_campaign)
+	// Извлечение OriginSource из метаданных (utm_campaign)
 	originSource := ""
 	if userparams.MetaData != nil {
 		if val, ok := userparams.MetaData["utm_campaign"]; ok {
@@ -155,10 +157,12 @@ func (u *User) SetRole(role string) {
 	u.Role = UserRole(role)
 }
 
-// Contacts returns provider IDs for Max and Telegram.
-// Used to notify the recipient when a donor applies for a blood request.
-func (u *User) MessengerContacts() (string, string) {
-	var maxID, telegramID string
+// MessengerContacts возвращает ID провайдеров для Max и Telegram.
+func (u *User) MessengerContacts() (maxID, telegramID string) {
+	if u.Identities == nil {
+		return "", ""
+	}
+
 	for _, identity := range u.Identities {
 		switch identity.ProviderName {
 		case authmodel.ProviderMax:
@@ -175,11 +179,10 @@ func (u *User) MessengerContacts() (string, string) {
 
 // HasProviderConflict проверяет, есть ли у двух пользователей пересечение по провайдерам.
 // Если хоть один провайдер совпадает — слияние аккаунтов запрещено.
-func (u *User) HasProviderConflict(other *User) bool {
-	if other == nil {
+func (u *User) HasProviderConflict(other User) bool {
+	if len(other.Identities) == 0 {
 		return false
 	}
-
 	providers := make(map[authmodel.ProviderName]struct{})
 	for _, identity := range u.Identities {
 		providers[identity.ProviderName] = struct{}{}
@@ -192,7 +195,7 @@ func (u *User) HasProviderConflict(other *User) bool {
 	return false
 }
 
-// NewDonorPreferenceParams creates a new DonorPreferenceParams with default values
+// DefaultDonorPreference создаёт DonorPreference со значениями по умолчанию
 func DefaultDonorPreference() *DonorPreference {
 	return &DonorPreference{
 		PreferredLocationIDs:  []string{},
@@ -200,5 +203,6 @@ func DefaultDonorPreference() *DonorPreference {
 		CompensationType:      "",
 		TaxiCompensation:      false,
 		NotificationFrequency: NotifyImmediately,
+		OpenForContact:        true,
 	}
 }

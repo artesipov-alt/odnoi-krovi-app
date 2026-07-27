@@ -4,6 +4,7 @@ package mapper
 import (
 	"math"
 
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/bloodsearch/query"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
@@ -21,6 +22,89 @@ func NewBloodRequestMapper(storage filestorage.Repository) *BloodRequestMapper {
 	return &BloodRequestMapper{
 		storage: storage,
 	}
+}
+
+// DonorResponseToApplication конвертирует PotentialDonor в DonorApplication DTO
+// для отображения в списке потенциальных доноров.
+func (m *BloodRequestMapper) DonorResponseToApplication(pd *model.PotentialDonor) dto.DonorApplication {
+	if pd == nil || pd.Pet == nil {
+		return dto.DonorApplication{}
+	}
+
+	pet := pd.Pet
+
+	var warnFactors []dto.RestrictionFactor
+	for _, code := range pet.WarnFactors {
+		desc := petmodel.GetFactorDescription(petmodel.FactorCode(code))
+		warnFactors = append(warnFactors, dto.RestrictionFactor{
+			Code:           code,
+			Description:    desc.Description,
+			SubDescription: desc.SubDescription,
+		})
+	}
+
+	return dto.DonorApplication{
+		DonorID:          pet.ID,
+		DonorName:        pet.Name,
+		DonorBloodGroup:  pet.BloodGroupName,
+		DonorPhotos:      m.storage.BuildPhotoURLs(pet.PhotoURLs, *pet.UpdatedAt),
+		Amount:           pet.CalculateDonationAmount(),
+		WarnFactors:      warnFactors,
+		CompensationType: string(pd.CompensationType),
+		TaxiCompensation: pd.TaxiCompensation,
+		Status:           "",
+		IsConfirmed:      false,
+	}
+}
+
+// DonorResponseToSelected конвертирует DonorResponse (созданный при выборе донора)
+// в DonorApplication DTO для ответа на запрос select-donor.
+func (m *BloodRequestMapper) DonorResponseToSelected(resp *donormodel.DonorResponse) dto.DonorApplication {
+	if resp == nil {
+		return dto.DonorApplication{}
+	}
+
+	var warnFactors []dto.RestrictionFactor
+	for _, code := range resp.WarnFactors {
+		desc := petmodel.GetFactorDescription(petmodel.FactorCode(code))
+		warnFactors = append(warnFactors, dto.RestrictionFactor{
+			Code:           code,
+			Description:    desc.Description,
+			SubDescription: desc.SubDescription,
+		})
+	}
+
+	return dto.DonorApplication{
+		ID:               resp.ID,
+		RequestID:        resp.RequestID,
+		DonorID:          resp.DonorID,
+		DonorName:        resp.DonorName,
+		DonorPhotos:      m.storage.BuildPhotoURLs(resp.DonorPhotos, *resp.UpdatedAt),
+		DonorBloodGroup:  resp.DonorBloodGroup,
+		Amount:           resp.Amount,
+		WarnFactors:      warnFactors,
+		CompensationType: resp.CompensationType,
+		TaxiCompensation: resp.TaxiCompensation,
+		Status:           string(resp.Status),
+		IsConfirmed:      resp.IsConfirmed,
+		CreatedAt:        resp.CreatedAt,
+		UpdatedAt:        resp.UpdatedAt,
+	}
+}
+
+func (m *BloodRequestMapper) ToResponseWithPotential(result *query.GetByPetIDResult) dto.BloodRequestDetail {
+	if result == nil {
+		return dto.BloodRequestDetail{}
+	}
+
+	detail := m.ToResponse(result.BloodRequest, &result.SuitableDonors)
+
+	detail.PotentialDonors = make([]dto.DonorApplication, 0, len(result.PotentialDonors))
+	for _, pd := range result.PotentialDonors {
+		detail.PotentialDonors = append(detail.PotentialDonors, m.DonorResponseToApplication(pd))
+	}
+
+	return detail
 }
 
 func (m *BloodRequestMapper) ToResponse(req *model.BloodRequestWithApplications, suitableDonors *int) dto.BloodRequestDetail {
@@ -58,7 +142,7 @@ func (m *BloodRequestMapper) ToResponse(req *model.BloodRequestWithApplications,
 				RequestID:        app.RequestID,
 				DonorID:          app.DonorID,
 				DonorName:        app.DonorName,
-				DonorPhotos:      m.storage.BuildPhotoURLs(app.DonorPhotos, *req.UpdatedAt),
+				DonorPhotos:      m.storage.BuildPhotoURLs(app.DonorPhotos, *req.BloodRequest.UpdatedAt),
 				DonorBloodGroup:  app.DonorBloodGroup,
 				Amount:           app.Amount,
 				WarnFactors:      warnFactors,
@@ -82,28 +166,28 @@ func (m *BloodRequestMapper) ToResponse(req *model.BloodRequestWithApplications,
 	}
 
 	return dto.BloodRequestDetail{
-		ID:                       req.ID,
-		PetID:                    req.PetID,
-		BloodVolumeNeeded:        req.BloodVolumeNeeded,
-		BloodVolumeReserved:      req.BloodVolumeReserved,
-		BloodVolumeDonated:       req.BloodVolumeDonated,
-		Regions:                  req.Regions,
-		SmallPetsNotifyAllowed:   req.SmallPetsNotifyAllowed,
-		Description:              req.AdvancedInfo.Description,
-		PhotoURLs:                m.storage.BuildPhotoURLs(req.AdvancedInfo.PhotoURLs, *req.UpdatedAt),
-		BloodGroupNames:          req.BloodGroupNames,
-		BloodComponentIDs:        req.BloodComponentIDs,
-		OnBoarding:               req.OnBoarding,
-		Status:                   string(req.Status),
-		PrioritySearch:           req.PrioritySearch,
-		IncludeUnknownBloodGroup: req.IncludeUnknownBloodGroup,
+		ID:                       req.BloodRequest.ID,
+		PetID:                    req.BloodRequest.PetID,
+		BloodVolumeNeeded:        req.BloodRequest.BloodVolumeNeeded,
+		BloodVolumeReserved:      req.BloodRequest.BloodVolumeReserved,
+		BloodVolumeDonated:       req.BloodRequest.BloodVolumeDonated,
+		Regions:                  req.BloodRequest.Regions,
+		SmallPetsNotifyAllowed:   req.BloodRequest.SmallPetsNotifyAllowed,
+		Description:              req.BloodRequest.AdvancedInfo.Description,
+		PhotoURLs:                m.storage.BuildPhotoURLs(req.BloodRequest.AdvancedInfo.PhotoURLs, *req.BloodRequest.UpdatedAt),
+		BloodGroupNames:          req.BloodRequest.BloodGroupNames,
+		BloodComponentIDs:        req.BloodRequest.BloodComponentIDs,
+		OnBoarding:               req.BloodRequest.OnBoarding,
+		Status:                   string(req.BloodRequest.Status),
+		PrioritySearch:           req.BloodRequest.PrioritySearch,
+		IncludeUnknownBloodGroup: req.BloodRequest.IncludeUnknownBloodGroup,
 		Responses:                donorApplications,
 		AcceptedDonors:           acceptedDonorApplications,
 		CompletedDonations:       completedDonations,
 		SuitableDonors:           suitableDonorsCount,
-		CreatedAt:                req.CreatedAt,
-		UpdatedAt:                req.UpdatedAt,
-		DeletedAt:                req.DeletedAt,
+		CreatedAt:                req.BloodRequest.CreatedAt,
+		UpdatedAt:                req.BloodRequest.UpdatedAt,
+		DeletedAt:                req.BloodRequest.DeletedAt,
 	}
 }
 

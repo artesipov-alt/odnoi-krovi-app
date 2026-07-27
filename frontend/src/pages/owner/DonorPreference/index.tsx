@@ -40,6 +40,7 @@ const DonorPreference: FC<Props> = ({ id, view, onClose, refetchUserData, prefer
     const [recovery, setRecovery] = useState<number>(preference ? preference.recoveryPeriodMonths : 2);
     const [locations, setLocations] = useState<string[]>(preference ? preference.preferredLocationIds : []);
     const [reward, setReward] = useState<CompensationType | null>(preference ? preference.compensationType : null);
+    const [isOpenForContact, setIsOpenForContact] = useState<boolean>(preference ? preference.openForContact : true);
     const [notifications, setNotifications] = useState<NotificationFrequency>(
         preference ? (preference.notificationFrequency as NotificationFrequency) : NotificationFrequency.IMMEDIATELY,
     );
@@ -83,6 +84,16 @@ const DonorPreference: FC<Props> = ({ id, view, onClose, refetchUserData, prefer
         setNotifications(value);
     };
 
+    const onOpenForContactToggle = (value: boolean) => () => {
+        setIsOpenForContact((prevState) => {
+            if (value === prevState) {
+                return prevState;
+            }
+
+            return value;
+        });
+    };
+
     const onConfirmButtonClickHandler = async () => {
         if (!id) {
             return;
@@ -93,8 +104,9 @@ const DonorPreference: FC<Props> = ({ id, view, onClose, refetchUserData, prefer
             donorPreference: {
                 taxiCompensation: isTaxi,
                 compensationType: reward!,
-                preferredLocationIds: locations,
                 recoveryPeriodMonths: recovery,
+                preferredLocationIds: locations,
+                openForContact: isOpenForContact,
                 notificationFrequency: notifications,
             },
         });
@@ -122,11 +134,12 @@ const DonorPreference: FC<Props> = ({ id, view, onClose, refetchUserData, prefer
                 ? preference.taxiCompensation !== isTaxi ||
                       preference.compensationType !== reward ||
                       preference.recoveryPeriodMonths !== recovery ||
+                      preference.openForContact !== isOpenForContact ||
                       preference.notificationFrequency !== notifications ||
                       (!!locations.length && preference.preferredLocationIds.join(',') !== locations.join(','))
                 : !!locations.length && !!reward,
         );
-    }, [isTaxi, locations, notifications, preference, recovery, reward]);
+    }, [isTaxi, locations, notifications, preference, recovery, reward, isOpenForContact]);
 
     return (
         <Layout>
@@ -257,6 +270,26 @@ const DonorPreference: FC<Props> = ({ id, view, onClose, refetchUserData, prefer
                         </div>
                         <Switch checked={isTaxi} onChange={onChangeSwitchHandler} />
                     </div>
+                    <FormItem title='Можно связаться с Вами, если нужна помощь?' className={styles.openForContact}>
+                        <div className={styles.buttons}>
+                            <Button
+                                onClick={onOpenForContactToggle(true)}
+                                className={cn(styles.button, {
+                                    [styles.checked]: isOpenForContact,
+                                })}
+                            >
+                                Да
+                            </Button>
+                            <Button
+                                onClick={onOpenForContactToggle(false)}
+                                className={cn(styles.button, {
+                                    [styles.checked]: !isOpenForContact,
+                                })}
+                            >
+                                Выберу реципиента самостоятельно
+                            </Button>
+                        </div>
+                    </FormItem>
                     <FormItem title='Как часто уведомлять о новых реципиентах?' className={styles.notifications}>
                         <div className={styles.notificationsFirst}>
                             <Button

@@ -27,6 +27,7 @@ type CancelDonationHandler struct {
 	petRepo        pet.PetReadRepository
 	userRepo       user.Repository
 	bonusSvc       *bonus.BonusService
+	bloodCounter   *bloodsearch.BloodCounterService
 }
 
 func NewCancelDonationHandler(
@@ -46,6 +47,7 @@ func NewCancelDonationHandler(
 		petRepo:        petRepo,
 		userRepo:       userRepo,
 		bonusSvc:       bonusSvc,
+		bloodCounter:   bloodsearch.NewBloodCounterService(),
 	}
 }
 
@@ -86,13 +88,15 @@ func (h *CancelDonationHandler) Handle(ctx context.Context, resID string, reason
 		if err != nil {
 			return apperrors.Internal(err, "failed to get blood request after cancel")
 		}
-		bloodReq.RecalculateBloodAmount()
+		donated, reserved := h.bloodCounter.RecalculateBloodAmount(bloodReq.BloodRequest, bloodReq.DonorApplications)
+
+		bloodReq.BloodRequest.SetBloodVolume(donated, reserved)
 		bloodReq.RecalculateStatus()
-		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.ID, bloodReq.Status); err != nil {
+		if err := h.bloodRepo.UpdateStatus(txCtx, bloodReq.BloodRequest.ID, bloodReq.BloodRequest.Status); err != nil {
 			return apperrors.Internal(err, "failed to update blood request status after cancel")
 		}
 
-		if err := h.bonusSvc.UnassignReservedBonuses(txCtx, donorPet.OwnerID, donorPet.Type); err != nil {
+		if err := h.bonusSvc.UnassignReservedBonuses(txCtx, donorPet.OwnerID, donorPet.Type, donorResponse.ID); err != nil {
 			return err
 		}
 
@@ -125,7 +129,7 @@ func (h *CancelDonationHandler) collectRecipientData(ctx context.Context, respon
 		return nil, "", "", apperrors.Internal(err, "failed to get blood request")
 	}
 
-	recipientPet, err := h.petRepo.GetByID(ctx, bloodReq.PetID, pet.PetPreloadOptions{})
+	recipientPet, err := h.petRepo.GetByID(ctx, bloodReq.BloodRequest.PetID, pet.PetPreloadOptions{})
 	if err != nil {
 		return nil, "", "", apperrors.Internal(err, "failed to get recipient pet")
 	}

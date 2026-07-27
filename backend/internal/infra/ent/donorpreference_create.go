@@ -134,6 +134,20 @@ func (_c *DonorPreferenceCreate) SetNillableNotificationFrequency(v *donorprefer
 	return _c
 }
 
+// SetOpenForContact sets the "open_for_contact" field.
+func (_c *DonorPreferenceCreate) SetOpenForContact(v bool) *DonorPreferenceCreate {
+	_c.mutation.SetOpenForContact(v)
+	return _c
+}
+
+// SetNillableOpenForContact sets the "open_for_contact" field if the given value is not nil.
+func (_c *DonorPreferenceCreate) SetNillableOpenForContact(v *bool) *DonorPreferenceCreate {
+	if v != nil {
+		_c.SetOpenForContact(*v)
+	}
+	return _c
+}
+
 // SetID sets the "id" field.
 func (_c *DonorPreferenceCreate) SetID(v string) *DonorPreferenceCreate {
 	_c.mutation.SetID(v)
@@ -208,6 +222,10 @@ func (_c *DonorPreferenceCreate) defaults() {
 		v := donorpreference.DefaultNotificationFrequency
 		_c.mutation.SetNotificationFrequency(v)
 	}
+	if _, ok := _c.mutation.OpenForContact(); !ok {
+		v := donorpreference.DefaultOpenForContact
+		_c.mutation.SetOpenForContact(v)
+	}
 	if _, ok := _c.mutation.ID(); !ok {
 		v := donorpreference.DefaultID()
 		_c.mutation.SetID(v)
@@ -240,6 +258,9 @@ func (_c *DonorPreferenceCreate) check() error {
 		if err := donorpreference.NotificationFrequencyValidator(v); err != nil {
 			return &ValidationError{Name: "notification_frequency", err: fmt.Errorf(`ent: validator failed for field "DonorPreference.notification_frequency": %w`, err)}
 		}
+	}
+	if _, ok := _c.mutation.OpenForContact(); !ok {
+		return &ValidationError{Name: "open_for_contact", err: errors.New(`ent: missing required field "DonorPreference.open_for_contact"`)}
 	}
 	if len(_c.mutation.UserIDs()) == 0 {
 		return &ValidationError{Name: "user", err: errors.New(`ent: missing required edge "DonorPreference.user"`)}
@@ -311,6 +332,10 @@ func (_c *DonorPreferenceCreate) createSpec() (*DonorPreference, *sqlgraph.Creat
 	if value, ok := _c.mutation.NotificationFrequency(); ok {
 		_spec.SetField(donorpreference.FieldNotificationFrequency, field.TypeEnum, value)
 		_node.NotificationFrequency = value
+	}
+	if value, ok := _c.mutation.OpenForContact(); ok {
+		_spec.SetField(donorpreference.FieldOpenForContact, field.TypeBool, value)
+		_node.OpenForContact = value
 	}
 	if nodes := _c.mutation.UserIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -504,6 +529,18 @@ func (u *DonorPreferenceUpsert) SetNotificationFrequency(v donorpreference.Notif
 // UpdateNotificationFrequency sets the "notification_frequency" field to the value that was provided on create.
 func (u *DonorPreferenceUpsert) UpdateNotificationFrequency() *DonorPreferenceUpsert {
 	u.SetExcluded(donorpreference.FieldNotificationFrequency)
+	return u
+}
+
+// SetOpenForContact sets the "open_for_contact" field.
+func (u *DonorPreferenceUpsert) SetOpenForContact(v bool) *DonorPreferenceUpsert {
+	u.Set(donorpreference.FieldOpenForContact, v)
+	return u
+}
+
+// UpdateOpenForContact sets the "open_for_contact" field to the value that was provided on create.
+func (u *DonorPreferenceUpsert) UpdateOpenForContact() *DonorPreferenceUpsert {
+	u.SetExcluded(donorpreference.FieldOpenForContact)
 	return u
 }
 
@@ -702,6 +739,20 @@ func (u *DonorPreferenceUpsertOne) SetNotificationFrequency(v donorpreference.No
 func (u *DonorPreferenceUpsertOne) UpdateNotificationFrequency() *DonorPreferenceUpsertOne {
 	return u.Update(func(s *DonorPreferenceUpsert) {
 		s.UpdateNotificationFrequency()
+	})
+}
+
+// SetOpenForContact sets the "open_for_contact" field.
+func (u *DonorPreferenceUpsertOne) SetOpenForContact(v bool) *DonorPreferenceUpsertOne {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.SetOpenForContact(v)
+	})
+}
+
+// UpdateOpenForContact sets the "open_for_contact" field to the value that was provided on create.
+func (u *DonorPreferenceUpsertOne) UpdateOpenForContact() *DonorPreferenceUpsertOne {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.UpdateOpenForContact()
 	})
 }
 
@@ -1067,6 +1118,20 @@ func (u *DonorPreferenceUpsertBulk) SetNotificationFrequency(v donorpreference.N
 func (u *DonorPreferenceUpsertBulk) UpdateNotificationFrequency() *DonorPreferenceUpsertBulk {
 	return u.Update(func(s *DonorPreferenceUpsert) {
 		s.UpdateNotificationFrequency()
+	})
+}
+
+// SetOpenForContact sets the "open_for_contact" field.
+func (u *DonorPreferenceUpsertBulk) SetOpenForContact(v bool) *DonorPreferenceUpsertBulk {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.SetOpenForContact(v)
+	})
+}
+
+// UpdateOpenForContact sets the "open_for_contact" field to the value that was provided on create.
+func (u *DonorPreferenceUpsertBulk) UpdateOpenForContact() *DonorPreferenceUpsertBulk {
+	return u.Update(func(s *DonorPreferenceUpsert) {
+		s.UpdateOpenForContact()
 	})
 }
 

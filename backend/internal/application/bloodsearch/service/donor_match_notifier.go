@@ -6,16 +6,15 @@ import (
 	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
-	authmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/auth/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/events"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/ports"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
-	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 )
 
 type DonorMatchNotifier struct {
@@ -23,7 +22,6 @@ type DonorMatchNotifier struct {
 	userRepo        user.Repository
 	bloodSearchRepo bloodsearch.Repository
 	donorRepo       donor.Repository
-	petService      pet.PetService
 	publisher       ports.EventPublisher
 }
 
@@ -32,7 +30,6 @@ func NewDonorMatchNotifier(
 	userRepo user.Repository,
 	bloodSearchRepo bloodsearch.Repository,
 	donorRepo donor.Repository,
-	petService pet.PetService,
 	publisher ports.EventPublisher,
 ) *DonorMatchNotifier {
 	return &DonorMatchNotifier{
@@ -40,12 +37,20 @@ func NewDonorMatchNotifier(
 		userRepo:        userRepo,
 		bloodSearchRepo: bloodSearchRepo,
 		donorRepo:       donorRepo,
-		petService:      petService,
 		publisher:       publisher,
 	}
 }
 
-func (n *DonorMatchNotifier) NotifyMatchDonors(ctx context.Context, initiatorUserID string, bloodGroupNames []string, regions []string) error {
+func (n *DonorMatchNotifier) NotifyMatchDonors(ctx context.Context, req *model.BloodRequestWithApplications) error {
+	bloodGroupNames := req.SearchingBloodGroupNames()
+	regions := req.BloodRequest.Regions
+
+	initiatorPet, err := n.petRepo.GetByID(ctx, req.BloodRequest.PetID, pet.PetPreloadOptions{})
+	if err != nil {
+		return apperrors.Internal(err, "failed to get initiator pet")
+	}
+	initiatorUserID := initiatorPet.OwnerID
+
 	petsIDs, err := n.petRepo.GetPetIDsByBloodGroupAndRegion(ctx, bloodGroupNames, regions)
 	if err != nil {
 		return apperrors.Internal(err, "failed to get pet IDs")
@@ -71,8 +76,8 @@ func (n *DonorMatchNotifier) NotifyMatchDonors(ctx context.Context, initiatorUse
 		return apperrors.Internal(err, "failed to get pets")
 	}
 
-	for _, pet := range pets {
-		applications := applicationsMap[pet.ID]
+	for _, matchingPet := range pets {
+		applications := applicationsMap[matchingPet.ID]
 		var donorApplication *donormodel.DonorResponse
 		for _, app := range applications {
 			if app.IsActiveForDonation() {
@@ -80,15 +85,20 @@ func (n *DonorMatchNotifier) NotifyMatchDonors(ctx context.Context, initiatorUse
 				break
 			}
 		}
-		donorBloodReq := bloodReqsMap[pet.ID]
-		n.petService.RecalculateFactorsAndStatus(pet, time.Now(), donorApplication, donorBloodReq)
+		donorBloodReq := bloodReqsMap[matchingPet.ID]
+
+		matchingPet.RecalculateStatus(time.Now(), pet.BuildDonationContext(donorApplication, donorBloodReq))
 	}
 
 	var avilableDonors []petmodel.Pet
 	for _, pet := range pets {
-		if pet.PetStatus == petmodel.PetStatusDonor {
-			avilableDonors = append(avilableDonors, *pet)
+		if !pet.IsDonor() {
+			continue
 		}
+		if !req.BloodRequest.IsCoversNededAmount(pet.CalculateDonationAmount()) {
+			continue
+		}
+		avilableDonors = append(avilableDonors, *pet)
 	}
 
 	// Дедуп по OwnerID ДО похода в userRepo — чтобы не запрашивать
@@ -112,7 +122,7 @@ func (n *DonorMatchNotifier) NotifyMatchDonors(ctx context.Context, initiatorUse
 			continue
 		}
 
-		maxID, telegramID := extractProviderIDs(donorUser)
+		maxID, telegramID := donorUser.MessengerContacts()
 		if maxID == "" && telegramID == "" {
 			continue
 		}
@@ -129,16 +139,4 @@ func (n *DonorMatchNotifier) NotifyMatchDonors(ctx context.Context, initiatorUse
 	}
 
 	return nil
-}
-
-func extractProviderIDs(user *usermodel.User) (maxID, telegramID string) {
-	for _, identity := range user.Identities {
-		if identity.ProviderName == authmodel.ProviderMax {
-			maxID = identity.ProviderUserID
-		}
-		if identity.ProviderName == authmodel.ProviderTelegram {
-			telegramID = identity.ProviderUserID
-		}
-	}
-	return
 }

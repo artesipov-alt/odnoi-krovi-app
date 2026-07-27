@@ -6,6 +6,7 @@ import {
   apiTestHandler,
 } from "./src/handlers/commands";
 import { handleDonorApply } from "./src/events/recipient/donorApply";
+import { handleDonorSelected } from "./src/events/donor/donorSelected";
 import { handleRecipientApply } from "./src/events/donor/recipientApply";
 import { handleDonorCancel } from "./src/events/donor/donorCancel";
 import { handleDonorReject } from "./src/events/donor/donorReject";
@@ -39,9 +40,11 @@ import {
 const eventHandlers: EventHandlerMap = {
   [EVENT_TYPES.BLOOD_REQUEST_CREATED]: ((payload: any) =>
     handleBloodRequestCreated(payload)) as EventHandler,
-  [EVENT_TYPES.DONOR_APPLY]: ((payload: any) =>
-    handleDonorApply(payload)) as EventHandler,
-  [EVENT_TYPES.DONATION_CONFIRMED]: ((payload: any) =>
+  	[EVENT_TYPES.DONOR_APPLY]: ((payload: any) =>
+  		handleDonorApply(payload)) as EventHandler,
+  	[EVENT_TYPES.DONOR_SELECTED]: ((payload: any) =>
+  		handleDonorSelected(payload)) as EventHandler,
+  	[EVENT_TYPES.DONATION_CONFIRMED]: ((payload: any) =>
     handleDonationConfirmed(payload)) as EventHandler,
   [EVENT_TYPES.RECIPIENT_APPLY]: ((payload: any) =>
     handleRecipientApply(payload)) as EventHandler,

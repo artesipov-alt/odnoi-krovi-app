@@ -5,6 +5,181 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.24.6] - 2026-07-27
+
+### Изменено
+
+- **`NotifyMatchDonors`: сигнатура теперь принимает `*BloodRequestWithApplications` вместо отдельных параметров.**
+  Метод самостоятельно получает `searchingBloodGroupNames`, `regions` и `initiatorUserID` из переданного реквеста, устраняя дублирование логики на стороне вызывающего кода.
+  Затронутые файлы: `internal/application/bloodsearch/service/donor_match_notifier.go`, `internal/application/bloodsearch/cmd/create_req.go`.
+
+- **`NotifyMatchDonors`: добавлена фильтрация по `IsCoversNededAmount`.**
+  Доноры, чей возможный объём донации не покрывает требуемый объём заявки, отсеиваются до отправки уведомлений.
+
+## [3.24.5] - 2026-07-27
+
+### Изменено
+
+- **`get_by_user.go`: оптимизация поиска доноров.**
+  Замена `len(potentialDonors) <= 0` на `len(potentialDonors) == 0` с явным `continue` для раннего выхода при пустом списке. Добавлена проверка `IsCoversNededAmount` — если ни один из потенциальных доноров не покрывает требуемый объём крови, питомец не помечается статусом `BloodFound`.
+  Затронутые файлы: `internal/application/pet/query/get_by_user.go`.
+
+## [3.24.4] - 2026-07-25
+
+### Добавлено
+
+- **Новое событие `donor_selected` для `SelectDonorHandler`.**
+  Вместо переиспользования `donor_response_apply` создан отдельный тип события `EventDonorSelected` с собственной структурой payload `DonorSelected`. Событие отправляет уведомление только донору (не реципиенту) с информацией о питомце-реципиенте: тип (кошка/собака), имя, объём, группа крови.
+  Затронутые файлы: `internal/domain/ports/event_publisher.go`, `internal/domain/bloodsearch/events/donor_selected.go`, `internal/application/bloodsearch/cmd/select_donor.go`.
+
+### Изменено
+
+- **`select_donor.go` больше не загружает `recipientUser`** — контакты реципиента не нужны для нового события (уведомление идёт только донору).
+
+## [3.24.3] - 2026-07-23
+
+### Изменено
+
+- **Рефакторинг логики донора и реципиента:** вынесены методы `Pet.IsDonor()` и `BloodRequest.IsCoversNededAmount()`, чтобы убрать дублирование проверок и сделать код поддерживаемым. `MatchingService.MatchDonor` теперь делегирует расчёт покрытия объёма крови новому методу.
+- **Убран `ExcludeRequestID` из `GetByPetIDHandler`:** реципиент теперь может самостоятельно откликаться на доноров в рамках своей же заявки.
+- **Добавлена проверка `IsCoversNededAmount` при формировании списка доноров** в `GetByPetIDHandler` — неподходящие донаторы отсеиваются сразу.
+- Исправлены мелкие ошибки, всплывшие в процессе рефакторинга.
+
+### Технические детали
+
+- `go build ./...` — чисто.
+
+## [3.24.2] - 2026-07-22
+
+### Добавлено
+
+- **Авто-простановка `blood_found` в списке питомцев пользователя:** если у питомца-реципиента есть потенциальные доноры, его статус автоматически устанавливается в `PetStatusBloodFound` при загрузке через `GetByUserHandler`. Новый метод `GetPotentialDonors` переиспользует `PetEnricher.Fetch` + `Recalculate` для фильтрации только актуальных доноров.
+- Метод `BloodRequestWithApplications.SearchingRegions()` — nil-safe получение регионов поиска (по аналогии с `SearchingBloodGroupNames`).
+- Методы `Pet.IsRecipient()` и `Pet.SetStatus(status)` на доменной модели.
+- Функция `model.CollectIDs(pets)` — утилита для сбора ID питомцев, заменяет дублированные `petIDsOf`.
+
+### Исправлено
+
+- **Error masking в `SelectDonorHandler`:** оригинальная ошибка теперь сохраняется через `.WithInternal(err)` при обёртке в `NotFound`/`Internal`, что позволяет логировать истинную причину (таймаут БД, отмена контекста и т.д.).
+
+### Технические детали
+
+- Удалён дублированный `petIDsOf` из `enricher.go` и `get_by_user.go` — заменён на `model.CollectIDs`.
+- `go build ./...` — чисто.
+
+## [3.24.0] - 2026-07-17
+
+### Добавлено
+
+- **Потенциальные доноры и выбор реципиентом:**
+  - В `DonorPreference` добавлено поле `OpenForContact` (`open_for_contact`) — позволяет донору быть видимым в списке потенциальных для реципиентов, открывших заявку.
+  - Новый метод `PetReadRepository.FindPotentialDonors(criteria)` + Ent-реализация: возвращает питомцев, открытых для приглашений, с подходящей группой крови, регионом и типом, исключая самого реципиента и уже откликнувшихся на заявку доноров. Семантика по регионам — позитивная (пустой `preferred_location_ids` = донор НЕ открыт).
+  - `GetByPetIDHandler` расширен: владелец реципиента теперь видит список потенциальных доноров (ранее возвращался только `SuitableDonors`-счётчик). Пересчёт статуса донора идёт по его собственным данным через `PetEnricher.Fetch` + `Recalculate` с индивидуальным `RecoveryPeriodMonths` из `DonorPreference`.
+  - `cmd.SelectDonorHandler`: реципиент выбирает конкретного донора из списка потенциальных. Создаётся `DonorResponse` сразу со статусом `accepted` (финальное принятие). Донору уходит уведомление через Redis publisher (`EventDonorApply`/`ApplyDonor`).
+  - HTTP-эндпоинт: `POST /v1/blood-request/{req_id}/donor/select`, body `{ donorId }`. Действие адресовано конкретной заявке (`req_id` в path), донор передаётся в теле. Условия донации (`compensationType`, `taxiCompensation`) реципиент не задаёт — берутся из `DonorPreference` владельца донора.
+  - Новый DTO `PotentialDonor` в `bloodsearch/model` (обёртка над `Pet` + `CompensationType`/`TaxiCompensation`/`RecoveryPeriodMonths` из `Owner.DonorPreference`). Мапперы `PetToPotentialDonor`/`PetToPotentialDonorSlice` в `domainmapper`. `BloodRequestDetail.PotentialDonors` в DTO/OpenAPI.
+
+### Изменено
+
+- **Семантика эндпоинтов bloodrequest:**
+  - `GET /v1/blood-request/pet/{pet_id}` теперь возвращает список потенциальных доноров и проверяет, что caller — владелец питомца-реципиента (раньше чек владельца отсутствовал).
+  - `POST /v1/blood-request/{req_id}/donor/select` — новый адрес ресурсо-ориентированный путь (был план `/v1/blood-requests/by-pet/{pet_id}/select-donor`). Путь выровнен с паттерном остальных bloodrequest-эндпоинтов (singular resource + action verb).
+  - `compensationType`/`taxiCompensation` убраны из DTO `SelectDonorBody` — эти поля принадлежат донору и его `DonorPreference`.
+  - `GetByPetIDHandler` не ищет потенциальных доноров, если заявка полностью зарезервирована: после `RecalculateStatus()` при `IsReservedFull()` возвращается только заявка и счётчик `SuitableDonors` (экономия запросов `GetByID`/`FindPotentialDonors`/`PetEnricher.Fetch`).
+  - `PotentialDonorsCriteria`: поле `ExcludePetID` удалено, добавлено `ExcludeOwnerID` — исключает всех питомцев владельца реципиента (включая самого реципиента), а не только одного питомца по ID.
+
+### Добавлено (доменная модель)
+
+- Метод `BloodRequest.IsReservedFull()` — доменный предикат статуса `reserved_full` в стиле `IsActive`/`IsClosed` (с nil-проверкой). Прикладной слой больше не сравнивает `Status == BloodRequestStatusReservedFull` напрямую.
+
+### Исправлено
+
+- **Корректность пересчёта статуса донора в `SelectDonorHandler`:** ранее вызывался `RecalculateOne(donorPet, nil, recipientBloodReq, ...)` — заявка реципиента подсовывалась в контекст донора, и `Pet.peekStatus` лепил донору `Recipient`/`BloodFound` либо `PlannedDonation`. Заменено на `Fetch([donorPet.ID]) + Recalculate` по его собственным данным. `RecoveryPeriodMonths` берётся из `DonorPreference` владельца донора (fallback = `2`).
+- **`donorResponse.Status = ...` → `donorResponse.Accept()`:** прямой set через публичное поле заменён на доменный метод, который проверяет допустимость перехода.
+- **`recipient pet not found`:** с `Internal` (HTTP 500) на `NotFound` (HTTP 404).
+- **«Донор недоступен»:** код ошибки с `ErrInvalidBloodRequestStatus` (400 «неверный статус заявки») на `Validation` (422, корректная семантика «донор сейчас не может сдавать»).
+- **Двойной `userRepo.GetByID` для владельца донора** в `SelectDonorHandler`: объединено в один вызов с `{WithDonorPreference: true, WithIdentities: true}`. `donorUser` для уведомления заменён на `donorOwner`.
+- **`GetByPetIDHandler` auth:** пустой `callerUserID` теперь возвращает `Unauthorized` вместо тихого пропуска проверки владельца.
+- **Лишний `donorRepo.GetDonorResponsesByRequestID`** убран из транзакции в `SelectDonorHandler` — `BloodRequestWithApplications` уже приходит с приложениями; хелпер `derefDonorResponses` более не нужен.
+
+### Технические детали
+
+- Валидация: `go build ./...` — чисто; OpenAPI перегенерирован; `task generate-ts` — успех.
+- План реализации см. в `backend/PLAN.md` (§4-§8, §15 — что осталось до мержа: миграция БД на `open_for_contact`, тесты §10.1-§10.5, CQRS Read/Write сплит в остальных cmd-хэндлерах).
+
+## [3.23.1] - 2026-07-16
+
+### Исправлено
+- **Бонусы: резервирование по конкретному отклику донора.**
+  `UnassignReservedBonuses` теперь фильтрует бонусы по `donorResponseID`,
+  а не снимает все зарезервированные бонусы у пользователя за раз.
+  Раньше при закрытии заявки реципиентом отвязывались все бонусы донора,
+  включая закреплённые за другими активными откликами.
+- **Причины отклонения донора заменены с `"other"` на читаемые:**
+  * `"Заявка закрыта реципиентом"` — при закрытии заявки
+  * `"Выбран другой донор"` — при подтверждении другого донора
+
+## [3.23.0] - 2026-07-14
+
+### Исправлено
+- **N+1 в `CompletedDonationsHandler`**: замена поштучных вызовов
+  `GetByApplicationID` в цикле на один batch-запрос `GetByApplicationIDs`.
+  Теперь все связанные BloodRequest достаются одним SQL-запросом
+  (`WHERE ... IN (...)`), а не N отдельными.
+
+### Добавлено
+- `GetByApplicationIDs` в интерфейс `bloodsearch.Repository` и его
+  Ent-реализацию (`EntBloodRequestRepository`) с поддержкой
+  `SkipSoftDelete` и ранним возвратом пустой map при пустом входном слайсе.
+
+### Изменено
+- `CompletedDonationsHandler.Handle`: тройная вложенность циклов разбита
+  на два прохода (сбор кандидатов → batch → обогащение), вынесен хелпер
+  `enrichCompletedDonation`. Читаемость улучшена, TODO про N+1 удалён.
+
+## [3.22.0] - 2026-07-14
+
+### Изменено
+
+- **Переключение `GetByUserHandler` на `PetEnricher`:**
+  - Добавлен новый пакет `internal/application/pet/enrich` с интерфейсом `PetEnricher` и реализацией `Enricher`, который батчево достаёт последние отклики доноров и текущие заявки на поиск крови и пересчитывает статус/факторы/восстановление питомцев.
+  - В интерфейс `donor.Repository` добавлены методы:
+    - `GetLatestByPetIDs` — возвращает последний по `created_at` отклик на каждого питомца (без фильтрации по статусу; актуальность решается через `IsActiveForDonation()`).
+    - `CountFullyCompletedByOwnerID` — количество полностью завершённых (подтверждённых реципиентом) донаций по всем питомцам владельца, включая мягко удалённых (через `SkipSoftDelete`).
+  - `GetByUserHandler` переведён на `PetEnricher`: убраны прямые зависимости `donor.Repository` и `bloodsearch.Repository`, а также ручная фильтрация мягко удалённых питомцев и подсчёт завершённых донаций в коде. Счётчик запланированных донаций теперь — простой `int`, без промежуточного слайса.
+  - В `cmd/api/main.go` добавлена точка сборки `enricher` и новая сигнатура `NewGetByUserHandler`.
+  - Старые хендлеры (`ListRequestsHandler`, `GetDonationHandler`) и `PetService` не затронуты — будут переключены отдельными задачами.
+
+## [3.21.2] - 2026-07-12
+
+### Изменено
+
+- **Рефакторинг сопоставления доноров: возврат результата и валидация предпочтений**
+  - `SearchingBloodGroupNames` перенесён в `BloodRequestWithApplications`.
+  - В `BloodRequestWithMatchingDonors` добавлен метод `AddMatchingDonor`.
+  - `MatchDonor` теперь возвращает данные о подходящем доноре и флаг успеха вместо прямой мутации получателя.
+  - Добавлены nil-проверки; возвращается `400 Bad Request`, если предпочтения донора не заданы.
+
+## [3.21.1] - 2026-07-12
+
+### Изменено
+
+- **Рефакторинг `extractProviderIDs()` → `User.MessengerContacts()`**: Заменён отдельный хелпер `extractProviderIDs()` на метод `User.MessengerContacts()` во всех command-хендлерах bloodsearch (`accept_response`, `close_req`, `confirm_donation`, `reject_donation`). Метод теперь также безопасно обрабатывает nil `Identities`.
+- **Изменена сигнатура `HasProviderConflict()`**: Метод теперь принимает `User` по значению вместо указателя `*User`. Обновлён вызов в `verify_phone.go`.
+- **Переведены комментарии в `user_model.go`**: Все комментарии переведены с английского на русский для единообразия с языком кодовой базы.
+- **Версия API увеличена до `3.21.1`**.
+
+## [3.21.0] - 2026-07-10
+
+### Изменено
+
+- **Рефакторинг расчёта объёмов крови: выделен отдельный доменный сервис `BloodCounterService`**
+  - Все 8 хендлеров переведены на новый сервис через конструктор.
+  - Удалён дублирующий метод `BloodRequestWithApplications.RecalculateBloodAmount()`.
+  - Переименование методов для ясности: `IsClosedForDonation` → `IsInActive`, `IsConfirmedByRecipient` → `IsFullyCompleted`.
+  - Добавлен метод `IsAwaitingConfirmation` для откликов, ожидающих подтверждения.
+  - Комментарий обновлён под новое имя метода.
+
 ## [3.20.4] - 2026-07-09
 
 ### Исправлено

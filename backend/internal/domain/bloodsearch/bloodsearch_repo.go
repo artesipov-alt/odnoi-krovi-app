@@ -34,6 +34,11 @@ type Repository interface {
 	// возвращает заявку по ID отклика на нее
 	GetByApplicationID(ctx context.Context, id string, ignoreSoftDelete bool) (*bloodreqmodel.BloodRequestWithApplications, error)
 
+	// GetByApplicationIDs возвращает мапу "application ID (DonorResponse.ID) → BloodRequest" одним
+	// запросом вместо N обращений по одному ID. Используется там, где нужно достать заявки сразу
+	// для целого набора откликов (устраняет N+1).
+	GetByApplicationIDs(ctx context.Context, applicationIDs []string, ignoreSoftDelete bool) (map[string]*bloodreqmodel.BloodRequestWithApplications, error)
+
 	// возвращает заявку по ID питомца
 	GetByPetID(ctx context.Context, petID string) (*bloodreqmodel.BloodRequestWithApplications, error)
 

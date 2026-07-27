@@ -163,6 +163,20 @@ func (_u *DonorPreferenceUpdate) SetNillableNotificationFrequency(v *donorprefer
 	return _u
 }
 
+// SetOpenForContact sets the "open_for_contact" field.
+func (_u *DonorPreferenceUpdate) SetOpenForContact(v bool) *DonorPreferenceUpdate {
+	_u.mutation.SetOpenForContact(v)
+	return _u
+}
+
+// SetNillableOpenForContact sets the "open_for_contact" field if the given value is not nil.
+func (_u *DonorPreferenceUpdate) SetNillableOpenForContact(v *bool) *DonorPreferenceUpdate {
+	if v != nil {
+		_u.SetOpenForContact(*v)
+	}
+	return _u
+}
+
 // SetUser sets the "user" edge to the User entity.
 func (_u *DonorPreferenceUpdate) SetUser(v *User) *DonorPreferenceUpdate {
 	return _u.SetUserID(v.ID)
@@ -285,6 +299,9 @@ func (_u *DonorPreferenceUpdate) sqlSave(ctx context.Context) (_node int, err er
 	}
 	if value, ok := _u.mutation.NotificationFrequency(); ok {
 		_spec.SetField(donorpreference.FieldNotificationFrequency, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.OpenForContact(); ok {
+		_spec.SetField(donorpreference.FieldOpenForContact, field.TypeBool, value)
 	}
 	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -468,6 +485,20 @@ func (_u *DonorPreferenceUpdateOne) SetNillableNotificationFrequency(v *donorpre
 	return _u
 }
 
+// SetOpenForContact sets the "open_for_contact" field.
+func (_u *DonorPreferenceUpdateOne) SetOpenForContact(v bool) *DonorPreferenceUpdateOne {
+	_u.mutation.SetOpenForContact(v)
+	return _u
+}
+
+// SetNillableOpenForContact sets the "open_for_contact" field if the given value is not nil.
+func (_u *DonorPreferenceUpdateOne) SetNillableOpenForContact(v *bool) *DonorPreferenceUpdateOne {
+	if v != nil {
+		_u.SetOpenForContact(*v)
+	}
+	return _u
+}
+
 // SetUser sets the "user" edge to the User entity.
 func (_u *DonorPreferenceUpdateOne) SetUser(v *User) *DonorPreferenceUpdateOne {
 	return _u.SetUserID(v.ID)
@@ -620,6 +651,9 @@ func (_u *DonorPreferenceUpdateOne) sqlSave(ctx context.Context) (_node *DonorPr
 	}
 	if value, ok := _u.mutation.NotificationFrequency(); ok {
 		_spec.SetField(donorpreference.FieldNotificationFrequency, field.TypeEnum, value)
+	}
+	if value, ok := _u.mutation.OpenForContact(); ok {
+		_spec.SetField(donorpreference.FieldOpenForContact, field.TypeBool, value)
 	}
 	if _u.mutation.UserCleared() {
 		edge := &sqlgraph.EdgeSpec{

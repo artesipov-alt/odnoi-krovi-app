@@ -76,11 +76,12 @@ export type GetPoolRequestResponse = {
     status?: PoolRequestStatus;
     onBoarding?: Onboardings[];
     bloodComponentIds: string[];
-    responses?: RespondingDonor[];
     bloodVolumeReserved?: number;
     smallPetsNotifyAllowed: true;
+    responses?: RespondingDonor[];
     acceptedDonors?: RespondingDonor[];
     includeUnknownBloodGroup?: boolean;
+    potentialDonors?: RespondingDonor[];
     completedDonations?: RespondingDonor[];
 };
 
@@ -169,6 +170,11 @@ export type RejectDonationRequest = {
     reason: string;
 };
 
+export type SelectDonorRequest = {
+    id: string;
+    donorId: string;
+};
+
 export interface IBloodRequestApi {
     addToPool(params: AddToPoolRequest): AxiosPromise<AddToPoolResponse>;
     getPoolRequest(id: string): AxiosPromise<GetPoolRequestResponse>;
@@ -179,6 +185,7 @@ export interface IBloodRequestApi {
     confirmDonation(params: ConfirmDonationRequest): AxiosPromise<void>;
     rejectDonation(params: RejectDonationRequest): AxiosPromise<void>;
     closeSearch(id: string): AxiosPromise<void>;
+    selectDonor(params: SelectDonorRequest): AxiosPromise<void>;
 }
 
 export const BLOOD_REQUEST_URL = '/v1/blood-request';
@@ -210,5 +217,8 @@ export const bloodRequestApi = (): IBloodRequestApi => ({
     },
     closeSearch(id) {
         return instance.post(`${BLOOD_REQUEST_URL}/close/${id}`);
+    },
+    selectDonor({ id, ...params }) {
+        return instance.post(`${BLOOD_REQUEST_URL}/${id}/donor/select`, params);
     },
 });

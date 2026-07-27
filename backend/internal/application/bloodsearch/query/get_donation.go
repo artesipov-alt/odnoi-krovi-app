@@ -18,11 +18,11 @@ import (
 )
 
 type GetDonationHandler struct {
-	petReadRepo pet.PetReadRepository
-	donorRepo   donor.Repository
-	userRepo    user.Repository
-	bloodRepo   bloodsearch.Repository
-	petService  pet.PetService
+	petReadRepo  pet.PetReadRepository
+	donorRepo    donor.Repository
+	userRepo     user.Repository
+	bloodRepo    bloodsearch.Repository
+	bloodCounter *bloodsearch.BloodCounterService
 }
 
 type GetDonationResult struct {
@@ -33,13 +33,13 @@ type GetDonationResult struct {
 	RecipientPet   *petmodel.Pet
 }
 
-func NewGetDonationHandler(petReadRepo pet.PetReadRepository, donorRepo donor.Repository, userRepo user.Repository, bloodRepo bloodsearch.Repository, petService pet.PetService) *GetDonationHandler {
+func NewGetDonationHandler(petReadRepo pet.PetReadRepository, donorRepo donor.Repository, userRepo user.Repository, bloodRepo bloodsearch.Repository) *GetDonationHandler {
 	return &GetDonationHandler{
-		donorRepo:   donorRepo,
-		bloodRepo:   bloodRepo,
-		petReadRepo: petReadRepo,
-		userRepo:    userRepo,
-		petService:  petService,
+		donorRepo:    donorRepo,
+		bloodRepo:    bloodRepo,
+		petReadRepo:  petReadRepo,
+		userRepo:     userRepo,
+		bloodCounter: bloodsearch.NewBloodCounterService(),
 	}
 }
 
@@ -68,17 +68,19 @@ func (h *GetDonationHandler) Handle(ctx context.Context, donorRespID string) (*G
 		return nil, err
 	}
 
-	h.petService.RecalculateFactorsAndStatus(donorPet, time.Now(), application, donorBloodReq)
+	donorPet.RecalculateStatus(time.Now(), pet.BuildDonationContext(application, donorBloodReq))
 
 	bloodReq, err := h.bloodRepo.GetByID(ctx, application.RequestID)
 	if err != nil {
 		return nil, err
 	}
 
-	bloodReq.RecalculateBloodAmount()
+	donated, reserved := h.bloodCounter.RecalculateBloodAmount(bloodReq.BloodRequest, bloodReq.DonorApplications)
+
+	bloodReq.BloodRequest.SetBloodVolume(donated, reserved)
 	bloodReq.RecalculateStatus()
 
-	recipientPet, err := h.petReadRepo.GetByID(ctx, bloodReq.PetID, pet.PetPreloadOptions{
+	recipientPet, err := h.petReadRepo.GetByID(ctx, bloodReq.BloodRequest.PetID, pet.PetPreloadOptions{
 		WithHealth:     true,
 		WithTreatments: true,
 		WithAnalyses:   true,
@@ -86,7 +88,7 @@ func (h *GetDonationHandler) Handle(ctx context.Context, donorRespID string) (*G
 	if err != nil {
 		return nil, err
 	}
-	h.petService.RecalculateFactorsAndStatus(recipientPet, time.Now(), nil, bloodReq)
+	recipientPet.RecalculateStatus(time.Now(), pet.BuildDonationContext(nil, bloodReq))
 
 	return &GetDonationResult{
 		Application:    application,

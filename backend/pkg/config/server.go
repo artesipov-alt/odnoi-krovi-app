@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"slices"
+
 	"github.com/danielgtaylor/huma/v2"
 )
 
@@ -21,23 +23,19 @@ func NewServer(port int, mux http.Handler) *MyServer {
 	}
 }
 
-// Use добавляет middleware в цепочку обработки.
-// Принимает стандартные функции-обертки func(http.Handler) http.Handler.
-// Middleware применяются так, что первое переданное в списке становится самым внешним слоем.
-// Это позволяет соблюдать логический порядок: Recovery -> RequestID -> Logging -> Mux.
 func (s *MyServer) Use(middlewares ...func(http.Handler) http.Handler) {
-	for i := len(middlewares) - 1; i >= 0; i-- {
-		s.Handler = middlewares[i](s.Handler)
+	for _, middleware := range slices.Backward(middlewares) {
+		s.Handler = middleware(s.Handler)
 	}
 }
 
 // NewHumaConfig создает и возвращает конфигурацию Huma API на основе README.md
 func NewHumaConfig(miniappDomain string) huma.Config {
-	config := huma.DefaultConfig("Одной Крови API", "3.20.4")
+	config := huma.DefaultConfig("Одной Крови API", "3.25.6")
 
 	config.Info = &huma.Info{
 		Title:       "Одной Крови API",
-		Version:     "3.20.4", // Или динамически брать из переменной окружения/сборки
+		Version:     "3.25.6", // Или динамически брать из переменной окружения/сборки
 		Description: "### Описание платформы\n**Одной Крови** — это Telegram Mini App, который помогает находить донорскую кровь для животных и позволяет владельцам питомцев становиться донорами вместе со своими любимцами.\n\n* **Поиск доноров**: Быстрый поиск доноров крови для животных в экстренных ситуациях.\n* **Регистрация доноров**: Возможность регистрации питомцев как потенциальных доноров.\n* **Геолокация**: Определение ближайших доноров через Telegram Web App.\n* **Уведомления**: Система оповещений через Telegram Bot API.\n* **Интеграция с Telegram**: Удобное общение между пользователями через Telegram.",
 		Contact: &huma.Contact{
 			Name:  "Команда Одной Крови",

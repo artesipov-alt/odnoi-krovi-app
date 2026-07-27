@@ -3,12 +3,11 @@ package query
 import (
 	"context"
 	"slices"
-	"time"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/application/pet/enrich"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	bloodreqmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
@@ -16,22 +15,20 @@ import (
 )
 
 type ListRequestsHandler struct {
-	petRepo       pet.Repository
-	donorRespRepo donor.Repository
-	bloodReqRepo  bloodsearch.Repository
-	matchingSvc   bloodsearch.MatchingService
-	petService    pet.PetService
-	userRepo      user.Repository
+	petRepo      pet.Repository
+	bloodReqRepo bloodsearch.Repository
+	matchingSvc  bloodsearch.MatchingService
+	enricher     enrich.PetEnricher
+	userRepo     user.Repository
 }
 
-func NewListRequestsHandler(petRepo pet.Repository, donorRespRepo donor.Repository, bloodReqRepo bloodsearch.Repository, matchingSvc bloodsearch.MatchingService, petService pet.PetService, userRepo user.Repository) *ListRequestsHandler {
+func NewListRequestsHandler(petRepo pet.Repository, bloodReqRepo bloodsearch.Repository, matchingSvc bloodsearch.MatchingService, enricher enrich.PetEnricher, userRepo user.Repository) *ListRequestsHandler {
 	return &ListRequestsHandler{
-		petRepo:       petRepo,
-		donorRespRepo: donorRespRepo,
-		bloodReqRepo:  bloodReqRepo,
-		matchingSvc:   matchingSvc,
-		petService:    petService,
-		userRepo:      userRepo,
+		petRepo:      petRepo,
+		bloodReqRepo: bloodReqRepo,
+		matchingSvc:  matchingSvc,
+		enricher:     enricher,
+		userRepo:     userRepo,
 	}
 }
 
@@ -43,10 +40,11 @@ func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters
 		return nil, apperrors.Internal(err, "failed to get user")
 	}
 
-	preferredLocations := []string{}
-	if user.DonorPreference != nil {
-		preferredLocations = user.DonorPreference.PreferredLocationIDs
+	if user.DonorPreference == nil {
+		return nil, apperrors.BadRequest("Настройки донора не заполнены")
 	}
+
+	preferredLocations := user.DonorPreference.PreferredLocationIDs
 
 	pets, err := h.petRepo.GetByUserID(ctx, userID, pet.PetPreloadOptions{
 		WithAll: true,
@@ -55,37 +53,14 @@ func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters
 		return nil, apperrors.Internal(err, "failed to get pets")
 	}
 
-	// Collect pet IDs for batch queries
-	petIDs := make([]string, len(pets))
-	for i, pet := range pets {
-		petIDs[i] = pet.ID
-	}
-
-	// Batch fetch applications and blood requests
-	applicationsMap, err := h.donorRespRepo.GetByPetIDs(ctx, petIDs, false)
-	if err != nil {
-		return nil, apperrors.Internal(err, "failed to get donor applications")
-	}
-
-	bloodReqsMap, err := h.bloodReqRepo.GetByPetIDs(ctx, petIDs)
-	if err != nil {
-		return nil, apperrors.Internal(err, "failed to get blood requests")
-	}
-
-	for _, pet := range pets {
-		applications := applicationsMap[pet.ID]
-		var application *donormodel.DonorResponse
-		for _, app := range applications {
-			if app.IsActiveForDonation() {
-				application = app
-				break
-			}
-		}
-		bloodReq := bloodReqsMap[pet.ID]
-		h.petService.RecalculateFactorsAndStatus(pet, time.Now(), application, bloodReq)
+	if _, err := h.enricher.RecalculateAll(ctx, pets, enrich.Options{RecoveryPeriodMonths: user.DonorPreference.RecoveryPeriodMonths}); err != nil {
+		return nil, apperrors.Internal(err, "failed to recalculate all pets")
 	}
 
 	potentialDonors := petmodel.FilterDonors(pets)
+	if len(potentialDonors) == 0 {
+		return []*bloodreqmodel.BloodRequestWithMatchingDonors{}, nil
+	}
 
 	allRequests, err := h.bloodReqRepo.AdaptiveList(ctx, filters)
 	if err != nil {
@@ -96,7 +71,9 @@ func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters
 	for _, recipient := range allRequests {
 		recipient.SyncPrivilegeAndPriority()
 		for _, donor := range potentialDonors {
-			h.matchingSvc.MatchDonor(recipient, donor, preferredLocations)
+			if d, ok := h.matchingSvc.MatchDonor(recipient, donor, preferredLocations); ok {
+				recipient.AddMatchingDonor(d)
+			}
 		}
 	}
 
@@ -114,10 +91,10 @@ func (h *ListRequestsHandler) Handle(ctx context.Context, userID string, filters
 
 // Сортируем массив реципиентов по дате создания от старых к новым и по приоритету
 func sortByPriorityAndDate(a, b *bloodreqmodel.BloodRequestWithMatchingDonors) int {
-	if a.PrioritySearch == b.PrioritySearch {
-		return b.CreatedAt.Compare(*a.CreatedAt)
+	if a.BloodRequest.PrioritySearch == b.BloodRequest.PrioritySearch {
+		return b.BloodRequest.CreatedAt.Compare(*a.BloodRequest.CreatedAt)
 	}
-	if a.PrioritySearch {
+	if a.BloodRequest.PrioritySearch {
 		return -1
 	}
 	return 1

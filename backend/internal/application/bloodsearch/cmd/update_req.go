@@ -26,8 +26,8 @@ func (h *UpdateRequestHandler) Handle(ctx context.Context, id string, bloodReq *
 	}
 
 	// Если статус не передан, сохраняем текущий
-	if bloodReq.Status == "" {
-		bloodReq.Status = existingReq.Status
+	if bloodReq.BloodRequest.Status == "" {
+		bloodReq.BloodRequest.Status = existingReq.BloodRequest.Status
 	}
 
 	updatedReq, err := h.bloodRepo.Update(ctx, id, &bloodReq.BloodRequest)

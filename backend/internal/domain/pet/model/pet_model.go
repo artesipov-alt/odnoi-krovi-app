@@ -112,6 +112,16 @@ type PetAnalysis struct {
 	AnalysisDate *time.Time
 }
 
+// PotentialDonor перенесён в domain/bloodsearch/model.
+// Для агрегации питомца с настройками донорства владельца используйте bloodsearch.model.PotentialDonor.
+
+type DonationContext struct {
+	IsRecipient                bool
+	HasActiveDonorApplications bool
+	IsPlanningDonation         bool
+	IsPrioritySearch           bool
+}
+
 // NewPet creates a new Pet aggregate with validation
 func NewPet(
 	name string,
@@ -189,6 +199,37 @@ func (p *Pet) HasStopFactors() bool {
 	return len(p.StopFactors) > 0
 }
 
+// RecalculateStatus — единая точка мутации: пересчитывает факторы,
+// статус и привилегию питомца на основе текущего состояния и фактов извне.
+func (p *Pet) RecalculateStatus(now time.Time, ctx DonationContext) {
+	p.RecalculateFactors(now, ctx.IsRecipient, ctx.IsPlanningDonation)
+	p.PetStatus = p.peekStatus(ctx)
+	if ctx.IsPrioritySearch && p.Privilege == "" {
+		p.Privilege = common.PrivilegePrioritySearch
+	}
+}
+
+// peekStatus — чистая функция, статус без мутации.
+// Приватная, т.к. вызывающему коду вне пакета не нужно звать её отдельно от RecalculateStatus.
+func (p *Pet) peekStatus(ctx DonationContext) PetStatus {
+	if ctx.IsPlanningDonation {
+		return PetStatusPlannedDonation
+	}
+	if ctx.IsRecipient {
+		if ctx.HasActiveDonorApplications {
+			return PetStatusBloodFound
+		}
+		return PetStatusRecipient
+	}
+	if p.IsRecovering() {
+		return PetStatusRecovering
+	}
+	if !p.HasStopFactors() {
+		return PetStatusDonor
+	}
+	return PetStatusNone
+}
+
 func (p *Pet) IsRecovering() bool {
 	if p == nil {
 		return false
@@ -201,6 +242,23 @@ func (p *Pet) IsRecovering() bool {
 
 func (p *Pet) IsDeleted() bool {
 	return p.DeletedAt != nil
+}
+
+func (p *Pet) IsRecipient() bool {
+	return p.PetStatus == PetStatusRecipient
+}
+
+func (p *Pet) SetStatus(status PetStatus) {
+	p.PetStatus = status
+}
+
+// CollectIDs возвращает ID всех питомцев в слайсе.
+func CollectIDs(pets []*Pet) []string {
+	ids := make([]string, len(pets))
+	for i, p := range pets {
+		ids[i] = p.ID
+	}
+	return ids
 }
 
 // FactorCode — общий тип-код для факторов и предупреждений
@@ -756,11 +814,15 @@ func (p *Pet) UpdateFrom(other *Pet) error {
 func FilterDonors(pets []*Pet) []*Pet {
 	var donors []*Pet
 	for _, p := range pets {
-		if p.PetStatus == PetStatusDonor {
+		if p.IsDonor() {
 			donors = append(donors, p)
 		}
 	}
 	return donors
+}
+
+func (p *Pet) IsDonor() bool {
+	return p.PetStatus == PetStatusDonor
 }
 
 // calculateDonationAmount вычисляет максимальный объем донации крови для питомца (до 20% циркулирующей крови, но не более лимита)
@@ -778,4 +840,23 @@ func (p *Pet) CalculateDonationAmount() float64 {
 	}
 	amount := limitPerKg * p.WeightKg
 	return math.Round(amount*10) / 10
+}
+
+// RecalculateRecoveryDays пересчитывает количество дней до восстановления после донации.
+// Примечание: recoveryPeriodMonths — период восстановления в месяцах, который задаётся
+// конфигурацией для каждого вида питомца (собаки/кошки) отдельно.
+func (p *Pet) RecalculateRecoveryDays(recoveryPeriodMonths int, now time.Time) {
+	if p.Health == nil || p.Health.LastDonation == nil || recoveryPeriodMonths <= 0 {
+		p.RecoveryDays = nil
+		return
+	}
+	nowDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	lastDonationDate := time.Date(p.Health.LastDonation.Year(), p.Health.LastDonation.Month(), p.Health.LastDonation.Day(), 0, 0, 0, 0, p.Health.LastDonation.Location())
+	endDate := lastDonationDate.AddDate(0, recoveryPeriodMonths, 0)
+	if endDate.After(nowDate) {
+		days := int(endDate.Sub(nowDate).Hours() / 24)
+		p.RecoveryDays = &days
+		return
+	}
+	p.RecoveryDays = nil
 }

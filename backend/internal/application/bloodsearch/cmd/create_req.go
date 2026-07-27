@@ -41,7 +41,7 @@ func (h *CreateRequestHandler) Handle(ctx context.Context, req *model.BloodReque
 	// Проверяем существование питомца
 	petRecipient, err := h.petRepo.GetByID(ctx, req.PetID, pet.PetPreloadOptions{})
 	if err != nil {
-		return nil, apperrors.Internal(err, "Ошибка поиска питомца")
+		return nil, err
 	}
 
 	// Проверяем, нет ли уже активной заявки для этого питомца
@@ -79,7 +79,7 @@ func (h *CreateRequestHandler) Handle(ctx context.Context, req *model.BloodReque
 			}
 		}()
 		detachedCtx := context.WithoutCancel(ctx)
-		if err := h.notifySvc.NotifyMatchDonors(detachedCtx, petRecipient.OwnerID, newReq.SearchingBloodGroupNames(), newReq.Regions); err != nil {
+		if err := h.notifySvc.NotifyMatchDonors(detachedCtx, newReq); err != nil {
 			slog.Error("failed to notify match donors", "error", err)
 		}
 	}()

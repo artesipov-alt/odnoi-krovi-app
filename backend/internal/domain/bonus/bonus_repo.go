@@ -14,8 +14,8 @@ type Repository interface {
 	// создает несколько бонусов в одной транзакции
 	CreateBatch(ctx context.Context, bonuses []*bonusmodel.Bonus) error
 
-	// открепляет зарезервированные бонусы от пользователя по типу питомца
-	UnassignReservedBonuses(ctx context.Context, userID string, petType common.PetType) error
+	// открепляет зарезервированные бонусы от пользователя по конкретному отклику донора
+	UnassignReservedBonuses(ctx context.Context, userID string, petType common.PetType, donorResponseID string) error
 
 	// назначает бонусы пользователю (UserID, DonorResponseID, stage = reserved)
 	AssignBonuses(ctx context.Context, bonusIDs []string, userID string, donorResponseID string) error

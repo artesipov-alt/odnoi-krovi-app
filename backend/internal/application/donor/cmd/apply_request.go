@@ -64,13 +64,13 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 	}
 
 	// Создаём новый отклик донора
-	donorResponse, err := donormodel.NewDonorResponse(req.ID, donorPet.ID, compensationType, donorPet.CalculateDonationAmount(), taxiCompensation)
+	donorResponse, err := donormodel.NewDonorResponse(req.BloodRequest.ID, donorPet.ID, compensationType, donorPet.CalculateDonationAmount(), taxiCompensation)
 	if err != nil {
 		return nil, apperrors.Validation(err.Error(), map[string]any{"field": "donor_response"})
 	}
 
 	// Получаем данные реципиента
-	recipientPet, err := h.petRepo.GetByID(ctx, req.PetID, pet.PetPreloadOptions{})
+	recipientPet, err := h.petRepo.GetByID(ctx, req.BloodRequest.PetID, pet.PetPreloadOptions{})
 	if err != nil {
 		return nil, apperrors.Internal(err, "failed to get recipient pet")
 	}
@@ -87,7 +87,6 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 		if err != nil {
 			return err
 		}
-
 		// Закрепляем бонусы за пользователем
 		if err := h.bonusSvc.AssignBonuses(txCtx, donorPet.OwnerID, donorPet.Type, donorResponse.ID); err != nil {
 			return err
@@ -110,8 +109,8 @@ func (h *ApplyForRequestHandler) Handle(ctx context.Context, reqID, donorID, com
 		RecipientProviderMaxID:          recipientProviderMaxID,
 		RecipientProviderTelegramID:     recipientProviderTelegramID,
 		RecipientPetName:                recipientPet.Name,
-		RecipientPetSearchingBloodGroup: req.BloodGroupNames,
-		RecipientPetNeededVolume:        req.BloodVolumeNeeded,
+		RecipientPetSearchingBloodGroup: req.BloodRequest.BloodGroupNames,
+		RecipientPetNeededVolume:        req.BloodRequest.BloodVolumeNeeded,
 		CreatedAt:                       *donorResponse.CreatedAt,
 	}); err != nil {
 		slog.Error("failed to publish recipient apply notification", "err", err, "donorResponseID", donorResponse.ID)

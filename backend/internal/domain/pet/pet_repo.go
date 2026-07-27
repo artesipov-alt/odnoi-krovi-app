@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	bloodsearchmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	commonmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 )
@@ -31,6 +32,13 @@ type PetReadRepository interface {
 
 	// GetByIDs загружает питомцев по слайсу ID с полными данными
 	GetByIDs(ctx context.Context, ids []string, opts PetPreloadOptions) ([]*model.Pet, error)
+
+	// FindPotentialDonors возвращает питомцев, открытых для приглашений реципиентов
+	// (donor_preference.open_for_contact = true) с подходящей группой крови,
+	// регионом и типом, исключая питомцев владельца реципиента (ExcludeOwnerID)
+	// и уже откликнувшихся на заявку ExcludeRequestID. Возвращает bloodsearch-модель
+	// PotentialDonor — питомца с настройками донорства его владельца.
+	FindPotentialDonors(ctx context.Context, criteria PotentialDonorsCriteria) ([]*bloodsearchmodel.PotentialDonor, error)
 }
 
 // PetWriteRepository определяет операции записи для питомцев
@@ -69,6 +77,18 @@ type PetPreloadOptions struct {
 	WithBonuses      bool
 	WithAll          bool
 	IgnoreSoftDelete bool
+}
+
+// PotentialDonorsCriteria содержит критерии для поиска потенциальных доноров.
+type PotentialDonorsCriteria struct {
+	PetType          commonmodel.PetType
+	BloodGroups      []string
+	Regions          []string
+	ExcludeRequestID string
+	// ExcludeOwnerID исключает всех питомцев владельца (например, самого реципиента).
+	ExcludeOwnerID string
+	Limit          int
+	Offset         int
 }
 
 func (pr *PetPreloadOptions) SetIgnoreSoftDelete() {

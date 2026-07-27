@@ -12,12 +12,14 @@ import (
 	entsql "entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqljson"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
+	bloodsearchmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	commonmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	entdonorpreference "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorpreference"
+	entdonorresponse "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/donorresponse"
 	entpet "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pet"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/petanalysis"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/pethealth"
@@ -622,6 +624,75 @@ func (r *EntPetRepository) CountSuitableDonors(ctx context.Context, bloodGroups 
 	// 	return 0, apperrors.Internal(err, "failed to count suitable donors")
 	// }
 	return 0, nil
+}
+
+// FindPotentialDonors возвращает питомцев, открытых для приглашений реципиентов.
+func (r *EntPetRepository) FindPotentialDonors(ctx context.Context, criteria pet.PotentialDonorsCriteria) ([]*bloodsearchmodel.PotentialDonor, error) {
+	if criteria.Limit <= 0 {
+		criteria.Limit = 50
+	}
+
+	query := r.client.Pet.Query().
+		WithOwner(func(uq *ent.UserQuery) {
+			uq.WithDonorPreference()
+		}).
+		WithBreedRef().
+		WithHealth().
+		WithTreatments().
+		WithAnalyses().
+		Where(
+			entpet.Type(string(criteria.PetType)),
+			entpet.BloodGroupIn(criteria.BloodGroups...),
+			entpet.HasOwnerWith(
+				entuser.HasDonorPreferenceWith(
+					entdonorpreference.OpenForContactEQ(true),
+				),
+			),
+		)
+
+	// Позитивная семантика по регионам: только питомцы, у которых хотя бы один
+	// регион из списка пересекается с preferred_location_ids.
+	// Пустой массив НЕ считается "любой локацией" — не фильтруем.
+	if len(criteria.Regions) > 0 {
+		predicates := make([]predicate.DonorPreference, 0, len(criteria.Regions))
+		for _, region := range criteria.Regions {
+			region := region
+			predicates = append(predicates, func(s *entsql.Selector) {
+				s.Where(sqljson.ValueContains(entdonorpreference.FieldPreferredLocationIds, region))
+			})
+		}
+		query = query.Where(
+			entpet.HasOwnerWith(entuser.HasDonorPreferenceWith(
+				entdonorpreference.And(predicates...),
+			)),
+		)
+	}
+
+	// Исключаем питомцев, у которых уже есть DonorResponse на эту заявку
+	if criteria.ExcludeRequestID != "" {
+		query = query.Where(
+			entpet.Not(
+				entpet.HasDonationsWith(
+					entdonorresponse.RequestIDEQ(criteria.ExcludeRequestID),
+				),
+			),
+		)
+	}
+
+	// Исключаем всех питомцев владельца реципиента — он ищет кровь,
+	// его собственные питомцы не могут быть донорами.
+	if criteria.ExcludeOwnerID != "" {
+		query = query.Where(entpet.HasOwnerWith(entuser.IDNEQ(criteria.ExcludeOwnerID)))
+	}
+
+	query = query.Limit(criteria.Limit).Offset(criteria.Offset)
+
+	pets, err := query.All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find potential donors: %w", err)
+	}
+
+	return domainmapper.PetToPotentialDonorSlice(pets), nil
 }
 
 // Exists проверяет существование питомца (алиас для ExistsByID для совместимости с PetReadRepository)
