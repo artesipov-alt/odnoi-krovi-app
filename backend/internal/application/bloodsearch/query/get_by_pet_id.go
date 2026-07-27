@@ -52,7 +52,6 @@ func (h *GetByPetIDHandler) Handle(ctx context.Context, callerUserID, petID stri
 
 	donated, reserved := h.bloodCounter.RecalculateBloodAmount(bloodReq.BloodRequest, bloodReq.DonorApplications)
 	bloodReq.BloodRequest.SetBloodVolume(donated, reserved)
-	bloodReq.BloodRequest.RecalculateStatus()
 
 	suitableDonors, err := h.petRepo.CountSuitableDonors(ctx, bloodReq.BloodRequest.BloodGroupNames)
 	if err != nil {
