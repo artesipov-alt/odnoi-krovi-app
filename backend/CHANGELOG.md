@@ -5,6 +5,17 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.24.6] - 2026-07-27
+
+### Изменено
+
+- **`NotifyMatchDonors`: сигнатура теперь принимает `*BloodRequestWithApplications` вместо отдельных параметров.**
+  Метод самостоятельно получает `searchingBloodGroupNames`, `regions` и `initiatorUserID` из переданного реквеста, устраняя дублирование логики на стороне вызывающего кода.
+  Затронутые файлы: `internal/application/bloodsearch/service/donor_match_notifier.go`, `internal/application/bloodsearch/cmd/create_req.go`.
+
+- **`NotifyMatchDonors`: добавлена фильтрация по `IsCoversNededAmount`.**
+  Доноры, чей возможный объём донации не покрывает требуемый объём заявки, отсеиваются до отправки уведомлений.
+
 ## [3.24.5] - 2026-07-27
 
 ### Изменено
