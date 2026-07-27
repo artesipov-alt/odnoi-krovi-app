@@ -106,7 +106,10 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 		if err != nil {
 			return nil, err
 		}
-		if len(potentialDonors) <= 0 {
+		if len(potentialDonors) == 0 {
+			continue
+		}
+		if !IsCoversNededAmount(fc.BloodReqs[p.ID], potentialDonors) {
 			continue
 		}
 		p.SetStatus(model.PetStatusBloodFound)
@@ -169,4 +172,13 @@ func (h *GetByUserHandler) GetPotentialDonors(ctx context.Context, petType commo
 	}
 
 	return donors, nil
+}
+
+func IsCoversNededAmount(bloodReq *bloodsearchmodel.BloodRequestWithApplications, donorPets []*bloodsearchmodel.PotentialDonor) bool {
+	for _, pd := range donorPets {
+		if bloodReq.BloodRequest.IsCoversNededAmount(pd.Pet.CalculateDonationAmount()) {
+			return true
+		}
+	}
+	return false
 }

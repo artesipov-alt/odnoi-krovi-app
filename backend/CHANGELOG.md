@@ -5,6 +5,14 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.24.5] - 2026-07-27
+
+### Изменено
+
+- **`get_by_user.go`: оптимизация поиска доноров.**
+  Замена `len(potentialDonors) <= 0` на `len(potentialDonors) == 0` с явным `continue` для раннего выхода при пустом списке. Добавлена проверка `IsCoversNededAmount` — если ни один из потенциальных доноров не покрывает требуемый объём крови, питомец не помечается статусом `BloodFound`.
+  Затронутые файлы: `internal/application/pet/query/get_by_user.go`.
+
 ## [3.24.4] - 2026-07-25
 
 ### Добавлено
