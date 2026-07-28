@@ -30,6 +30,10 @@
   Теперь читает `DB_NAME_PROD`/`DB_NAME_DEV` из `.env` с fallback на `DB_NAME` (для Docker, где переменная задаётся через `docker-compose.yml`). Раньше для dev/prod читалась несуществующая `DB_NAME`, что ломало запуск миграций с макбука.
   Затронутые файлы: `backend/pkg/config/ent_db.go`.
 
+- **Рефакторинг обновления пользователя: доменная валидация через `User.UpdateFrom`.**
+  Метод `UpdateFrom` на агрегате `User` теперь выполняет контролируемую мутацию полей с проверкой инвариантов (длина имени/email, допустимость роли, максимум 3 предпочитаемых региона в `DonorPreference`). Репозиторий `UpdateUserFields` упрощён — guard'ы убраны, домен гарантирует корректность данных. Handler маппит доменные ошибки в `apperrors.Validation` с английским оригиналом в `Details` через `WithInternal`.
+  Затронутые файлы: `internal/domain/user/model/user_model.go`, `internal/application/user/cmd/update.go`, `internal/infra/presistance/pg/user_repo_ent.go`.
+
 ### Удалено
 
 - **Пакет `pkg/seeds/`.**

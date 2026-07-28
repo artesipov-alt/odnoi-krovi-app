@@ -224,8 +224,9 @@ func (r *EntUserRepository) ExistsByID(ctx context.Context, id string) (bool, er
 	return exists, nil
 }
 
-// UpdateUserFields updates user fields (simple update without transaction handling).
-// Phone cannot be updated through this method — use UpdatePhone instead.
+// UpdateUserFields обновляет поля пользователя.
+// Phone не обновляется — для этого есть UpdatePhone.
+// Все проверки (валидация, инварианты) выполняются на уровне домена в User.UpdateFrom.
 func (r *EntUserRepository) UpdateUserFields(ctx context.Context, id string, input *usermodel.User) error {
 	if input == nil {
 		return errors.New("user cannot be nil")
@@ -237,31 +238,18 @@ func (r *EntUserRepository) UpdateUserFields(ctx context.Context, id string, inp
 
 	c := r.client(ctx)
 
-	builder := c.User.UpdateOneID(id)
-
-	if input.FullName != "" {
-		builder.SetFullName(input.FullName)
-	}
-	if input.Email != "" {
-		builder.SetEmail(input.Email)
-	}
-	if input.OrganizationName != "" {
-		builder.SetOrganizationName(input.OrganizationName)
-	}
-	if input.LocationID != nil {
-		builder.SetLocationID(*input.LocationID)
-	}
-	if len(input.PhotoURLs) > 0 {
-		builder.SetPhotoUrls(input.PhotoURLs)
-	}
-	if len(input.OnBoarding) > 0 {
-		builder.SetOnBoarding(input.OnBoarding)
-	}
-	builder.SetConsentPd(input.ConsentPd)
-	builder.SetAllowGeo(input.AllowGeo)
-	builder.SetPrioritySearchCount(input.PrioritySearchCount)
-
-	_, err := builder.Save(ctx)
+	_, err := c.User.UpdateOneID(id).
+		SetFullName(input.FullName).
+		SetEmail(input.Email).
+		SetOrganizationName(input.OrganizationName).
+		SetNillableLocationID(input.LocationID).
+		SetPhotoUrls(input.PhotoURLs).
+		SetOnBoarding(input.OnBoarding).
+		SetConsentPd(input.ConsentPd).
+		SetAllowGeo(input.AllowGeo).
+		SetPrioritySearchCount(input.PrioritySearchCount).
+		SetRole(entuser.Role(input.Role)).
+		Save(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to update user: %w", err)
 	}
