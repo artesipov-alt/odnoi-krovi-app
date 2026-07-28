@@ -8,7 +8,9 @@ Go-монолит, реализованный в стилистике **DDD (Dom
 
 ```
 backend/
-├── cmd/api/main.go          # Точка входа, DI-композиция (Wiring)
+├── cmd/                     # Точки входа
+│   ├── api/main.go         # Основной API-сервер (DI-композиция)
+│   └── dburl/main.go       # Утилита: печатает DSN для psql по ENV (для Taskfile)
 ├── internal/
 │   ├── apperrors/           # Единая система ошибок (AppError) + интеграция с Huma
 │   ├── domain/              # DOMAIN LAYER — бизнес-логика и модели
@@ -44,12 +46,21 @@ backend/
 │   ├── auth/               # JWT генерация/валидация + Telegram InitData проверка
 │   ├── config/             # Server, DB (Ent), Redis, CORS конфигурация
 │   ├── enums/              # Сгенерированные Ent enum-константы
-│   ├── logger/             # Настройка slog + Charm Bracelet
-│   └── seeds/              # Сиды (локации, породы)
+│   └── logger/             # Настройка slog + Charm Bracelet
+├── migrations/             # SQL-миграции данных (справочники, одноразовые преобразования)
 ├── docs/
 │   └── openapi.json        # Сгенерированная OpenAPI 3.1 спецификация
 └── docsui/                 # Scalar docs UI встраивание
 ```
+
+## Миграции базы данных
+
+Разделены два слоя (см. [migrations/README.md](migrations/README.md)):
+
+- **Schema migrations (DDL)** — Ent auto-migrate при старте приложения (`config.RunMigrations`). Создаёт/изменяет таблицы, индексы, колонки.
+- **Data migrations (SQL)** — файлы в `migrations/`, применяются вручную через `task db:migrate` (ENV=local|dev|prod). Справочники (`ref_locations`, `ref_breeds`) и одноразовые преобразования данных.
+
+Seeds в коде не используются — заменены idempotent SQL-миграциями.
 
 ## Bounded Contexts (Domain)
 

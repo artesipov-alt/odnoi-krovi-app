@@ -5,6 +5,37 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.25.0] - 2026-07-28
+
+### Добавлено
+
+- **Миграции справочников через SQL.**
+  Справочники `ref_locations` (89 субъектов РФ по ОКАТО) и `ref_breeds` (316 пород) перенесены в версионные SQL-миграции в `backend/migrations/`. Применяются через `task db:migrate` (ENV=local|dev|prod). Idempotent (`ON CONFLICT DO NOTHING`).
+  Затронутые файлы: `backend/migrations/20260728000001_regions_okato.sql`, `backend/migrations/20260728000002_breeds.sql`, `backend/migrations/README.md`.
+
+- **Утилита `cmd/dburl`.**
+  Печатает DSN для `psql` по имени окружения, переиспользует `config.NewEntConfig`. Используется в Taskfile для применения SQL-миграций.
+  Затронутые файлы: `backend/cmd/dburl/main.go`, `backend/pkg/config/ent_db.go` (добавлен `GetPsqlURL()`).
+
+- **Задачи `db:migrate*` в Taskfile.**
+  `task db:migrate`, `task db:migrate:regions`, `task db:migrate:breeds` с поддержкой `ENV=local|dev|prod`.
+  Затронутые файлы: `Taskfile.yaml`.
+
+### Изменено
+
+- **Переход на коды ОКАТО для регионов.**
+  ID локаций изменены со строковых `MSK`/`MO` на коды ОКАТО `77` (г. Москва) и `50` (Московская область). Обновлены все ссылки: `ref_locations.id`, `blood_requests.regions` (jsonb), `donor_preferences.preferred_location_ids` (jsonb), `users.location_id` (FK).
+
+- **`config.NewEntConfig`: чтение `DB_NAME_PROD`/`DB_NAME_DEV`.**
+  Теперь читает `DB_NAME_PROD`/`DB_NAME_DEV` из `.env` с fallback на `DB_NAME` (для Docker, где переменная задаётся через `docker-compose.yml`). Раньше для dev/prod читалась несуществующая `DB_NAME`, что ломало запуск миграций с макбука.
+  Затронутые файлы: `backend/pkg/config/ent_db.go`.
+
+### Удалено
+
+- **Пакет `pkg/seeds/`.**
+  Сиды (`data.go`, `main_seed.go`) удалены — заменены SQL-миграциями. Вызовы `seeds.SeedLocations`/`seeds.SeedBreeds` убраны из `cmd/api/main.go`.
+  Причина: auto-seed при старте — антипаттерн (риск на деплое, скрытие ошибок, дублирование источника правды).
+
 ## [3.24.6] - 2026-07-27
 
 ### Изменено

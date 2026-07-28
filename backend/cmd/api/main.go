@@ -124,16 +124,12 @@ func main() {
 			cache = notification.NewNotificationCache(redisClient)
 		}
 
-		// Запуск миграций закомментирован, так как они больше не нужны.
+		// Автоматическая миграция схемы Ent (schema-only). Справочники (ref_locations, ref_breeds)
+		// применяются отдельными SQL-миграциями из backend/migrations/.
 		if err := config.RunMigrations(db, rawdb); err != nil {
 			slog.Error("Ошибка выполнения миграций", "error", err)
 			os.Exit(1)
 		}
-
-		//Миграции
-		// ctx := context.Background()
-		// seeds.SeedLocations(ctx, db)
-		// seeds.SeedBreeds(ctx, db)
 
 		// Инициализация репозиториев
 		userRepo := pg.NewEntUserRepository(db)

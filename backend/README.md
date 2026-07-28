@@ -13,8 +13,10 @@
 ```
 backend/
 ├── cmd/                     # Точка входа и CLI-приложения
-│   └── api/
-│       └── main.go          # Основная точка входа API
+│   ├── api/
+│   │   └── main.go          # Основная точка входа API
+│   └── dburl/
+│       └── main.go          # Утилита: печатает DSN для psql по ENV (для Taskfile)
 ├── internal/                # Внутренняя логика приложения
 │   ├── apperrors/           # Обработка специфичных ошибок приложения
 │   ├── cache/               # Логика кэширования (например, с использованием Redis)
@@ -26,9 +28,9 @@ backend/
 ├── pkg/                     # Переиспользуемые пакеты и утилиты
 │   ├── config/              # Управление конфигурацией приложения
 │   └── logger/              # Настройка и инициализация логирования
+├── migrations/              # SQL-миграции данных (справочники, одноразовые преобразования)
 ├── docs/                    # Сгенерированная документация OpenAPI
 ├── ent/                     # Сгенерированный ORM код (Ent Framework)
-├── migrations/              # Скрипты миграции базы данных
 └── go.mod                   # Файл модуля Go
 ```
 
@@ -142,7 +144,23 @@ docker-compose logs -f backend
 
 Сервер будет доступен по адресу: **http://localhost:3000**
 
-#### 7. Сборка для production
+#### 7. Применение миграций данных (справочники)
+
+После первого запуска backend (создаёт схему через Ent auto-migrate) примените
+SQL-миграции с справочниками (регионы, породы):
+
+```bash
+# из корня репозитория (по умолчанию ENV=local)
+task db:migrate
+
+# для dev/prod окружений
+ENV=dev task db:migrate
+ENV=prod task db:migrate   # после бэкапа!
+```
+
+Подробнее — в [migrations/README.md](migrations/README.md).
+
+#### 8. Сборка для production
 
 ```bash
 go build -o bin/server cmd/api/main.go

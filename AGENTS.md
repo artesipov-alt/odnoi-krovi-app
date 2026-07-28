@@ -17,6 +17,7 @@
 - CI/CD через Taskfile.yaml и docker-compose
 - OpenAPI спецификация генерируется из бэкенда (backend/docs/openapi.json)
 - Сгенерированный TS-клиент лежит в shared/ts/
+- Миграции БД: schema (DDL) — Ent auto-migrate при старте; data (справочники) — SQL-файлы в backend/migrations/, применяются через `task db:migrate` (см. backend/migrations/README.md)
 
 ## Вложенные AGENTS.md
 

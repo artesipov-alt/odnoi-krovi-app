@@ -33,13 +33,24 @@ func NewEntConfig(env string) *EntConfig {
 	var dbname string
 	switch env {
 	case "PROD", "prod", "production":
-		dbname = os.Getenv("DB_NAME")
+		// В Docker переменная DB_NAME задаётся в docker-compose.yml.
+		// При локальном запуске используется DB_NAME_PROD из .env.
+		dbname = os.Getenv("DB_NAME_PROD")
+		if dbname == "" {
+			dbname = os.Getenv("DB_NAME")
+		}
 	case "DEV", "dev", "development":
-		dbname = os.Getenv("DB_NAME")
+		dbname = os.Getenv("DB_NAME_DEV")
+		if dbname == "" {
+			dbname = os.Getenv("DB_NAME")
+		}
 	case "local":
 		return NewLocalConfig()
 	default:
 		dbname = os.Getenv("DB_NAME_DEV")
+		if dbname == "" {
+			dbname = os.Getenv("DB_NAME")
+		}
 	}
 
 	if dbname == "" {
@@ -69,10 +80,17 @@ func NewLocalConfig() *EntConfig {
 	}
 }
 
-// GetDSN возвращает строку подключения для PostgreSQL
+// GetDSN возвращает строку подключения для PostgreSQL (формат key=value для database/sql).
 func (c *EntConfig) GetDSN() string {
 	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		c.Host, c.Port, c.User, c.Password, c.DBName, c.SSLMode)
+}
+
+// GetPsqlURL возвращает URL-строку подключения для psql (postgresql://...).
+// Используется утилитой cmd/dburl для передачи в psql в Taskfile при применении SQL-миграций.
+func (c *EntConfig) GetPsqlURL() string {
+	return fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=%s",
+		c.User, c.Password, c.Host, c.Port, c.DBName, c.SSLMode)
 }
 
 func ConnectEnt(config *EntConfig) (*ent.Client, *sql.DB, error) {
