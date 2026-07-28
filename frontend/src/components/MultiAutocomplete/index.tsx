@@ -76,6 +76,11 @@ const MultiAutocomplete: FC<Props> = ({ dict, value, onChange, maxCount = 3 }) =
                     marginRight: '4px',
                     transition: 'transform 0.3s ease',
                 },
+                '& .MuiChip-root': {
+                    backgroundColor: '#F6F7FB',
+                    color: '#948A8C',
+                    fontSize: '12px',
+                },
             }}
             popupIcon={
                 <div className={styles.selectArrow}>
