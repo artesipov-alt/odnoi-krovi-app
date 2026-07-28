@@ -189,7 +189,7 @@ const DonorPreference: FC<Props> = ({ id, view, onClose, refetchUserData, prefer
                         <h2 className={styles.title}>Параметры донорства</h2>
                     </div>
                     {!isLoadingLocations && (
-                        <FormItem title='Где хотите помогать?'>
+                        <FormItem title='Где хотите помогать?' subtitle='до 3 регионов'>
                             <MultiAutocomplete
                                 value={locations}
                                 dict={locationsDict}
