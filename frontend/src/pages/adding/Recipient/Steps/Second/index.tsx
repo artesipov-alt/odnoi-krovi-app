@@ -1,5 +1,4 @@
-import { Button } from '@mui/material';
-import { SelectChangeEvent } from '@mui/material/Select';
+import { Button, SelectChangeEvent } from '@mui/material';
 import cn from 'classnames';
 import { BloodAndBreedGroupsDict } from 'hooks/useDicts';
 import { usePetsQuery } from 'hooks/usePetsQuery';
@@ -12,6 +11,7 @@ import { regexReal } from 'utils/regexps';
 import { Dict } from 'api/reference';
 import { PetType } from 'api/types';
 import Alert from 'components/Alert';
+import MultiAutocomplete from 'components/MultiAutocomplete';
 import Multiselect from 'components/Multiselect';
 import Switch from 'components/Switch';
 import TextField from 'components/TextField';
@@ -23,7 +23,7 @@ type Props = {
     weight: string;
     petType: string;
     bloodGroup: string;
-    locations: string[];
+    locations: Dict[];
     bloodVolume: string;
     locationsDict: Dict[];
     bloodComponents: string[];
@@ -35,7 +35,7 @@ type Props = {
     bloodGroupDict: BloodAndBreedGroupsDict;
     onConfirmButtonClick: (step: number) => void;
     onChangeBloodVolume: (volume: string) => void;
-    onChangeLocations: (locations: string[]) => void;
+    onChangeLocations: (locations: Dict[]) => void;
     onChangeUsingPriority: (isChecked: boolean) => void;
     onChangeNotifyOfSmallDonors: (isChecked: boolean) => void;
     onChangeDesiredBloodGroups: (bloodGroups: string[]) => void;
@@ -140,12 +140,6 @@ const Second: FC<Props> = ({
         if (Number(value) < 10) {
             onChangeBloodVolume('10');
         }
-    };
-
-    const onChangeLocationsHandler = ({ target: { value } }: SelectChangeEvent<typeof locations>) => {
-        const newLocations = typeof value === 'string' ? value.split(',') : value;
-
-        onChangeLocations(newLocations);
     };
 
     const onChangeSwitchHandler = (_, isChecked) => {
@@ -267,7 +261,7 @@ const Second: FC<Props> = ({
                 {/* <Alert className={styles.alert} text='Могут быть показаны предложения меньшего объема' /> */}
             </FormItem>
             <FormItem title='В каком регионе искать?'>
-                <Multiselect dict={locationsDict} selectValue={locations} onChange={onChangeLocationsHandler} />
+                <MultiAutocomplete value={locations} dict={locationsDict} onChange={onChangeLocations} />
             </FormItem>
             <div className={styles.formItem}>
                 <div className={cn(styles.labelWrapper, { [styles.noMargin]: true })}>
