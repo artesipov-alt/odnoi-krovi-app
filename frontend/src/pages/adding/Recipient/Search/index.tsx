@@ -15,6 +15,7 @@ import { createRecipient } from 'api/apiServices/createRecipient';
 import { updatePet } from 'api/apiServices/updatePet';
 import { Pet } from 'api/pets';
 import { queryClient } from 'api/queryClient';
+import { Dict } from 'api/reference';
 import { PetType } from 'api/types';
 import { Role } from 'api/user';
 import Alert from 'components/Alert';
@@ -40,7 +41,7 @@ const Search: FC<Props> = ({ petId, userId }) => {
     const [step, setStep] = useState<number>(1);
     const [isLoading, setIsLoading] = useState(false);
 
-    const [locations, setLocations] = useState<string[]>([]);
+    const [locations, setLocations] = useState<Dict[]>([]);
     const [bloodGroup, setBloodGroup] = useState<string>('');
     const [bloodVolume, setBloodVolume] = useState<string>('');
     const [description, setDescription] = useState<string>('');
@@ -97,7 +98,7 @@ const Search: FC<Props> = ({ petId, userId }) => {
         setBloodComponents(newComponents);
     };
 
-    const onChangeLocationsHandler = (newLocations: string[]) => {
+    const onChangeLocationsHandler = (newLocations: Dict[]) => {
         setLocations(newLocations);
     };
 
@@ -142,8 +143,8 @@ const Search: FC<Props> = ({ petId, userId }) => {
                 description,
                 includeUnknownBloodGroup,
                 prioritySearch: usePrioritySearch,
-                regions: locations as unknown as number[],
                 smallPetsNotifyAllowed: notifyOfSmallDonors,
+                regions: locations.map(({ value }) => value),
                 bloodComponentIds: bloodComponents as unknown as number[],
                 bloodVolumeNeeded: Number(bloodVolume.replace(',', '.')),
                 bloodGroupNames: bloodGroupDict[selectedPet?.type || ''].reduce((res, item) => {

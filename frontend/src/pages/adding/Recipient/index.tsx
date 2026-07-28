@@ -11,6 +11,7 @@ import { toast } from 'react-toastify';
 
 import { createRecipient } from 'api/apiServices/createRecipient';
 import { queryClient } from 'api/queryClient';
+import { Dict } from 'api/reference';
 import { PetType } from 'api/types';
 import { Role } from 'api/user';
 
@@ -34,11 +35,11 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
 
     const [name, setName] = useState('');
     const [step, setStep] = useState<number>(1);
+    const [locations, setLocations] = useState<Dict[]>([]);
     const [weight, setWeight] = useState<string>('');
     const [petType, setPetType] = useState<string>('');
     const [photo, setPhoto] = useState<File | null>(null);
     const [bloodGroup, setBloodGroup] = useState<string>('');
-    const [locations, setLocations] = useState<string[]>([]);
     const [bloodVolume, setBloodVolume] = useState<string>('');
     const [description, setDescription] = useState<string>('');
     const [bloodComponents, setBloodComponents] = useState<string[]>([]);
@@ -84,8 +85,8 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
                 description,
                 includeUnknownBloodGroup,
                 prioritySearch: usePrioritySearch,
-                regions: locations as unknown as number[],
                 smallPetsNotifyAllowed: notifyOfSmallDonors,
+                regions: locations.map(({ value }) => value),
                 bloodComponentIds: bloodComponents as unknown as number[],
                 bloodVolumeNeeded: Number(bloodVolume.replace(',', '.')),
                 bloodGroupNames: bloodGroupDict[petType].reduce((res, item) => {
@@ -155,7 +156,7 @@ const Recipient: FC<Props> = ({ userId, onBackToStart }) => {
         setBloodComponents(newComponents);
     };
 
-    const onChangeLocationsHandler = (newLocations: string[]) => {
+    const onChangeLocationsHandler = (newLocations: Dict[]) => {
         setLocations(newLocations);
     };
 

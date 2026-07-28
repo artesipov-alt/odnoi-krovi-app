@@ -19,7 +19,7 @@ export enum Onboardings {
 
 export type AddToPoolRequest = {
     petId: string;
-    regions: number[];
+    regions: string[];
     description?: string;
     prioritySearch: boolean;
     bloodGroupNames: string[];

@@ -1,5 +1,4 @@
-import Button from '@mui/material/Button';
-import { SelectChangeEvent } from '@mui/material/Select';
+import { Button } from '@mui/material';
 import cn from 'classnames';
 import { useLocationsQuery } from 'hooks/useDicts';
 import BackAngularArrow from 'imgs/svg/backAngularArrow';
@@ -12,9 +11,10 @@ import { toast } from 'react-toastify';
 
 import { updateUser } from 'api/apiServices/updateUser';
 import { queryClient } from 'api/queryClient';
+import { Dict } from 'api/reference';
 import { CompensationType, DonorPreference as DonorPreferenceType, NotificationFrequency } from 'api/user';
 import Layout from 'components/Layout';
-import Multiselect from 'components/Multiselect';
+import MultiAutocomplete from 'components/MultiAutocomplete';
 import Switch from 'components/Switch';
 
 import styles from './DonorPreference.module.less';
@@ -36,16 +36,21 @@ const DonorPreference: FC<Props> = ({ id, view, onClose, refetchUserData, prefer
     const [localView, setLocalView] = useState<View>(view);
     const [isConfirmButtonActive, setIsConfirmButtonActive] = useState<boolean>(false);
 
+    const [locations, setLocations] = useState<Dict[]>([]);
     const [isTaxi, setIsTaxi] = useState<boolean>(preference ? preference.taxiCompensation : false);
     const [recovery, setRecovery] = useState<number>(preference ? preference.recoveryPeriodMonths : 2);
-    const [locations, setLocations] = useState<string[]>(preference ? preference.preferredLocationIds : []);
     const [reward, setReward] = useState<CompensationType | null>(preference ? preference.compensationType : null);
     const [isOpenForContact, setIsOpenForContact] = useState<boolean>(preference ? preference.openForContact : true);
     const [notifications, setNotifications] = useState<NotificationFrequency>(
         preference ? (preference.notificationFrequency as NotificationFrequency) : NotificationFrequency.IMMEDIATELY,
     );
 
-    const { data: locationsDict = [], isError: isErrorLocations, isLoading: isLoadingLocations } = useLocationsQuery();
+    const {
+        data: locationsDict = [],
+        isError: isErrorLocations,
+        isLoading: isLoadingLocations,
+        isSuccess: isLocationsSuccess,
+    } = useLocationsQuery();
 
     const showToast = useCallback(
         (text: string) => {
@@ -62,9 +67,7 @@ const DonorPreference: FC<Props> = ({ id, view, onClose, refetchUserData, prefer
         setLocalView(View.PREFERENCE);
     };
 
-    const onChangeLocationsHandler = ({ target: { value } }: SelectChangeEvent<typeof locations>) => {
-        const newLocations = typeof value === 'string' ? value.split(',') : value;
-
+    const onChangeLocationsHandler = (newLocations: Dict[]) => {
         setLocations(newLocations);
     };
 
@@ -105,9 +108,9 @@ const DonorPreference: FC<Props> = ({ id, view, onClose, refetchUserData, prefer
                 taxiCompensation: isTaxi,
                 compensationType: reward!,
                 recoveryPeriodMonths: recovery,
-                preferredLocationIds: locations,
                 openForContact: isOpenForContact,
                 notificationFrequency: notifications,
+                preferredLocationIds: locations.map(({ value }) => value),
             },
         });
 
@@ -129,6 +132,12 @@ const DonorPreference: FC<Props> = ({ id, view, onClose, refetchUserData, prefer
     }, [isErrorLocations, showToast]);
 
     useEffect(() => {
+        if (isLocationsSuccess) {
+            setLocations(locationsDict.filter((location) => preference?.preferredLocationIds.includes(location.value)));
+        }
+    }, [isLocationsSuccess, locationsDict, preference?.preferredLocationIds]);
+
+    useEffect(() => {
         setIsConfirmButtonActive(
             preference
                 ? preference.taxiCompensation !== isTaxi ||
@@ -136,7 +145,8 @@ const DonorPreference: FC<Props> = ({ id, view, onClose, refetchUserData, prefer
                       preference.recoveryPeriodMonths !== recovery ||
                       preference.openForContact !== isOpenForContact ||
                       preference.notificationFrequency !== notifications ||
-                      (!!locations.length && preference.preferredLocationIds.join(',') !== locations.join(','))
+                      (!!locations.length &&
+                          preference.preferredLocationIds.join(',') !== locations.map(({ value }) => value).join(','))
                 : !!locations.length && !!reward,
         );
     }, [isTaxi, locations, notifications, preference, recovery, reward, isOpenForContact]);
@@ -180,9 +190,9 @@ const DonorPreference: FC<Props> = ({ id, view, onClose, refetchUserData, prefer
                     </div>
                     {!isLoadingLocations && (
                         <FormItem title='Где хотите помогать?'>
-                            <Multiselect
+                            <MultiAutocomplete
+                                value={locations}
                                 dict={locationsDict}
-                                selectValue={locations}
                                 onChange={onChangeLocationsHandler}
                             />
                         </FormItem>

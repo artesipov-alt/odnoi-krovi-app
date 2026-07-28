@@ -22,10 +22,10 @@ type Props = {
     weight: string;
     petType: string;
     photoUrl?: string;
+    locations: Dict[];
     bloodGroup: string;
     photo: File | null;
     isLoading: boolean;
-    locations: string[];
     bloodVolume: string;
     description: string;
     locationsDict: Dict[];
@@ -134,7 +134,7 @@ const Check: FC<Props> = ({
                         </div>
                         <div className={styles.text}>
                             {locations
-                                .map((lock) => locationsDict.filter(({ value }) => value === lock)[0].label)
+                                .map((lock) => locationsDict.filter(({ value }) => value === lock.value)[0].label)
                                 .join(', ')}
                         </div>
                     </div>

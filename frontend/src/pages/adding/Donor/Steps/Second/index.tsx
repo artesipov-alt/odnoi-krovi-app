@@ -1,7 +1,7 @@
-import { Button, TextField as MuiTextField } from '@mui/material';
-import Autocomplete from '@mui/material/Autocomplete';
+import { Autocomplete, Button, TextField as MuiTextField } from '@mui/material';
 import cn from 'classnames';
 import { BloodAndBreedGroupsDict } from 'hooks/useDicts';
+import ArrowDown from 'imgs/svg/arrowDown';
 import FormItem from 'pages/adding/common/FormItem';
 import { ChangeEvent, FC, useEffect, useState } from 'react';
 import { regexReal } from 'utils/regexps';
@@ -183,6 +183,16 @@ const Second: FC<Props> = ({
                     noOptionsText='Нет подходящих вариантов'
                     onInputChange={onAutocompleteInputChangeHandler}
                     renderInput={(params) => <MuiTextField {...params} placeholder='Выберите из списка' />}
+                    popupIcon={
+                        <div className={styles.selectArrow}>
+                            <ArrowDown />
+                        </div>
+                    }
+                    slotProps={{
+                        popupIndicator: {
+                            disableRipple: true,
+                        },
+                    }}
                     sx={{
                         '& .MuiOutlinedInput-root': {
                             backgroundColor: 'white',
@@ -197,6 +207,10 @@ const Second: FC<Props> = ({
                                 borderColor: '#dee2e9',
                                 borderWidth: '1px',
                             },
+                        },
+                        '& .MuiAutocomplete-popupIndicator': {
+                            marginRight: '4px',
+                            transition: 'transform 0.3s ease',
                         },
                     }}
                 />
