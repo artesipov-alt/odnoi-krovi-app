@@ -260,7 +260,7 @@ const Second: FC<Props> = ({
                 />
                 {/* <Alert className={styles.alert} text='Могут быть показаны предложения меньшего объема' /> */}
             </FormItem>
-            <FormItem title='В каком регионе искать?'>
+            <FormItem title='В каком регионе искать?' subtitle='до 3 регионов'>
                 <MultiAutocomplete value={locations} dict={locationsDict} onChange={onChangeLocations} />
             </FormItem>
             <div className={styles.formItem}>
