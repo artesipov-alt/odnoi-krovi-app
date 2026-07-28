@@ -24,13 +24,14 @@
     width: 22px;
     height: 22px;
     position: absolute;
-    top: 14px;
+    top: 50%;
     right: 14px;
     z-index: 0;
+    transform: translate(0, -50%);
     transition: transform 0.3s ease;
 
     &.isOpen {
-        transform: rotate(180deg);
+        transform: translate(0, -50%) rotate(180deg);
     }
 
     svg {
