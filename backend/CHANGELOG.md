@@ -5,6 +5,14 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.25.1] - 2026-07-28
+
+### Изменено
+
+- **Кастомная сортировка локаций и пород в хендлерах.**
+  Сортировка вынесена из репозиториев в application-уровень. Локации теперь отображаются с топ-регионами первыми (Москва, МО, СПб, Лен. область), остальные — по алфавиту. Породы: «МЕТИС» всегда первым, остальные по алфавиту. Используется `slices.SortStableFunc` (Go 1.21+).
+  Затронутые файлы: `internal/application/reference/query/get_all_locations.go`, `internal/application/reference/query/get_breeds_by_type.go`, `internal/infra/presistance/pg/breed_repo_ent.go`.
+
 ## [3.25.0] - 2026-07-28
 
 ### Добавлено
