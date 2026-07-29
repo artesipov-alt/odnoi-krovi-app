@@ -650,8 +650,8 @@ func (r *EntPetRepository) FindPotentialDonors(ctx context.Context, criteria pet
 			),
 		)
 
-	// Позитивная семантика по регионам: только питомцы, у которых хотя бы один
-	// регион из списка пересекается с preferred_location_ids.
+	// OR-семантика по регионам: показываем донора, если хотя бы один
+	// регион из preferred_location_ids пересекается с поиском реципиента.
 	// Пустой массив НЕ считается "любой локацией" — не фильтруем.
 	if len(criteria.Regions) > 0 {
 		predicates := make([]predicate.DonorPreference, 0, len(criteria.Regions))
@@ -663,7 +663,7 @@ func (r *EntPetRepository) FindPotentialDonors(ctx context.Context, criteria pet
 		}
 		query = query.Where(
 			entpet.HasOwnerWith(entuser.HasDonorPreferenceWith(
-				entdonorpreference.And(predicates...),
+				entdonorpreference.Or(predicates...),
 			)),
 		)
 	}
