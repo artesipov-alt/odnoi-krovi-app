@@ -172,3 +172,18 @@ func (d *DonorResponse) IsAwaitingConfirmation() bool {
 		(d.Status == DonorResponseStatusAccepted ||
 			d.Status == DonorResponseStatusCompleted)
 }
+
+// ApplyOwnerPrefs заполняет DonorPrefs (регионы, компенсация, такси) из предпочтений владельца.
+// Используется, когда DonorResponse загружен из БД, где эти поля не хранятся.
+func (d *DonorResponse) ApplyOwnerPrefs(locationIDs []string, compensationType string, taxiCompensation bool) {
+	if d == nil {
+		return
+	}
+	if locationIDs == nil {
+		d.DonorPrefs.PreferredLocationIDs = []string{}
+	} else {
+		d.DonorPrefs.PreferredLocationIDs = locationIDs
+	}
+	d.DonorPrefs.CompensationType = compensationType
+	d.DonorPrefs.TaxiCompensation = taxiCompensation
+}
