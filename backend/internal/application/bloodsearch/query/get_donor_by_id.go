@@ -15,6 +15,11 @@ import (
 	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 )
 
+type GetDonorByIDResult struct {
+	Donor       *petmodel.Pet
+	Application *donormodel.DonorResponse
+}
+
 type GetDonorByIDHandler struct {
 	petReadRepo  pet.PetReadRepository
 	donorRepo    donor.Repository
@@ -65,9 +70,12 @@ func (h *GetDonorByIDHandler) Handle(ctx context.Context, petID string, opts pet
 		}
 
 		application = &donormodel.DonorResponse{
-			CompensationType: string(prefs.CompensationType),
-			TaxiCompensation: prefs.TaxiCompensation,
-			Status:           donormodel.DonorResponseStatusPending,
+			DonorPrefs: donormodel.DonorPrefs{
+				PreferredLocationIDs: prefs.PreferredLocationIDs,
+				CompensationType:     string(prefs.CompensationType),
+				TaxiCompensation:     prefs.TaxiCompensation,
+			},
+			Status: donormodel.DonorResponseStatusPending,
 		}
 	}
 

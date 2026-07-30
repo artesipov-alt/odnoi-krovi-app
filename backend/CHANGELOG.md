@@ -5,6 +5,24 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.25.3] - 2026-07-30
+
+### Изменено
+
+- **Рефакторинг `DonorResponse`: вынесены `CompensationType` и `TaxiCompensation` в структуру `DonorPrefs`.**
+  Добавлено поле `PreferredLocationIDs` для регионов, в которых донор готов помочь. Соответственно обновлены DTO (`DonorPrefs` вместо `Compensation` с новым полем `regions`) и все мапперы.
+  Затронутые файлы:
+  `internal/domain/donor/model/donor_model.go`,
+  `internal/application/bloodsearch/query/get_donor_by_id.go`,
+  `internal/transport/http/bloodsearch_handler.go`,
+  `internal/transport/http/donor_handler.go`,
+  `internal/transport/http/dto/blood_request_dto.go`,
+  `internal/infra/presistance/domainmapper/application_mapper.go`,
+  `internal/infra/presistance/domainmapper/bloodreq_mapper.go`,
+  `internal/infra/presistance/pg/donor_repo_ent.go`,
+  `internal/transport/http/dtomapper/application_mapper_dto.go`,
+  `internal/transport/http/dtomapper/bloodreq_mapper_dto.go`.
+
 ## [3.25.2] - 2026-07-29
 
 ### Исправлено

@@ -20,22 +20,27 @@ const (
 
 // DonorResponse представляет отклик донора на заявку поиска крови
 type DonorResponse struct {
-	ID               string
-	RequestID        string
-	DonorID          string
-	DonorName        string
-	DonorPhotos      []string
-	DonorBloodGroup  string
-	Amount           float64
-	WarnFactors      []string
-	CompensationType string
-	TaxiCompensation bool
-	IsConfirmed      bool
-	RejectedReason   string
-	Status           DonorResponseStatus
-	CreatedAt        *time.Time
-	UpdatedAt        *time.Time
-	DeletedAt        *time.Time
+	ID              string
+	RequestID       string
+	DonorID         string
+	DonorName       string
+	DonorPhotos     []string
+	DonorBloodGroup string
+	Amount          float64
+	WarnFactors     []string
+	DonorPrefs      DonorPrefs
+	IsConfirmed     bool
+	RejectedReason  string
+	Status          DonorResponseStatus
+	CreatedAt       *time.Time
+	UpdatedAt       *time.Time
+	DeletedAt       *time.Time
+}
+
+type DonorPrefs struct {
+	PreferredLocationIDs []string
+	CompensationType     string
+	TaxiCompensation     bool
 }
 
 // DonorPreloadFilter представляет параметры для предзагрузки связанных данных
@@ -54,12 +59,14 @@ func NewDonorResponse(requestID, donorID, compensationType string, amount float6
 		return nil, errors.New("donor ID is required")
 	}
 	return &DonorResponse{
-		RequestID:        requestID,
-		DonorID:          donorID,
-		Amount:           math.Round(amount*10) / 10,
-		CompensationType: compensationType,
-		TaxiCompensation: taxiCompensation,
-		Status:           DonorResponseStatusPending,
+		RequestID: requestID,
+		DonorID:   donorID,
+		Amount:    math.Round(amount*10) / 10,
+		DonorPrefs: DonorPrefs{
+			CompensationType: compensationType,
+			TaxiCompensation: taxiCompensation,
+		},
+		Status: DonorResponseStatusPending,
 	}, nil
 }
 
