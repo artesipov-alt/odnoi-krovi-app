@@ -132,10 +132,12 @@ const Check: FC<Props> = ({
                         <div className={styles.icon}>
                             <Location />
                         </div>
-                        <div className={styles.text}>
-                            {locations
-                                .map((lock) => locationsDict.filter(({ value }) => value === lock.value)[0].label)
-                                .join(', ')}
+                        <div>
+                            {locations.map((lock) => (
+                                <div key={lock.value} className={styles.text}>
+                                    {locationsDict.filter(({ value }) => value === lock.value)[0].label}
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>

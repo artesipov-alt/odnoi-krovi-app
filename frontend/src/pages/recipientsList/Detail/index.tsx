@@ -8,13 +8,14 @@ import Blood from 'imgs/svg/blood';
 import Bone from 'imgs/svg/bone';
 import CrossedEye from 'imgs/svg/crossedEye';
 import Eye from 'imgs/svg/eye';
+import Info from 'imgs/svg/info';
 import Location from 'imgs/svg/location';
 import Lock from 'imgs/svg/lock';
 import Pin from 'imgs/svg/pin';
 import PrioritySearch from 'imgs/svg/prioritySearch';
 import Taxi from 'imgs/svg/taxi';
 import Accordion from 'pages/adding/common/Accordion';
-import { FC, useCallback, useEffect, useState } from 'react';
+import { FC, MouseEvent, useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
 
@@ -52,6 +53,7 @@ const RecipientsListDetail: FC<Props> = ({ id, userId, isBlurByDefault, onClose 
     const [checkedDonor, setCheckedDonor] = useState<string | null>(null);
     const [isConfirmCurtainOpen, setIsConfirmCurtainOpen] = useState(false);
     const [isBonusesPageOpen, setIsBonusesPageOpen] = useState<boolean>(false);
+    const [isTooltipRegionOpen, setIsTooltipRegionOpen] = useState<boolean>(false);
     const [recipient, setRecipient] = useState<GetRecipientDetailsResponse | null>(null);
 
     const { data: locationsDict = [] } = useLocationsQuery();
@@ -150,6 +152,24 @@ const RecipientsListDetail: FC<Props> = ({ id, userId, isBlurByDefault, onClose 
         setIsBonusesPageOpen((prevState) => !prevState);
     };
 
+    const onTooltipRegionClick = (e: MouseEvent) => {
+        e.stopPropagation();
+
+        setIsTooltipRegionOpen(true);
+    };
+
+    useEffect(() => {
+        const onOutsideClickHandler = () => {
+            setIsTooltipRegionOpen(false);
+        };
+
+        window.addEventListener('click', onOutsideClickHandler);
+
+        return () => {
+            window.removeEventListener('click', onOutsideClickHandler);
+        };
+    }, []);
+
     useEffect(() => {
         fetchDetails();
     }, [fetchDetails]);
@@ -224,11 +244,29 @@ const RecipientsListDetail: FC<Props> = ({ id, userId, isBlurByDefault, onClose 
                         <div className={styles.icon}>
                             <Location />
                         </div>
-                        <p className={styles.text}>
-                            {recipient.regions
-                                ?.map((lock) => locationsDict.filter(({ value }) => value === lock)[0]?.label)
-                                .join(', ')}
-                        </p>
+                        {recipient?.regions.length === 1 ? (
+                            <p className={styles.text}>
+                                {recipient.regions?.map(
+                                    (lock) => locationsDict.filter(({ value }) => value === lock)[0]?.label,
+                                )}
+                            </p>
+                        ) : (
+                            <>
+                                <p className={styles.text}>{recipient?.regions.length} региона</p>
+                                <div onClick={onTooltipRegionClick} className={styles.infoIcon}>
+                                    <Info />
+                                </div>
+                                {isTooltipRegionOpen && (
+                                    <div className={styles.tooltip}>
+                                        {recipient.regions?.map((lock) => (
+                                            <p key={lock} className={styles.text}>
+                                                {locationsDict.filter(({ value }) => value === lock)[0]?.label}
+                                            </p>
+                                        ))}
+                                    </div>
+                                )}
+                            </>
+                        )}
                     </div>
                     <div className={cn(styles.leftItem, { [styles.owner]: true })}>
                         <div className={styles.icon}>{recipient.ownerName.charAt(0).toUpperCase()}</div>

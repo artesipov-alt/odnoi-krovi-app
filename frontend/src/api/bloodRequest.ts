@@ -98,6 +98,7 @@ export type UpdatePoolRequestResponse = {
 export type GetDonorInfoResponse = Pet & {
     taxi: boolean;
     ownerId: string;
+    regions: string[];
     ownerName: string;
     ownerPhone: string;
     availableBloodAmount: number;

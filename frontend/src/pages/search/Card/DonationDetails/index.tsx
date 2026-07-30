@@ -640,7 +640,13 @@ const DonationDetails: FC<Props> = ({
                                 {icon}
                             </div>
                         )}
-                        <p className={styles.tileTitle}>{title}</p>
+                        <p
+                            className={cn(styles.tileTitle, {
+                                [styles.noMargin]: tileName === TileName.CONDITIONS || tileName === TileName.DONATIONS,
+                            })}
+                        >
+                            {title}
+                        </p>
                         {tileName !== TileName.CONDITIONS && (
                             <div className={styles.arrowTileIcon}>
                                 <AccordionArrow />

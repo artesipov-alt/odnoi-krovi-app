@@ -7,13 +7,14 @@ import BackAngularArrow from 'imgs/svg/backAngularArrow';
 import Blood from 'imgs/svg/blood';
 import BloodComponents from 'imgs/svg/bloodComponents';
 import Cancel from 'imgs/svg/cancel';
+import Info from 'imgs/svg/info';
 import Location from 'imgs/svg/location';
 import MiniPaw from 'imgs/svg/miniPaw';
 import MiniSinglePaw from 'imgs/svg/miniSinglePaw';
 import Pin from 'imgs/svg/pin';
 import PrioritySearch from 'imgs/svg/prioritySearch';
 import Accordion from 'pages/adding/common/Accordion';
-import { FC, useCallback, useState } from 'react';
+import { FC, MouseEvent, useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { getDateFormat } from 'utils/utils';
 
@@ -99,6 +100,7 @@ const SearchCard: FC<Props> = ({
     createdAt = '',
 }) => {
     const [tab, setTab] = useState<number>(defaultOpenTab);
+    const [isTooltipRegionOpen, setIsTooltipRegionOpen] = useState<boolean>(false);
     const [isSearchFinishPageOpen, setIsSearchFinishPageOpen] = useState<boolean>(false);
     const [selectedDonation, setSelectedDonation] = useState<SelectedDonation | null>(null);
     const [donationCompletePage, setDonationCompletePage] = useState<DonationCompletePage>({ isOpen: false });
@@ -177,6 +179,24 @@ const SearchCard: FC<Props> = ({
 
         poolRequestRefetch();
     };
+
+    const onTooltipRegionClick = (e: MouseEvent) => {
+        e.stopPropagation();
+
+        setIsTooltipRegionOpen(true);
+    };
+
+    useEffect(() => {
+        const onOutsideClickHandler = () => {
+            setIsTooltipRegionOpen(false);
+        };
+
+        window.addEventListener('click', onOutsideClickHandler);
+
+        return () => {
+            window.removeEventListener('click', onOutsideClickHandler);
+        };
+    }, []);
 
     if (selectedDonation) {
         return (
@@ -329,13 +349,32 @@ const SearchCard: FC<Props> = ({
                                     <div className={styles.icon}>
                                         <Location />
                                     </div>
-                                    <p className={styles.text}>
-                                        {regions
-                                            ?.map(
+                                    {regions.length === 1 ? (
+                                        <p className={styles.text}>
+                                            {regions.map(
                                                 (lock) => locationsDict.filter(({ value }) => value === lock)[0]?.label,
-                                            )
-                                            .join(', ')}
-                                    </p>
+                                            )}
+                                        </p>
+                                    ) : (
+                                        <>
+                                            <p className={styles.text}>{regions.length} региона</p>
+                                            <div onClick={onTooltipRegionClick} className={styles.infoIcon}>
+                                                <Info />
+                                            </div>
+                                            {isTooltipRegionOpen && (
+                                                <div className={styles.tooltip}>
+                                                    {regions.map((lock) => (
+                                                        <p key={lock} className={styles.text}>
+                                                            {
+                                                                locationsDict.filter(({ value }) => value === lock)[0]
+                                                                    ?.label
+                                                            }
+                                                        </p>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
                                 </div>
                             </div>
                             <div className={styles.right}>
