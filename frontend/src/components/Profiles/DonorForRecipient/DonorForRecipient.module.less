@@ -239,6 +239,40 @@
     }
 }
 
+.regions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 22px 18px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    background: @white;
+    box-sizing: border-box;
+}
+
+.regionsIcon {
+    display: flex;
+    width: 16px;
+    height: 16px;
+    fill: @grayBg13;
+    opacity: 0.5;
+
+    svg {
+        width: inherit;
+        height: inherit;
+        fill: inherit;
+    }
+}
+
+.regionsText {
+    color: @textColor1;
+    font-family: Marmelad, sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 16px;
+    margin: 0;
+}
+
 .tiles {
     display: flex;
     gap: 8px;
@@ -302,6 +336,10 @@
     font-size: 14px;
     font-weight: 400;
     line-height: 16px;
+
+    &.noMargin {
+        margin: 0;
+    }
 }
 
 .arrowTileIcon {

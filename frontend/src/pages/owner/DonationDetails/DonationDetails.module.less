@@ -197,6 +197,54 @@
         align-items: center;
         gap: 8px;
     }
+
+    &.isRegion {
+        .region {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            height: auto;
+            position: relative;
+            margin-left: 20px;
+        }
+
+        .text {
+            color: @textColor1;
+            font-family: Marmelad, sans-serif;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 12px;
+        }
+
+        .infoIcon {
+            width: 17px;
+            height: 17px;
+            margin-left: auto;
+
+            svg {
+                width: inherit;
+                height: inherit;
+            }
+        }
+
+        .tooltip {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            max-width: 300px;
+            transform: translate(2%, 0%);
+            background: @orangeBg1;
+            color: @textColor8;
+            padding: 6px 8px;
+            border-radius: 8px;
+            font-family: Proxima Nova, sans-serif;
+            font-size: 11px;
+            font-weight: 400;
+            line-height: 14px;
+            z-index: 1000;
+            pointer-events: none;
+        }
+    }
 }
 
 .lineTitle {

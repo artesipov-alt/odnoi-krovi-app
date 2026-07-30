@@ -10,6 +10,7 @@ import Bone from 'imgs/svg/bone';
 import Cancel from 'imgs/svg/cancel';
 import Chat from 'imgs/svg/chat';
 import Exclamation from 'imgs/svg/exclamation';
+import Info from 'imgs/svg/info';
 import Location from 'imgs/svg/location';
 import Lock from 'imgs/svg/lock';
 import Max from 'imgs/svg/max';
@@ -20,7 +21,7 @@ import PrioritySearch from 'imgs/svg/prioritySearch';
 import Taxi from 'imgs/svg/taxi';
 import Telegram from 'imgs/svg/telegram';
 import Accordion from 'pages/adding/common/Accordion';
-import { ChangeEvent, FC, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, FC, MouseEvent, useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { regexReal } from 'utils/regexps';
 import { isWithinHours, matchIdentities } from 'utils/utils';
@@ -74,6 +75,7 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
     const [chatCurtain, setChatCurtain] = useState<ChatCurtain>({ isOpen: false });
     const [donatedBloodVolume, setDonatedBloodVolume] = useState<string>('');
     const [isBonusesPageOpen, setIsBonusesPageOpen] = useState<boolean>(false);
+    const [isTooltipRegionOpen, setIsTooltipRegionOpen] = useState<boolean>(false);
     const [isPendingTimerExpired, setIsPendingTimerExpired] = useState<boolean>(false);
     const [isDonorConfirmationCurtainOpen, setIsDonorConfirmationCurtainOpen] = useState(false);
     const [rejectDonationFormParams, setRejectDonationFormParams] = useState<RejectedFormType>({ isOpen: false });
@@ -288,6 +290,24 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
         setRejectDonationFormParams({ isOpen: true, view: RejectView.CANCEL });
     };
 
+    const onTooltipRegionClick = (e: MouseEvent) => {
+        e.stopPropagation();
+
+        setIsTooltipRegionOpen(true);
+    };
+
+    useEffect(() => {
+        const onOutsideClickHandler = () => {
+            setIsTooltipRegionOpen(false);
+        };
+
+        window.addEventListener('click', onOutsideClickHandler);
+
+        return () => {
+            window.removeEventListener('click', onOutsideClickHandler);
+        };
+    }, []);
+
     useEffect(() => {
         if (isErrorLocations) {
             showToast('Не удалось загрузить словарь регионов, попробуйте перезагрузить приложение');
@@ -498,18 +518,37 @@ const DonationDetails: FC<Props> = ({ userId, onClose, donation, identities }) =
                             <p className={styles.ownerName}>{donation.recipientData.ownerName}</p>
                         </div>
                     </div>
-                    <div className={styles.lineItem}>
+                    <div className={cn(styles.lineItem, { [styles.isRegion]: true })}>
                         <div className={cn(styles.lineTitle, { [styles.leftMargin]: true })}>
                             <div className={styles.lineTitleIcon}>
                                 <Location />
                             </div>
                             <p className={styles.lineTitleText}>Регион</p>
                         </div>
-                        <p className={styles.location}>
-                            {donation.recipientData.regions
-                                ?.map((lock) => locationsDict.filter(({ value }) => value === lock)[0]?.label)
-                                .join(', ')}
-                        </p>
+
+                        {donation.recipientData.regions.length === 1 ? (
+                            <p className={styles.text}>
+                                {donation.recipientData.regions.map(
+                                    (lock) => locationsDict.filter(({ value }) => value === lock)[0]?.label,
+                                )}
+                            </p>
+                        ) : (
+                            <div className={styles.region}>
+                                <p className={styles.text}>{donation.recipientData.regions.length} региона</p>
+                                <div onClick={onTooltipRegionClick} className={styles.infoIcon}>
+                                    <Info />
+                                </div>
+                                {isTooltipRegionOpen && (
+                                    <div className={styles.tooltip}>
+                                        {donation.recipientData.regions.map((lock) => (
+                                            <p key={lock} className={styles.text}>
+                                                {locationsDict.filter(({ value }) => value === lock)[0]?.label}
+                                            </p>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
