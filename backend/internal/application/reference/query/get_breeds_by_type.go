@@ -1,7 +1,9 @@
 package query
 
 import (
+	"cmp"
 	"context"
+	"slices"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/reference"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
@@ -18,6 +20,25 @@ func NewGetBreedsByPetTypeHandler(breedRepo reference.BreedInfoRepository) *GetB
 	}
 }
 
-func (h *GetBreedsByPetTypeHandler) Handle(ctx context.Context, petType breed.Type) ([]*ent.Breed, error) {
-	return h.breedRepo.GetByPetType(ctx, petType)
+func (h *GetBreedsByPetTypeHandler) Handle(ctx context.Context, petType string) ([]*ent.Breed, error) {
+	breeds, err := h.breedRepo.GetByPetType(ctx, breed.Type(petType))
+	if err != nil {
+		return nil, err
+	}
+
+	// Сортировка: "МЕТИС" первым, остальные по алфавиту
+	slices.SortStableFunc(breeds, func(a, b *ent.Breed) int {
+		// "МЕТИС" всегда первый
+		if a.Name == "МЕТИС" {
+			return -1
+		}
+		if b.Name == "МЕТИС" {
+			return 1
+		}
+
+		// Остальные — по алфавиту
+		return cmp.Compare(a.Name, b.Name)
+	})
+
+	return breeds, nil
 }

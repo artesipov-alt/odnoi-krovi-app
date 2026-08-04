@@ -57,16 +57,18 @@ func BloodReqToDomain(entReq *ent.BloodSearchRequest) *bloodreqmodel.BloodReques
 		donorApps = make([]donormodel.DonorResponse, len(entReq.Edges.Responses))
 		for i, resp := range entReq.Edges.Responses {
 			app := donormodel.DonorResponse{
-				ID:               resp.ID,
-				RequestID:        entReq.ID,
-				Amount:           resp.Amount,
-				CompensationType: string(resp.CompensationType),
-				TaxiCompensation: resp.TaxiCompensation,
-				Status:           donormodel.DonorResponseStatus(resp.Status),
-				IsConfirmed:      resp.IsConfirmed,
-				RejectedReason:   resp.RejectedReason,
-				CreatedAt:        &resp.CreatedAt,
-				UpdatedAt:        &resp.UpdatedAt,
+				ID:        resp.ID,
+				RequestID: entReq.ID,
+				Amount:    resp.Amount,
+				DonorPrefs: donormodel.DonorPrefs{
+					CompensationType: string(resp.CompensationType),
+					TaxiCompensation: resp.TaxiCompensation,
+				},
+				Status:         donormodel.DonorResponseStatus(resp.Status),
+				IsConfirmed:    resp.IsConfirmed,
+				RejectedReason: resp.RejectedReason,
+				CreatedAt:      &resp.CreatedAt,
+				UpdatedAt:      &resp.UpdatedAt,
 			}
 			if resp.Edges.Donor != nil {
 				fullDonor := PetToDomain(resp.Edges.Donor)

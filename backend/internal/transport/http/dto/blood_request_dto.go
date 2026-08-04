@@ -207,12 +207,13 @@ type RejectDonorApplicationInput struct {
 type DonorDetail struct {
 	ResponseID string `json:"responseId" doc:"ID отклика донора" example:"RES-ABCDEABCDE"`
 	PetDetail
-	Compensation
+	DonorPrefs
 }
 
-type Compensation struct {
-	CompensationType string `json:"compensationType" doc:"Тип компенсации" enum:"free,paid,food"`
-	Taxi             bool   `json:"taxi" doc:"Компенсация такси"`
+type DonorPrefs struct {
+	CompensationType string   `json:"compensationType" doc:"Тип компенсации" enum:"free,paid,food"`
+	Taxi             bool     `json:"taxi" doc:"Компенсация такси"`
+	Regions          []string `json:"regions" doc:"Список ID регионов" example:"[\"MSK\", \"MO\"]"`
 }
 
 type NotificationRespondInput struct {

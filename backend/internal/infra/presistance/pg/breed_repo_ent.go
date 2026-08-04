@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"sort"
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
@@ -65,33 +64,6 @@ func (r *EntBreedRepository) GetByPetType(ctx context.Context, petType breed.Typ
 	if err != nil {
 		return nil, fmt.Errorf("failed to get breeds for pet type %s: %w", petType, err)
 	}
-
-	// Сортировка: для собак и кошек "МЕТИС" первым, остальные по алфавиту
-	if petType == breed.TypeDog || petType == breed.TypeCat {
-		var metis *ent.Breed
-		var others []*ent.Breed
-		for _, b := range breeds {
-			if b.Name == "МЕТИС" {
-				metis = b
-			} else {
-				others = append(others, b)
-			}
-		}
-		sort.Slice(others, func(i, j int) bool {
-			return others[i].Name < others[j].Name
-		})
-		if metis != nil {
-			result := []*ent.Breed{metis}
-			result = append(result, others...)
-			return result, nil
-		}
-		return others, nil
-	}
-
-	// Для других типов сортировка по алфавиту
-	sort.Slice(breeds, func(i, j int) bool {
-		return breeds[i].Name < breeds[j].Name
-	})
 
 	return breeds, nil
 }

@@ -115,3 +115,34 @@ tasks:
     cmds:
       - rm -rf dist
       - bun run build
+
+  # Миграции базы данных (SQL-файлы из backend/migrations/)
+  # Применяются через psql. См. backend/migrations/README.md.
+  # ENV: local (по умолчанию), dev, prod.
+  db:migrate:
+    desc: "Применить все SQL-миграции к БД (ENV=dev|prod|local, по умолчанию local)"
+    dir: backend
+    cmds:
+      - >-
+        psql "$(go run ./cmd/dburl {{.ENV | default "local"}})" \
+          -v ON_ERROR_STOP=1 \
+          -f migrations/20260728000001_regions_okato.sql \
+          -f migrations/20260728000002_breeds.sql
+
+  db:migrate:regions:
+    desc: "Применить только миграцию регионов (ENV=dev|prod|local)"
+    dir: backend
+    cmds:
+      - >-
+        psql "$(go run ./cmd/dburl {{.ENV | default "local"}})" \
+          -v ON_ERROR_STOP=1 \
+          -f migrations/20260728000001_regions_okato.sql
+
+  db:migrate:breeds:
+    desc: "Применить только миграцию пород (ENV=dev|prod|local)"
+    dir: backend
+    cmds:
+      - >-
+        psql "$(go run ./cmd/dburl {{.ENV | default "local"}})" \
+          -v ON_ERROR_STOP=1 \
+          -f migrations/20260728000002_breeds.sql

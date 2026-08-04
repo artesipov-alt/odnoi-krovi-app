@@ -12,8 +12,12 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user"
-	usermodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/user/model"
 )
+
+type GetDonorByIDResult struct {
+	Donor       *petmodel.Pet
+	Application *donormodel.DonorResponse
+}
 
 type GetDonorByIDHandler struct {
 	petReadRepo  pet.PetReadRepository
@@ -53,22 +57,22 @@ func (h *GetDonorByIDHandler) Handle(ctx context.Context, petID string, opts pet
 
 	h.enricher.Recalculate(donorPet, fc, enrich.Options{})
 
-	// Если отклика нет, инициализируем пустой с компенсацией из предпочтений владельца
+	// Загружаем предпочтения владельца
+	owner, err := h.userRepo.GetByID(ctx, donorPet.OwnerID, user.UserPreloadOptions{
+		WithDonorPreference: true,
+	})
+
 	if application == nil {
-		prefs := usermodel.DefaultDonorPreference()
-
-		owner, err := h.userRepo.GetByID(ctx, donorPet.OwnerID, user.UserPreloadOptions{
-			WithDonorPreference: true,
-		})
-		if err == nil && owner.DonorPreference != nil {
-			prefs = owner.DonorPreference
-		}
-
 		application = &donormodel.DonorResponse{
-			CompensationType: string(prefs.CompensationType),
-			TaxiCompensation: prefs.TaxiCompensation,
-			Status:           donormodel.DonorResponseStatusPending,
+			Status: donormodel.DonorResponseStatusPending,
 		}
+	}
+
+	if err == nil && owner.DonorPreference != nil {
+		prefs := owner.DonorPreference
+		application.ApplyOwnerPrefs(prefs.PreferredLocationIDs, string(prefs.CompensationType), prefs.TaxiCompensation)
+	} else {
+		application.ApplyOwnerPrefs(nil, "", false)
 	}
 
 	// if bloodReq := fc.BloodReqs[petID]; bloodReq != nil {

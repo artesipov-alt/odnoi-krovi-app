@@ -206,3 +206,84 @@ func DefaultDonorPreference() *DonorPreference {
 		OpenForContact:        true,
 	}
 }
+
+// validRoles содержит множество допустимых ролей пользователя.
+var validRoles = map[UserRole]struct{}{
+	RoleUser:   {},
+	RoleAdmin:  {},
+	RoleClinic: {},
+}
+
+// isValidRole проверяет, является ли роль допустимой.
+func isValidRole(role UserRole) bool {
+	_, ok := validRoles[role]
+	return ok
+}
+
+// UpdateFrom применяет изменения из другого объекта User.
+// Используется для контролируемой мутации агрегата вместо прямого доступа к полям.
+// Поля ID, TelegramID, Verified, OriginSource, CreatedAt, Identities, Pets не изменяются.
+func (u *User) UpdateFrom(other *User) error {
+	if other == nil {
+		return errors.New("cannot update from nil user")
+	}
+
+	// Валидация обновляемых полей
+	if other.FullName != "" {
+		if len(other.FullName) > 100 {
+			return errors.New("full name must be less than 100 characters")
+		}
+		u.FullName = other.FullName
+	}
+
+	if other.Email != "" {
+		if len(other.Email) > 100 {
+			return errors.New("email must be less than 100 characters")
+		}
+		u.Email = other.Email
+	}
+
+	// Phone не обновляется через UpdateFrom — для этого есть отдельная команда ChangePhone
+
+	if other.Role != "" {
+		if !isValidRole(other.Role) {
+			return errors.New("invalid user role")
+		}
+		u.Role = other.Role
+	}
+
+	if other.OrganizationName != "" {
+		u.OrganizationName = other.OrganizationName
+	}
+
+	if other.LocationID != nil {
+		u.LocationID = other.LocationID
+	}
+
+	// Булевы поля обновляются всегда (невозможно отличить false от "не передано")
+	u.ConsentPd = other.ConsentPd
+	u.AllowGeo = other.AllowGeo
+
+	// Срезы — заменяем только если переданы
+	if other.PhotoURLs != nil {
+		u.PhotoURLs = other.PhotoURLs
+	}
+	if other.OnBoarding != nil {
+		u.OnBoarding = other.OnBoarding
+	}
+
+	// PrioritySearchCount — обновляем только если > 0 (0 может означать "не передано")
+	if other.PrioritySearchCount > 0 {
+		u.PrioritySearchCount = other.PrioritySearchCount
+	}
+
+	// DonorPreference — обновляем через агрегат, с проверкой инвариантов
+	if other.DonorPreference != nil {
+		if len(other.DonorPreference.PreferredLocationIDs) > 3 {
+			return errors.New("preferred locations must not exceed 3")
+		}
+		u.DonorPreference = other.DonorPreference
+	}
+
+	return nil
+}

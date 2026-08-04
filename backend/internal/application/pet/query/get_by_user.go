@@ -101,8 +101,8 @@ func (h *GetByUserHandler) Handle(ctx context.Context, userID string, opts pet.P
 			p.Type,
 			fc.BloodReqs[p.ID].SearchingBloodGroupNames(),
 			fc.BloodReqs[p.ID].SearchingRegions(),
-			fc.BloodReqs[p.ID].BloodRequest.ID,
-			owner.ID)
+			owner.ID,
+			fc.BloodReqs[p.ID].BloodRequest.ID)
 		if err != nil {
 			return nil, err
 		}

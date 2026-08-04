@@ -2,7 +2,6 @@ package bonus
 
 import (
 	"context"
-	"time"
 
 	bonusmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
@@ -20,17 +19,17 @@ func NewBonusService(repo Repository) *BonusService {
 
 // GetAggregatedBonuses retrieves and aggregates bonuses: one per subcategory per partner, prioritized by expiration date.
 func (s *BonusService) GetAggregatedBonuses(ctx context.Context, petType common.PetType, userID string) ([]*bonusmodel.Bonus, error) {
-	// Get the last bonus for the user to check if locked
-	lastBonus, err := s.repo.GetLastBonus(ctx, userID)
-	if err != nil {
-		return nil, err
-	}
+	// // Get the last bonus for the user to check if locked
+	// lastBonus, err := s.repo.GetLastBonus(ctx, userID)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	// Check if the last bonus was updated within the last 2 months, if so, return only lock bonus
-	isLocked := lastBonus != nil && time.Since(lastBonus.UpdatedAt) < 2*30*24*time.Hour
-	if isLocked {
-		return []*bonusmodel.Bonus{bonusmodel.NewLockBonus()}, nil
-	}
+	// isLocked := lastBonus != nil && time.Since(lastBonus.UpdatedAt) < 2*30*24*time.Hour
+	// if isLocked {
+	// 	return []*bonusmodel.Bonus{bonusmodel.NewLockBonus()}, nil
+	// }
 
 	bonuses, err := s.repo.GetAvailableBonuses(ctx, petType)
 	if err != nil {

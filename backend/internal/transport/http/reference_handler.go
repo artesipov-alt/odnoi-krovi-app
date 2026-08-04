@@ -10,7 +10,6 @@ import (
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/common"
 	petmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/pet/model"
 
-	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/ent/breed"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/transport/http/dto"
 	"github.com/artesipov-alt/odnoi-krovi-app/pkg/enums"
 	"github.com/danielgtaylor/huma/v2"
@@ -317,23 +316,7 @@ func (h *ReferenceHandler) GetLocations(ctx context.Context, input *dto.GetLocat
 }
 
 func (h *ReferenceHandler) GetBreedsByType(ctx context.Context, input *dto.GetBreedsByTypeInput) (*dto.GetBreedsByTypeOutput, error) {
-	petTypeStr := input.PetType
-	if petTypeStr == "" {
-		return nil, apperrors.BadRequest("Необходимо указать тип животного")
-	}
-
-	isValid := false
-	for _, pt := range enums.GetAllEntPetTypes() {
-		if string(pt) == petTypeStr {
-			isValid = true
-			break
-		}
-	}
-	if !isValid {
-		return nil, apperrors.BadRequest("Неверный тип животного")
-	}
-
-	breeds, err := h.getBreedsByTypeHandler.Handle(ctx, breed.Type(petTypeStr))
+	breeds, err := h.getBreedsByTypeHandler.Handle(ctx, input.PetType)
 	if err != nil {
 		return nil, err
 	}

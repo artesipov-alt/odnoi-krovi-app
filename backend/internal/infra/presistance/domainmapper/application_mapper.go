@@ -12,19 +12,21 @@ func ApplicationToDomain(entResp *ent.DonorResponse) *donormodel.DonorResponse {
 	}
 
 	return &donormodel.DonorResponse{
-		ID:               entResp.ID,
-		RequestID:        entResp.Edges.Request.ID,
-		DonorID:          entResp.Edges.Donor.ID,
-		DonorName:        entResp.Edges.Donor.Name,
-		DonorPhotos:      entResp.Edges.Donor.PhotoUrls,
-		DonorBloodGroup:  entResp.Edges.Donor.BloodGroup,
-		Amount:           entResp.Amount,
-		CompensationType: string(entResp.CompensationType),
-		TaxiCompensation: entResp.TaxiCompensation,
-		Status:           donormodel.DonorResponseStatus(entResp.Status),
-		IsConfirmed:      entResp.IsConfirmed,
-		RejectedReason:   entResp.RejectedReason,
-		CreatedAt:        &entResp.CreatedAt,
-		UpdatedAt:        &entResp.UpdatedAt,
+		ID:              entResp.ID,
+		RequestID:       entResp.Edges.Request.ID,
+		DonorID:         entResp.Edges.Donor.ID,
+		DonorName:       entResp.Edges.Donor.Name,
+		DonorPhotos:     entResp.Edges.Donor.PhotoUrls,
+		DonorBloodGroup: entResp.Edges.Donor.BloodGroup,
+		Amount:          entResp.Amount,
+		DonorPrefs: donormodel.DonorPrefs{
+			CompensationType: string(entResp.CompensationType),
+			TaxiCompensation: entResp.TaxiCompensation,
+		},
+		Status:         donormodel.DonorResponseStatus(entResp.Status),
+		IsConfirmed:    entResp.IsConfirmed,
+		RejectedReason: entResp.RejectedReason,
+		CreatedAt:      &entResp.CreatedAt,
+		UpdatedAt:      &entResp.UpdatedAt,
 	}
 }

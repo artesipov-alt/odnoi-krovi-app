@@ -44,8 +44,8 @@ func (r *EntDonorResponseRepository) CreateDonorResponse(ctx context.Context, re
 		SetRequestID(resp.RequestID).
 		SetDonorID(resp.DonorID).
 		SetAmount(resp.Amount).
-		SetCompensationType(donorresponse.CompensationType(resp.CompensationType)).
-		SetTaxiCompensation(resp.TaxiCompensation).
+		SetCompensationType(donorresponse.CompensationType(resp.DonorPrefs.CompensationType)).
+		SetTaxiCompensation(resp.DonorPrefs.TaxiCompensation).
 		SetStatus(donorresponse.Status(resp.Status)).
 		Save(ctx)
 	if err != nil {

@@ -5,6 +5,86 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.25.4] - 2026-07-31
+
+### Изменено
+
+- **Удалена блокировка бонусов (lock bonus) для пользователей, недавно получавших бонус.**
+  Из `GetAggregatedBonuses` убрана проверка `time.Since(lastBonus.UpdatedAt) < 2*30*24*time.Hour`,
+  которая возвращала единственный «замок-бонус» вместо реальных доступных бонусов.
+  Теперь бонусы всегда возвращаются без временной блокировки.
+  Затронутые файлы:
+  `internal/domain/bonus/bonus_service.go`.
+
+## [3.25.3] - 2026-07-30
+
+### Изменено
+
+- **Рефакторинг `DonorResponse`: вынесены `CompensationType` и `TaxiCompensation` в структуру `DonorPrefs`.**
+  Добавлено поле `PreferredLocationIDs` для регионов, в которых донор готов помочь. Соответственно обновлены DTO (`DonorPrefs` вместо `Compensation` с новым полем `regions`) и все мапперы.
+  Затронутые файлы:
+  `internal/domain/donor/model/donor_model.go`,
+  `internal/application/bloodsearch/query/get_donor_by_id.go`,
+  `internal/transport/http/bloodsearch_handler.go`,
+  `internal/transport/http/donor_handler.go`,
+  `internal/transport/http/dto/blood_request_dto.go`,
+  `internal/infra/presistance/domainmapper/application_mapper.go`,
+  `internal/infra/presistance/domainmapper/bloodreq_mapper.go`,
+  `internal/infra/presistance/pg/donor_repo_ent.go`,
+  `internal/transport/http/dtomapper/application_mapper_dto.go`,
+  `internal/transport/http/dtomapper/bloodreq_mapper_dto.go`.
+
+## [3.25.2] - 2026-07-29
+
+### Исправлено
+
+- **OR-семантика подбора доноров по регионам.**
+  `FindPotentialDonors` теперь использует `Or` вместо `And` для фильтрации по `preferred_location_ids`. Донор отображается, если хотя бы один его регион пересекается с поиском реципиента (раньше требовалось совпадение по всем регионам).
+  Затронутый файл: `internal/infra/presistance/pg/pet_repo_ent.go`.
+
+## [3.25.1] - 2026-07-28
+
+### Изменено
+
+- **Кастомная сортировка локаций и пород в хендлерах.**
+  Сортировка вынесена из репозиториев в application-уровень. Локации теперь отображаются с топ-регионами первыми (Москва, МО, СПб, Лен. область), остальные — по алфавиту. Породы: «МЕТИС» всегда первым, остальные по алфавиту. Используется `slices.SortStableFunc` (Go 1.21+).
+  Затронутые файлы: `internal/application/reference/query/get_all_locations.go`, `internal/application/reference/query/get_breeds_by_type.go`, `internal/infra/presistance/pg/breed_repo_ent.go`.
+
+## [3.25.0] - 2026-07-28
+
+### Добавлено
+
+- **Миграции справочников через SQL.**
+  Справочники `ref_locations` (89 субъектов РФ по ОКАТО) и `ref_breeds` (316 пород) перенесены в версионные SQL-миграции в `backend/migrations/`. Применяются через `task db:migrate` (ENV=local|dev|prod). Idempotent (`ON CONFLICT DO NOTHING`).
+  Затронутые файлы: `backend/migrations/20260728000001_regions_okato.sql`, `backend/migrations/20260728000002_breeds.sql`, `backend/migrations/README.md`.
+
+- **Утилита `cmd/dburl`.**
+  Печатает DSN для `psql` по имени окружения, переиспользует `config.NewEntConfig`. Используется в Taskfile для применения SQL-миграций.
+  Затронутые файлы: `backend/cmd/dburl/main.go`, `backend/pkg/config/ent_db.go` (добавлен `GetPsqlURL()`).
+
+- **Задачи `db:migrate*` в Taskfile.**
+  `task db:migrate`, `task db:migrate:regions`, `task db:migrate:breeds` с поддержкой `ENV=local|dev|prod`.
+  Затронутые файлы: `Taskfile.yaml`.
+
+### Изменено
+
+- **Переход на коды ОКАТО для регионов.**
+  ID локаций изменены со строковых `MSK`/`MO` на коды ОКАТО `77` (г. Москва) и `50` (Московская область). Обновлены все ссылки: `ref_locations.id`, `blood_requests.regions` (jsonb), `donor_preferences.preferred_location_ids` (jsonb), `users.location_id` (FK).
+
+- **`config.NewEntConfig`: чтение `DB_NAME_PROD`/`DB_NAME_DEV`.**
+  Теперь читает `DB_NAME_PROD`/`DB_NAME_DEV` из `.env` с fallback на `DB_NAME` (для Docker, где переменная задаётся через `docker-compose.yml`). Раньше для dev/prod читалась несуществующая `DB_NAME`, что ломало запуск миграций с макбука.
+  Затронутые файлы: `backend/pkg/config/ent_db.go`.
+
+- **Рефакторинг обновления пользователя: доменная валидация через `User.UpdateFrom`.**
+  Метод `UpdateFrom` на агрегате `User` теперь выполняет контролируемую мутацию полей с проверкой инвариантов (длина имени/email, допустимость роли, максимум 3 предпочитаемых региона в `DonorPreference`). Репозиторий `UpdateUserFields` упрощён — guard'ы убраны, домен гарантирует корректность данных. Handler маппит доменные ошибки в `apperrors.Validation` с английским оригиналом в `Details` через `WithInternal`.
+  Затронутые файлы: `internal/domain/user/model/user_model.go`, `internal/application/user/cmd/update.go`, `internal/infra/presistance/pg/user_repo_ent.go`.
+
+### Удалено
+
+- **Пакет `pkg/seeds/`.**
+  Сиды (`data.go`, `main_seed.go`) удалены — заменены SQL-миграциями. Вызовы `seeds.SeedLocations`/`seeds.SeedBreeds` убраны из `cmd/api/main.go`.
+  Причина: auto-seed при старте — антипаттерн (риск на деплое, скрытие ошибок, дублирование источника правды).
+
 ## [3.24.6] - 2026-07-27
 
 ### Изменено

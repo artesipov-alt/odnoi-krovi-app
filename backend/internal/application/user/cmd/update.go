@@ -23,19 +23,28 @@ func NewUpdateHandler(userRepo user.Repository, txManager *presistance.TxManager
 }
 
 func (h *UpdateHandler) Handle(ctx context.Context, id string, input *usermodel.User) (*usermodel.User, error) {
-	err := h.txManager.WithTx(ctx, func(txCtx context.Context) error {
-		if err := h.userRepo.UpdateUserFields(txCtx, id, input); err != nil {
-			if ent.IsNotFound(err) {
-				return apperrors.ErrUserNotFound
-			}
+	// 1. Загружаем существующий агрегат
+	existingUser, err := h.userRepo.GetByID(ctx, id, user.UserPreloadOptions{WithDonorPreference: true})
+	if err != nil {
+		return nil, err
+	}
+
+	// 2. Применяем изменения через доменный метод агрегата (контролируемая мутация + валидация)
+	if err := existingUser.UpdateFrom(input); err != nil {
+		return nil, apperrors.Validation("Ошибка валидации", nil).WithInternal(err)
+	}
+
+	// 3. Сохраняем агрегат в транзакции
+	err = h.txManager.WithTx(ctx, func(txCtx context.Context) error {
+		if err := h.userRepo.UpdateUserFields(txCtx, id, existingUser); err != nil {
 			if ent.IsConstraintError(err) {
 				return apperrors.Conflict("Пользователь с такой почтой уже существует, при подтверждении номера аккаунты будут связаны")
 			}
 			return apperrors.Internal(err, "failed to update user")
 		}
 
-		if input.DonorPreference != nil {
-			if err := h.userRepo.UpsertDonorPreference(txCtx, id, input.DonorPreference); err != nil {
+		if existingUser.DonorPreference != nil {
+			if err := h.userRepo.UpsertDonorPreference(txCtx, id, existingUser.DonorPreference); err != nil {
 				return apperrors.Internal(err, "failed to upsert donor preference")
 			}
 		}
@@ -47,6 +56,7 @@ func (h *UpdateHandler) Handle(ctx context.Context, id string, input *usermodel.
 		return nil, err
 	}
 
+	// 4. Возвращаем обновлённого пользователя (без preload — только базовые поля)
 	usr, err := h.userRepo.GetByID(ctx, id, user.UserPreloadOptions{})
 	if err != nil {
 		return nil, err

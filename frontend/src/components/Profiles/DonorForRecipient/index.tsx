@@ -6,6 +6,7 @@ import {
     useGendersQuery,
     useHealthStatusesQuery,
     useLivingConditionsQuery,
+    useLocationsQuery,
     usePetTypesAndBloodGroupsQuery,
     useReproductiveStatusesQuery,
 } from 'hooks/useDicts';
@@ -20,6 +21,7 @@ import Bone from 'imgs/svg/bone';
 import DonorButton from 'imgs/svg/donorButton';
 import Exclamation from 'imgs/svg/exclamation';
 import Health from 'imgs/svg/health';
+import Location from 'imgs/svg/location';
 import Max from 'imgs/svg/max';
 import Params from 'imgs/svg/params';
 import Phone from 'imgs/svg/phone';
@@ -36,6 +38,7 @@ import { applyDonorRespond } from 'api/apiServices/applyDonorRespond';
 import { getDonorInfo } from 'api/apiServices/getDonorInfo';
 import { getPets } from 'api/apiServices/getPets';
 import { getUserIdentities } from 'api/apiServices/getUserIdentities';
+import { selectDonor } from 'api/apiServices/selectDonor';
 import { ApplyDonorRespondResponse, GetDonorInfoResponse } from 'api/bloodRequest';
 import { Pet } from 'api/pets';
 import { queryClient } from 'api/queryClient';
@@ -46,7 +49,6 @@ import Curtain from 'components/Curtain';
 import Layout from 'components/Layout';
 import Loading from 'components/Loading';
 
-import { selectDonor } from '../../../api/apiServices/selectDonor';
 import AnalysesStep from '../Steps/Analyses';
 import HealthStep from '../Steps/Health';
 import ParamsStep from '../Steps/Params';
@@ -126,6 +128,7 @@ const DonorForRecipient: FC<Props> = ({
     const { data: petGendersDict = [], isError: isErrorGenders } = useGendersQuery();
     const { data: healthStatusesDict = [], isError: isErrorHealthStatuses } = useHealthStatusesQuery();
     const { data: livingConditionsDict = [], isError: isErrorLivingConditions } = useLivingConditionsQuery();
+    const { data: locationsDict = [], isError: isErrorLocations, isSuccess: isSuccessLocations } = useLocationsQuery();
     const { data: reproductiveStatusesDict = [], isError: isErrorReproductiveStatusesDict } =
         useReproductiveStatusesQuery();
     const {
@@ -330,6 +333,12 @@ const DonorForRecipient: FC<Props> = ({
         }
     }, [isErrorReproductiveStatusesDict, showToast]);
 
+    useEffect(() => {
+        if (isErrorLocations) {
+            showToast('Не удалось загрузить словарь регионов, попробуйте перезагрузить приложение');
+        }
+    }, [isErrorLocations, showToast]);
+
     if (checkOtherDonors.isOpen && !!checkOtherDonors.pets?.length) {
         return (
             <CheckOtherDonors
@@ -494,6 +503,20 @@ const DonorForRecipient: FC<Props> = ({
                     </div>
                 </div>
             </div>
+            {isSuccessLocations && (
+                <div className={styles.regions}>
+                    <div className={styles.regionsIcon}>
+                        <Location />
+                    </div>
+                    <div>
+                        {info.regions?.map((lock) => (
+                            <p key={lock} className={styles.regionsText}>
+                                {locationsDict.filter(({ value }) => value === lock)[0]?.label}
+                            </p>
+                        ))}
+                    </div>
+                </div>
+            )}
             <div className={styles.tiles}>
                 {tiles.map(({ name: tileName, title, icon }) => (
                     <div
@@ -513,7 +536,13 @@ const DonorForRecipient: FC<Props> = ({
                                 {icon}
                             </div>
                         )}
-                        <p className={styles.tileTitle}>{title}</p>
+                        <p
+                            className={cn(styles.tileTitle, {
+                                [styles.noMargin]: tileName === TileName.CONDITIONS || tileName === TileName.DONATIONS,
+                            })}
+                        >
+                            {title}
+                        </p>
                         {tileName !== TileName.CONDITIONS && (
                             <div className={styles.arrowTileIcon}>
                                 <AccordionArrow />

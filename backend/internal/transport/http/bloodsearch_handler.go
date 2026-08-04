@@ -305,9 +305,10 @@ func (h *BloodRequestHandler) GetDonorByID(ctx context.Context, input *commondto
 	return &dto.GetDonorByIDOutput{Body: dto.DonorDetail{
 		ResponseID: application.ID,
 		PetDetail:  output,
-		Compensation: dto.Compensation{
-			CompensationType: application.CompensationType,
-			Taxi:             application.TaxiCompensation,
+		DonorPrefs: dto.DonorPrefs{
+			CompensationType: application.DonorPrefs.CompensationType,
+			Taxi:             application.DonorPrefs.TaxiCompensation,
+			Regions:          application.DonorPrefs.PreferredLocationIDs,
 		},
 	}}, nil
 }
@@ -354,8 +355,8 @@ func (h *BloodRequestHandler) GetDonation(ctx context.Context, input *commondto.
 		Application: dto.CoreApplicationData{
 			ID:               donation.Application.ID,
 			Amount:           donation.Application.Amount,
-			CompensationType: donation.Application.CompensationType,
-			TaxiCompensation: donation.Application.TaxiCompensation,
+			CompensationType: donation.Application.DonorPrefs.CompensationType,
+			TaxiCompensation: donation.Application.DonorPrefs.TaxiCompensation,
 			Status:           string(donation.Application.Status),
 		},
 	}
