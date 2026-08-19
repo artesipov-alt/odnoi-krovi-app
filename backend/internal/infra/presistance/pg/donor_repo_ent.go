@@ -317,3 +317,27 @@ func (r *EntDonorResponseRepository) FindNotConfirmed(ctx context.Context, cutof
 
 	return result, nil
 }
+
+// FindAcceptedForAutoConfirm возвращает accepted-отклики старше cutoffTime,
+// для которых донация так и не была отмечена. Используется автоподтверждением
+// для кейса «донор принят, но реципиент пропал и не подтвердил донацию».
+func (r *EntDonorResponseRepository) FindAcceptedForAutoConfirm(ctx context.Context, cutoffTime time.Time) ([]*donormodel.DonorResponse, error) {
+	responses, err := r.client(ctx).DonorResponse.Query().
+		Where(
+			donorresponse.UpdatedAtLTE(cutoffTime),
+			donorresponse.StatusEQ(donorresponse.StatusAccepted),
+		).
+		WithRequest(func(q *ent.BloodSearchRequestQuery) { q.Select(bloodsearchrequest.FieldID) }).
+		WithDonor(func(q *ent.PetQuery) { q.Select(pet.FieldID, pet.FieldName, pet.FieldBloodGroup, pet.FieldPhotoUrls) }).
+		All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to find accepted auto confirm responses: %w", err)
+	}
+
+	result := make([]*donormodel.DonorResponse, len(responses))
+	for i, response := range responses {
+		result[i] = domainmapper.ApplicationToDomain(response)
+	}
+
+	return result, nil
+}
