@@ -56,6 +56,7 @@ export * from './PetDetail';
 export * from './PetHealth';
 export * from './PetRolesList';
 export * from './PetTreatment';
+export * from './PetTypeStats';
 export * from './PetTypesList';
 export * from './PetWithApplication';
 export * from './PlannedDonationsList';
