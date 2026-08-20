@@ -36,25 +36,177 @@ func (r *RawQueryRepo) GetPortalStats(ctx context.Context) (*query.PortalStats, 
 			(
 				select count(*)
 				from pets
+				where deleted_at is null
 			) as total_pets,
 
 			(
 				select count(*)
 				from blood_requests
-				where status = 'active'
+				where deleted_at is null
+				  and status = 'active'
 			) as active_blood_requests,
 
 			(
 				select count(*)
 				from donor_responses
+				where deleted_at is null
 			) as total_donations,
 
 			(
 				select count(*)
 				from donor_responses
-				where status = 'completed'
-						and is_confirmed = true
-			) as completed_donations
+				where deleted_at is null
+				  and status = 'completed'
+				  and is_confirmed = true
+			) as completed_donations,
+
+			(
+				select count(*)
+				from blood_requests
+				where deleted_at is null
+			) as total_searches,
+
+			(
+				select coalesce(sum(blood_volume_needed), 0)
+				from blood_requests
+				where deleted_at is null
+			) as total_search_volume,
+
+			(
+				select coalesce(sum(amount), 0)
+				from donor_responses
+				where deleted_at is null
+				  and status = 'completed'
+				  and is_confirmed = true
+			) as total_donation_volume,
+
+			-- cat stats
+			(
+				select count(*)
+				from pets
+				where deleted_at is null
+				  and type = 'cat'
+			) as cat_total_pets,
+
+			(
+				select count(*)
+				from blood_requests br
+				join pets p on br.pet_id = p.id
+				where br.deleted_at is null
+				  and p.type = 'cat'
+				  and br.status = 'active'
+			) as cat_active_blood_requests,
+
+			(
+				select count(*)
+				from donor_responses dr
+				join blood_requests br on dr.request_id = br.id
+				join pets p on br.pet_id = p.id
+				where dr.deleted_at is null
+				  and p.type = 'cat'
+			) as cat_total_donations,
+
+			(
+				select count(*)
+				from donor_responses dr
+				join blood_requests br on dr.request_id = br.id
+				join pets p on br.pet_id = p.id
+				where dr.deleted_at is null
+				  and dr.status = 'completed'
+				  and dr.is_confirmed = true
+				  and p.type = 'cat'
+			) as cat_completed_donations,
+
+			(
+				select count(*)
+				from blood_requests br
+				join pets p on br.pet_id = p.id
+				where br.deleted_at is null
+				  and p.type = 'cat'
+			) as cat_searches,
+
+			(
+				select coalesce(sum(br.blood_volume_needed), 0)
+				from blood_requests br
+				join pets p on br.pet_id = p.id
+				where br.deleted_at is null
+				  and p.type = 'cat'
+			) as cat_search_volume,
+
+			(
+				select coalesce(sum(dr.amount), 0)
+				from donor_responses dr
+				join blood_requests br on dr.request_id = br.id
+				join pets p on br.pet_id = p.id
+				where dr.deleted_at is null
+				  and dr.status = 'completed'
+				  and dr.is_confirmed = true
+				  and p.type = 'cat'
+			) as cat_donation_volume,
+
+			-- dog stats
+			(
+				select count(*)
+				from pets
+				where deleted_at is null
+				  and type = 'dog'
+			) as dog_total_pets,
+
+			(
+				select count(*)
+				from blood_requests br
+				join pets p on br.pet_id = p.id
+				where br.deleted_at is null
+				  and p.type = 'dog'
+				  and br.status = 'active'
+			) as dog_active_blood_requests,
+
+			(
+				select count(*)
+				from donor_responses dr
+				join blood_requests br on dr.request_id = br.id
+				join pets p on br.pet_id = p.id
+				where dr.deleted_at is null
+				  and p.type = 'dog'
+			) as dog_total_donations,
+
+			(
+				select count(*)
+				from donor_responses dr
+				join blood_requests br on dr.request_id = br.id
+				join pets p on br.pet_id = p.id
+				where dr.deleted_at is null
+				  and dr.status = 'completed'
+				  and dr.is_confirmed = true
+				  and p.type = 'dog'
+			) as dog_completed_donations,
+
+			(
+				select count(*)
+				from blood_requests br
+				join pets p on br.pet_id = p.id
+				where br.deleted_at is null
+				  and p.type = 'dog'
+			) as dog_searches,
+
+			(
+				select coalesce(sum(br.blood_volume_needed), 0)
+				from blood_requests br
+				join pets p on br.pet_id = p.id
+				where br.deleted_at is null
+				  and p.type = 'dog'
+			) as dog_search_volume,
+
+			(
+				select coalesce(sum(dr.amount), 0)
+				from donor_responses dr
+				join blood_requests br on dr.request_id = br.id
+				join pets p on br.pet_id = p.id
+				where dr.deleted_at is null
+				  and dr.status = 'completed'
+				  and dr.is_confirmed = true
+				  and p.type = 'dog'
+			) as dog_donation_volume
 
 		from users;
 	`
@@ -73,11 +225,33 @@ func (r *RawQueryRepo) GetPortalStats(ctx context.Context) (*query.PortalStats, 
 		&s.ActiveBloodRequests,
 		&s.TotalDonations,
 		&s.CompletedDonations,
+		&s.TotalSearches,
+		&s.TotalSearchVolume,
+		&s.TotalDonationVolume,
+		// cat stats
+		&s.CatStats.TotalPets,
+		&s.CatStats.ActiveBloodRequests,
+		&s.CatStats.TotalDonations,
+		&s.CatStats.CompletedDonations,
+		&s.CatStats.Searches,
+		&s.CatStats.SearchVolume,
+		&s.CatStats.DonationVolume,
+		// dog stats
+		&s.DogStats.TotalPets,
+		&s.DogStats.ActiveBloodRequests,
+		&s.DogStats.TotalDonations,
+		&s.DogStats.CompletedDonations,
+		&s.DogStats.Searches,
+		&s.DogStats.SearchVolume,
+		&s.DogStats.DonationVolume,
 	)
 
 	if err != nil {
 		return nil, err
 	}
+
+	s.CatStats.Type = "cat"
+	s.DogStats.Type = "dog"
 
 	return &s, nil
 }

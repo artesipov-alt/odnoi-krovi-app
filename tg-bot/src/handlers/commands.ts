@@ -238,11 +238,11 @@ export const analyticHandler = async (ctx: Context) => {
       return;
     }
 
-	    const lines = [
-	      `Привет, *${user.fullName}*, ваша роль: *${user.role}*`,
-	      `🤖 Версия бота: *${BOT_VERSION}*`,
-	      "",
-	      "📊 *Статистика портала*",
+    const lines = [
+      `Привет, *${user.fullName}*, ваша роль: *${user.role}*`,
+      `🤖 Версия бота: *${BOT_VERSION}*`,
+      "",
+      "📊 *Статистика портала*",
       "",
       `👥 Всего пользователей: *${stats.totalUsers}*`,
       `✅ Верифицировано: *${stats.verifiedUsers}*`,
@@ -251,10 +251,25 @@ export const analyticHandler = async (ctx: Context) => {
       `📞 Конверсия в телефон: *${stats.phoneConversionPercent}%*`,
       "",
       `🩸 Активных запросов крови: *${stats.activeBloodRequests}*`,
-      `💉 Всего донаций: *${stats.totalDonations}*`,
+      `🔍 Всего поисков: *${stats.totalSearches}*`,
+      `💉 Объём поисков: *${stats.totalSearchVolume.toFixed(1)}* мл`,
+      `🩸 Всего донаций: *${stats.totalDonations}*`,
       `✅ Завершено донаций: *${stats.completedDonations}*`,
+      `💉 Объём донаций: *${stats.totalDonationVolume.toFixed(1)}* мл`,
       "",
       `🐾 Всего питомцев: *${stats.totalPets}*`,
+      "",
+      "🐱 *Кошки*",
+      `   Питомцев: *${stats.catStats.totalPets}*`,
+      `   Активных запросов: *${stats.catStats.activeBloodRequests}*`,
+      `   Поисков: *${stats.catStats.searches}* / *${stats.catStats.searchVolume.toFixed(1)}* мл`,
+      `   Донаций: *${stats.catStats.totalDonations}* / *${stats.catStats.completedDonations}* / *${stats.catStats.donationVolume.toFixed(1)}* мл`,
+      "",
+      "🐶 *Собаки*",
+      `   Питомцев: *${stats.dogStats.totalPets}*`,
+      `   Активных запросов: *${stats.dogStats.activeBloodRequests}*`,
+      `   Поисков: *${stats.dogStats.searches}* / *${stats.dogStats.searchVolume.toFixed(1)}* мл`,
+      `   Донаций: *${stats.dogStats.totalDonations}* / *${stats.dogStats.completedDonations}* / *${stats.dogStats.donationVolume.toFixed(1)}* мл`,
     ];
 
     await ctx.reply(lines.join("\n"), { parse_mode: "Markdown" });

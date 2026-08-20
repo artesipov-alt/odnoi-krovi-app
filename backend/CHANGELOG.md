@@ -5,6 +5,17 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.27.0] - 2026-08-20
+
+### Добавлено
+
+- **Расширенная статистика портала в эндпоинте `GET /v1/portal/stats`.**
+  Добавлены общие метрики и разбивка по типам питомцев (кошки / собаки):
+  - Общее количество поисков (`totalSearches`) и суммарный объём поисков (`totalSearchVolume`).
+  - Общий объём завершённых донаций (`totalDonationVolume`).
+  - Разбивка по типам питомцев (`catStats`, `dogStats`): питомцы, активные запросы крови, поиски, объёмы поисков, донации, завершённые донации, объёмы донаций.
+  Затронутые файлы: `internal/application/analytics/query/portal_stats.go`, `internal/infra/presistance/pg/rawquery_repo.go`, `internal/transport/http/dto/common/raw_dto.go`, `internal/transport/http/common_handler.go`.
+
 ## [3.26.0] - 2026-08-19
 
 ### Добавлено
