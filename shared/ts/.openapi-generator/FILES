@@ -64,6 +64,7 @@ models/PetDetail.ts
 models/PetHealth.ts
 models/PetRolesList.ts
 models/PetTreatment.ts
+models/PetTypeStats.ts
 models/PetTypesList.ts
 models/PetWithApplication.ts
 models/PlannedDonationsList.ts

@@ -68,4 +68,9 @@ type Repository interface {
 
 	// возвращает неподтвержденные отклики старше cutoffTime
 	FindNotConfirmed(ctx context.Context, cutoffTime time.Time) ([]*donormodel.DonorResponse, error)
+
+	// FindAcceptedForAutoConfirm возвращает accepted-отклики старше cutoffTime,
+	// для которых донация так и не была отмечена. Используется автоподтверждением
+	// для кейса «донор принят, но реципиент пропал и не подтвердил донацию».
+	FindAcceptedForAutoConfirm(ctx context.Context, cutoffTime time.Time) ([]*donormodel.DonorResponse, error)
 }

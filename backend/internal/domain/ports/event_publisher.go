@@ -14,6 +14,9 @@ const (
 	NotifRecipientEmptyShowcase        NotificationType = "recipient_empty_showcase"
 	NotifDonorNotAccepted              NotificationType = "donor_not_accepted"
 	NotifRecipientSearchClosedInactive NotificationType = "recipient_search_closed_inactive" // п.6
+	NotifRecipientAcceptedReminder12h  NotificationType = "recipient_accepted_reminder_12h"
+	NotifDonorAcceptedReminder12h      NotificationType = "donor_accepted_reminder_12h"
+	NotifRecipientAcceptedReminder24h  NotificationType = "recipient_accepted_reminder_24h"
 )
 
 type Notification struct {

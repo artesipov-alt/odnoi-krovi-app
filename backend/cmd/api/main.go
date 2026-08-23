@@ -62,6 +62,10 @@ type Options struct {
 	Port int `help:"Port to listen on" short:"p" default:"3001"`
 }
 
+// AppVersion — версия приложения. Единая точка контроля версией бэкенда.
+// Меняй здесь и добавляй запись в CHANGELOG.md.
+const AppVersion = "3.27.0"
+
 func main() {
 	var humapi huma.API
 
@@ -296,7 +300,7 @@ func main() {
 		scheduler.Start()
 
 		// Настройка Huma
-		humapi = humago.New(apiMux, config.NewHumaConfig(os.Getenv("MINIAPP_DOMAIN")))
+		humapi = humago.New(apiMux, config.NewHumaConfig(os.Getenv("MINIAPP_DOMAIN"), AppVersion))
 
 		// Инициализируем интеграцию AppError с Huma
 		apperrors.InitHuma(humapi)

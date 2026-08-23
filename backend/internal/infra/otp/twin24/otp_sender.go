@@ -81,18 +81,6 @@ func (s *OTPSender) getOrCreateDailyTask(ctx context.Context) (string, error) {
 		CidData:         s.cidData,
 		StartType:       "manual",
 		CPS:             1.0,
-		WebhookUrls: []WebhookUrl{
-			{
-				URL: "https://n8n.rmay1er.ru/webhook/twin-webhook",
-				Events: map[string]EventConfig{
-					"CALL_ENDED":         {Name: "CALL_ENDED", Value: true},
-					"CANDIDATE_CHANGED":  {Name: "CANDIDATE_CHANGED", Value: true},
-					"CALL_REDIRECTED":    {Name: "CALL_REDIRECTED", Value: true},
-					"RECALL_SCHEDULED":   {Name: "RECALL_SCHEDULED", Value: true},
-					"EFFICIENCY_REACHED": {Name: "EFFICIENCY_REACHED", Value: true},
-				},
-			},
-		},
 		AdditionalOptions: AdditionalOptions{
 			FullListMethod: "reject",
 			FullListTime:   12,

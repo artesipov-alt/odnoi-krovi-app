@@ -5,6 +5,40 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.27.0] - 2026-08-20
+
+### Добавлено
+
+- **Расширенная статистика портала в эндпоинте `GET /v1/portal/stats`.**
+  Добавлены общие метрики и разбивка по типам питомцев (кошки / собаки):
+  - Общее количество поисков (`totalSearches`) и суммарный объём поисков (`totalSearchVolume`).
+  - Общий объём завершённых донаций (`totalDonationVolume`).
+  - Разбивка по типам питомцев (`catStats`, `dogStats`): питомцы, активные запросы крови, поиски, объёмы поисков, донации, завершённые донации, объёмы донаций.
+  Затронутые файлы: `internal/application/analytics/query/portal_stats.go`, `internal/infra/presistance/pg/rawquery_repo.go`, `internal/transport/http/dto/common/raw_dto.go`, `internal/transport/http/common_handler.go`.
+
+## [3.26.0] - 2026-08-19
+
+### Добавлено
+
+- **Единая точка контроля версией бэкенда: константа `AppVersion` в `cmd/api/main.go`.**
+  Версия приложения больше не захардкожена в `server.go`. `NewHumaConfig` теперь принимает версию параметром, а `main.go` передаёт туда константу `AppVersion`.
+  Чтобы сменить версию: обнови `AppVersion` в `cmd/api/main.go` и добавь запись в `CHANGELOG.md`.
+  Затронутые файлы: `cmd/api/main.go`, `pkg/config/server.go`.
+
+- **Новые уведомления для кейса «принятый донор, донация не подтверждена» (active / reserved_full + accepted-отклик).**
+  Добавлены два сценария напоминаний, срабатывающих от `donor_responses.updated_at` (момент перехода в `accepted`):
+  - **12ч** — пуш реципиенту (`recipient_accepted_reminder_12h`) и принятому донору (`donor_accepted_reminder_12h`) с кнопкой «Открыть приложение».
+  - **24ч** — пуш реципиенту (`recipient_accepted_reminder_24h`) с предупреждением об автоподтверждении через 3 дня.
+  SQL-запросы `queryAccepted12h` / `queryAccepted24h` выбирают заявки в статусах `active` или `reserved_full` с `accepted`-откликом, у которого `is_confirmed = false`. Кеш-ключ — `responseID`, TTL 12ч / 24ч соответственно.
+  Затронутые файлы: `internal/domain/ports/event_publisher.go`, `internal/infra/scheduler/job/notification_queries.go`, `internal/infra/scheduler/job/notification_job.go`.
+
+### Исправлено
+
+- **Баг: заявки в `reserved_full` + `accepted`-откликом зависали навсегда (не автоподтверждались).**
+  `AutoConfirmJob.FindNotConfirmed` искал только `completed` + `is_confirmed = false`, поэтому `accepted`-отклики (донора приняли, но донацию никто не отметил) никогда не попадали в автоподтверждение. Пример: заявка Ивика висела с 17 мая 2026.
+  Добавлен метод `FindAcceptedForAutoConfirm` в `donor.Repository` и его Ent-реализацию. `AutoConfirmJob.Run` теперь делает два прохода: `completed` + `!is_confirmed` с cutoff 72ч (как раньше) и `accepted` с cutoff **96ч** (24ч на напоминания + 72ч на автоподтверждение).
+  Затронутые файлы: `internal/domain/donor/donor_repo.go`, `internal/infra/presistance/pg/donor_repo_ent.go`, `internal/infra/scheduler/job/auto_confirm_job.go`.
+
 ## [3.25.4] - 2026-07-31
 
 ### Изменено

@@ -34,6 +34,8 @@ func (n *NotificationJob) Run(ctx context.Context) {
 	n.checkRecipientEmptyShowcase24h(ctx)
 	n.checkRecipientEmptyShowcase48h(ctx)
 	n.checkDonorNotAccepted(ctx)
+	n.checkAccepted12h(ctx)
+	n.checkAccepted24h(ctx)
 }
 
 func (n *NotificationJob) checkDonorNotAccepted(ctx context.Context) {
@@ -384,5 +386,169 @@ func (n *NotificationJob) checkRecipientEmptyShowcase48h(ctx context.Context) {
 	}
 	if err := rows.Err(); err != nil {
 		slog.Error("checkRecipientEmptyShowcase48h: rows iteration error", "err", err)
+	}
+}
+
+// checkAccepted12h — заявки в active/reserved_full с accepted-откликом старше 12ч.
+// Отправляет два уведомления: реципиенту и принятому донору.
+func (n *NotificationJob) checkAccepted12h(ctx context.Context) {
+	rows, err := n.db.QueryContext(ctx, queryAccepted12h)
+	if err != nil {
+		slog.Error("checkAccepted12h: query failed", "err", err)
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var (
+			responseID          string
+			requestID           string
+			recipientPetName    string
+			recipientBloodGroup string
+			donorPetName        string
+			donorBloodGroup     string
+			amount              float64
+			recipientTelegramID sql.NullString
+			recipientMaxID      sql.NullString
+			donorTelegramID     sql.NullString
+			donorMaxID          sql.NullString
+		)
+		if err := rows.Scan(
+			&responseID, &requestID,
+			&recipientPetName, &recipientBloodGroup,
+			&donorPetName, &donorBloodGroup, &amount,
+			&recipientTelegramID, &recipientMaxID,
+			&donorTelegramID, &donorMaxID,
+		); err != nil {
+			slog.Error("checkAccepted12h: scan failed", "err", err)
+			continue
+		}
+
+		// Уведомление реципиенту
+		recipientSent, err := n.cache.WasSent(ctx, ports.NotifRecipientAcceptedReminder12h, responseID)
+		if err != nil {
+			slog.Error("checkAccepted12h: recipient cache check failed", "responseID", responseID, "err", err)
+			continue
+		}
+		if !recipientSent {
+			err = n.publisher.PublishNotification(ctx, ports.Notification{
+				Type: ports.NotifRecipientAcceptedReminder12h,
+				Targets: ports.NotifTargets{
+					TelegramID: recipientTelegramID.String,
+					MaxID:      recipientMaxID.String,
+				},
+				Payload: map[string]any{
+					"requestId":       requestID,
+					"donorPetName":    donorPetName,
+					"donorBloodGroup": donorBloodGroup,
+				},
+				CreatedAt: time.Now(),
+			})
+			if err != nil {
+				slog.Error("checkAccepted12h: recipient publish failed", "responseID", responseID, "err", err)
+				continue
+			}
+			if err := n.cache.MarkSent(ctx, ports.NotifRecipientAcceptedReminder12h, responseID, 12*time.Hour); err != nil {
+				slog.Error("checkAccepted12h: recipient mark sent failed", "responseID", responseID, "err", err)
+			}
+		}
+
+		// Уведомление донору
+		donorSent, err := n.cache.WasSent(ctx, ports.NotifDonorAcceptedReminder12h, responseID)
+		if err != nil {
+			slog.Error("checkAccepted12h: donor cache check failed", "responseID", responseID, "err", err)
+			continue
+		}
+		if !donorSent {
+			err = n.publisher.PublishNotification(ctx, ports.Notification{
+				Type: ports.NotifDonorAcceptedReminder12h,
+				Targets: ports.NotifTargets{
+					TelegramID: donorTelegramID.String,
+					MaxID:      donorMaxID.String,
+				},
+				Payload: map[string]any{
+					"responseId":          responseID,
+					"recipientPetName":    recipientPetName,
+					"recipientBloodGroup": recipientBloodGroup,
+					"volume":              amount,
+				},
+				CreatedAt: time.Now(),
+			})
+			if err != nil {
+				slog.Error("checkAccepted12h: donor publish failed", "responseID", responseID, "err", err)
+				continue
+			}
+			if err := n.cache.MarkSent(ctx, ports.NotifDonorAcceptedReminder12h, responseID, 12*time.Hour); err != nil {
+				slog.Error("checkAccepted12h: donor mark sent failed", "responseID", responseID, "err", err)
+			}
+		}
+	}
+	if err := rows.Err(); err != nil {
+		slog.Error("checkAccepted12h: rows iteration error", "err", err)
+	}
+}
+
+// checkAccepted24h — заявки в active/reserved_full с accepted-откликом старше 24ч.
+// Отправляет уведомление реципиенту и запускает сценарий «72 часа» (фактически —
+// AutoConfirmJob сам найдёт отклик через 96ч от accepted, т.е. 72ч от этого напоминания).
+func (n *NotificationJob) checkAccepted24h(ctx context.Context) {
+	rows, err := n.db.QueryContext(ctx, queryAccepted24h)
+	if err != nil {
+		slog.Error("checkAccepted24h: query failed", "err", err)
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var (
+			responseID          string
+			requestID           string
+			recipientPetName    string
+			recipientBloodGroup string
+			recipientTelegramID sql.NullString
+			recipientMaxID      sql.NullString
+		)
+		if err := rows.Scan(
+			&responseID, &requestID,
+			&recipientPetName, &recipientBloodGroup,
+			&recipientTelegramID, &recipientMaxID,
+		); err != nil {
+			slog.Error("checkAccepted24h: scan failed", "err", err)
+			continue
+		}
+
+		sent, err := n.cache.WasSent(ctx, ports.NotifRecipientAcceptedReminder24h, responseID)
+		if err != nil {
+			slog.Error("checkAccepted24h: cache check failed", "responseID", responseID, "err", err)
+			continue
+		}
+		if sent {
+			continue
+		}
+
+		err = n.publisher.PublishNotification(ctx, ports.Notification{
+			Type: ports.NotifRecipientAcceptedReminder24h,
+			Targets: ports.NotifTargets{
+				TelegramID: recipientTelegramID.String,
+				MaxID:      recipientMaxID.String,
+			},
+			Payload: map[string]any{
+				"requestId":           requestID,
+				"recipientPetName":    recipientPetName,
+				"recipientBloodGroup": recipientBloodGroup,
+			},
+			CreatedAt: time.Now(),
+		})
+		if err != nil {
+			slog.Error("checkAccepted24h: publish failed", "responseID", responseID, "err", err)
+			continue
+		}
+
+		if err := n.cache.MarkSent(ctx, ports.NotifRecipientAcceptedReminder24h, responseID, 24*time.Hour); err != nil {
+			slog.Error("checkAccepted24h: mark sent failed", "responseID", responseID, "err", err)
+		}
+	}
+	if err := rows.Err(); err != nil {
+		slog.Error("checkAccepted24h: rows iteration error", "err", err)
 	}
 }
