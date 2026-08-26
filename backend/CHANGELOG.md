@@ -5,6 +5,18 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.28.0] - 2026-08-26
+
+### Исправлено
+
+- **Баг: при удалении пользователя (soft-delete) повторный вход через мессенджер плодил клоны пользователей и завершался 404.**
+  `Delete` делал soft-delete только записи `users`, оставляя `user_identities` живыми. При повторном `/start` `ExistsByProvider` находил старую identity → код шёл в ветку «пользователь существует» → финальный `GetByID` падал с 404 (soft-deleted user отфильтрован интерсептором). Если же identity удаляли вручную — `UpsertUserIdentity` через `ON CONFLICT` апдейтил soft-deleted строку, не очищая `deleted_at`, и `GetByProvider` тоже падал 404, но перед этим успевал создать нового user и UTM.
+  Теперь `Delete` в рамках одной транзакции:
+  - **hard-delete** `user_identities` (служебная связка, не бизнес-данные) — чтобы `ON CONFLICT` в `UpsertUserIdentity` не resurrect-ил soft-deleted identity;
+  - **soft-delete** `user_utm_history`, `donor_preferences`, `pets` и `users` через `SoftDeleteHook` (бизнес-данные, restorable).
+  `DeleteHandler` обёрнут в `txManager.WithTx` для атомарности.
+  Затронутые файлы: `internal/infra/presistance/pg/user_repo_ent.go`, `internal/application/user/cmd/delete.go`, `cmd/api/main.go`.
+
 ## [3.27.0] - 2026-08-20
 
 ### Добавлено

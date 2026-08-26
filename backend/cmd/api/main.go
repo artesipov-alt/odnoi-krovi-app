@@ -64,7 +64,7 @@ type Options struct {
 
 // AppVersion — версия приложения. Единая точка контроля версией бэкенда.
 // Меняй здесь и добавляй запись в CHANGELOG.md.
-const AppVersion = "3.27.0"
+const AppVersion = "3.28.0"
 
 func main() {
 	var humapi huma.API
@@ -172,7 +172,7 @@ func main() {
 		externalSignInHandler := authcmd.NewExternalSignInHandler(userRepo, partnerRepo, tokenGenerator, txManager)
 		appSgnInHandler := authcmd.NewMiniAppSignInHandler(userRepo, miniAppDataValidator, tokenGenerator, txManager)
 
-		userDeleteHandler := usercmd.NewDeleteHandler(userRepo)
+		userDeleteHandler := usercmd.NewDeleteHandler(userRepo, txManager)
 		userUpdateHandler := usercmd.NewUpdateHandler(userRepo, txManager)
 		userChangePhoneHandler := usercmd.NewChangePhoneHandler(userRepo, otpRepo, otpSender)
 		userVerifyPhoneHandler := usercmd.NewVerifyPhoneHandler(userRepo, otpRepo, txManager)
