@@ -5,6 +5,16 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.28.1] - 2026-08-26
+
+### Исправлено
+
+- **Баг: soft-deleted пользователь блокировал повторную регистрацию по тому же `phone`/`email` (duplicate key value violates unique constraint `users_phone_key`).**
+  Поля `phone` и `email` в схеме `User` имели `Unique()` на уровне поля — это создавало полный `UNIQUE INDEX` без условия, поэтому soft-deleted запись с заполненным `phone`/`email` блокировала `UpdatePhone` для нового пользователя с тем же номером (`GetByPhone` через soft-delete-интерсептор не находил удалённую запись → код шёл в ветку «телефон свободен» → `UPDATE` падал по уникальности).
+  `Unique()` убран с полей `phone` и `email`; вместо него добавлены **partial unique indexes** в `User.Indexes()` с условием `WHERE deleted_at IS NULL` через `entsql.IndexWhere`. Теперь уникальность `phone`/`email` обеспечивается только среди живых записей, а soft-deleted не блокируют повторную регистрацию. История по `phone`/`email` в удалённых записях сохраняется для аналитики.
+  **Требует ручной миграции на проде**: после деплоя и auto-migrate (создаст partial indexes) дропнуть старые полные индексы — `DROP INDEX IF EXISTS users_phone_key; DROP INDEX IF EXISTS users_email_key;`.
+  Затронутые файлы: `internal/infra/ent/schema/user.go`.
+
 ## [3.28.0] - 2026-08-26
 
 ### Исправлено

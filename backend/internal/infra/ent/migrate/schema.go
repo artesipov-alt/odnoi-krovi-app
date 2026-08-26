@@ -310,9 +310,9 @@ var (
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 		{Name: "full_name", Type: field.TypeString, Nullable: true, Size: 255},
-		{Name: "phone", Type: field.TypeString, Unique: true, Nullable: true, Size: 20},
+		{Name: "phone", Type: field.TypeString, Nullable: true, Size: 20},
 		{Name: "verified", Type: field.TypeBool, Default: false},
-		{Name: "email", Type: field.TypeString, Unique: true, Nullable: true, Size: 255},
+		{Name: "email", Type: field.TypeString, Nullable: true, Size: 255},
 		{Name: "organization_name", Type: field.TypeString, Nullable: true, Size: 255},
 		{Name: "consent_pd", Type: field.TypeBool, Default: false},
 		{Name: "on_boarding", Type: field.TypeJSON, Nullable: true},
@@ -335,6 +335,24 @@ var (
 				Columns:    []*schema.Column{UsersColumns[17]},
 				RefColumns: []*schema.Column{RefLocationsColumns[0]},
 				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "user_phone",
+				Unique:  true,
+				Columns: []*schema.Column{UsersColumns[5]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "deleted_at IS NULL",
+				},
+			},
+			{
+				Name:    "user_email",
+				Unique:  true,
+				Columns: []*schema.Column{UsersColumns[7]},
+				Annotation: &entsql.IndexAnnotation{
+					Where: "deleted_at IS NULL",
+				},
 			},
 		},
 	}

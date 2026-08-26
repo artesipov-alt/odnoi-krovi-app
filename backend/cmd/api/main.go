@@ -64,7 +64,7 @@ type Options struct {
 
 // AppVersion — версия приложения. Единая точка контроля версией бэкенда.
 // Меняй здесь и добавляй запись в CHANGELOG.md.
-const AppVersion = "3.28.0"
+const AppVersion = "3.28.1"
 
 func main() {
 	var humapi huma.API
