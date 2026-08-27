@@ -5,6 +5,15 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.27.1] - 2026-08-27
+
+### Исправлено
+
+- **Баг: при закрытии заявки на поиск крови отклик донора в статусе `completed` (донация завершена, но не подтверждена реципиентом) не становился `rejected`, а возвращался в `accepted`.**
+  `DonorResponse.Reject()` для статуса `completed` намеренно возвращает отклик в `accepted` — это сценарий `reject_donation`, когда реципиент отклоняет результат донации и даёт донору возможность переделать. Но `CloseRequestHandler` использовал тот же `Reject()`, и при закрытии заявки отклик возвращался в работу вместо `rejected`. После этого донор мог повторно завершить донацию (`complete`) на уже закрытой заявке, а `CompleteDonationHandler` не проверял статус заявки.
+  В `Reject()` добавлен параметр `forceRejected`: `close_request` и `confirm_donation` вызывают с `true` (принудительный `rejected`), `reject_donation` — с `false` (текущее поведение). В `CompleteDonationHandler` добавлена проверка `bloodReq.IsActive()` — донацию нельзя завершить на закрытой заявке.
+  Затронутые файлы: `internal/domain/donor/model/donor_model.go`, `internal/application/bloodsearch/cmd/close_req.go`, `internal/application/bloodsearch/cmd/confirm_donation.go`, `internal/application/bloodsearch/cmd/reject_donation.go`, `internal/application/donor/cmd/complete_donation.go`.
+
 ## [3.27.0] - 2026-08-20
 
 ### Добавлено
