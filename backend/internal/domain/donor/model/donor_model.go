@@ -78,7 +78,16 @@ func (d *DonorResponse) Accept() error {
 	return errors.New("Невозможно принять заявку, не верный первичный статус")
 }
 
-func (d *DonorResponse) Reject(reason string) error {
+// Reject отклоняет отклик донора.
+//
+// Поведение для статуса completed зависит от forceRejected:
+//   - forceRejected=false (по умолчанию): отклик возвращается в accepted —
+//     сценарий reject_donation, когда реципиент отклонил результат донации
+//     и даёт донору возможность переделать.
+//   - forceRejected=true: отклик принудительно становится rejected —
+//     используется при закрытии заявки (close_request) и выборе другого донора
+//     (confirm_donation), когда возвращать отклик в работу нельзя.
+func (d *DonorResponse) Reject(reason string, forceRejected bool) error {
 	if reason == "" {
 		reason = "Реципиент отклонил донацию. "
 	}
@@ -91,8 +100,12 @@ func (d *DonorResponse) Reject(reason string) error {
 		d.Status = DonorResponseStatusRejected
 		d.RejectedReason = reason
 	case DonorResponseStatusCompleted:
-		// отклонили результат — возвращаем в работу
-		d.Status = DonorResponseStatusAccepted
+		if forceRejected {
+			d.Status = DonorResponseStatusRejected
+		} else {
+			// отклонили результат — возвращаем в работу
+			d.Status = DonorResponseStatusAccepted
+		}
 		d.RejectedReason = reason
 	default:
 		return errors.New("Невозможно отклонить заявку, не верный первичный статус")

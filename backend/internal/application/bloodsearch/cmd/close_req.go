@@ -62,7 +62,7 @@ func (h *CloseRequestHandler) Handle(ctx context.Context, bloodReqID string) err
 		for i := range bloodReq.DonorApplications {
 			application := &bloodReq.DonorApplications[i]
 			if application.IsActiveForDonation() {
-				if err := application.Reject("Заявка закрыта реципиентом"); err != nil {
+				if err := application.Reject("Заявка закрыта реципиентом", true); err != nil {
 					return err
 				}
 				if err := h.donorRepo.Update(txCtx, application); err != nil {

@@ -55,7 +55,7 @@ func (h *RejectDonationHandler) Handle(ctx context.Context, donorResponseID stri
 		return err
 	}
 
-	if err := application.Reject(rejectedReason); err != nil {
+	if err := application.Reject(rejectedReason, false); err != nil {
 		return err
 	}
 

@@ -7,6 +7,7 @@ import (
 
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/apperrors"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
+	bloodsearchmodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch/model"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor"
 	donorevent "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/events"
 	donormodel "github.com/artesipov-alt/odnoi-krovi-app/internal/domain/donor/model"
@@ -50,8 +51,20 @@ func (h *CompleteDonationHandler) Handle(ctx context.Context, resID string, amou
 		return apperrors.BadRequest("donor response status is invalid").WithMessage("donor response must be accepted to complete donation")
 	}
 
-	// Собираем read-only данные для уведомления до записи
-	recipientPet, recipientProviderMaxID, recipientProviderTelegramID, err := h.collectRecipientData(ctx, resID)
+	// Проверяем, что заявка ещё активна — донацию нельзя завершить на закрытой заявке.
+	// Без этой проверки донор может повторно complete'нуть донацию, если отклик
+	// вернулся в accepted после закрытия заявки (баг в CloseRequestHandler до фикса).
+	bloodReq, err := h.bloodRepo.GetByApplicationID(ctx, resID, false)
+	if err != nil {
+		return apperrors.Internal(err, "failed to get blood request")
+	}
+	if !bloodReq.IsActive() {
+		return apperrors.BadRequest("blood request is not active").WithMessage("нельзя завершить донацию на закрытой заявке")
+	}
+
+	// Собираем read-only данные для уведомления до записи.
+	// Заявка уже загружена выше — переиспользуем её, чтобы не делать лишний запрос.
+	recipientPet, recipientProviderMaxID, recipientProviderTelegramID, err := h.collectRecipientDataFromReq(ctx, bloodReq)
 	if err != nil {
 		return err
 	}
@@ -81,12 +94,9 @@ func (h *CompleteDonationHandler) Handle(ctx context.Context, resID string, amou
 	return nil
 }
 
-func (h *CompleteDonationHandler) collectRecipientData(ctx context.Context, resID string) (*petmodel.Pet, string, string, error) {
-	bloodReq, err := h.bloodRepo.GetByApplicationID(ctx, resID, false)
-	if err != nil {
-		return nil, "", "", apperrors.Internal(err, "failed to get blood request")
-	}
-
+// collectRecipientDataFromReq собирает данные реципиента из уже загруженной заявки —
+// экономит один запрос к БД по сравнению с collectRecipientData.
+func (h *CompleteDonationHandler) collectRecipientDataFromReq(ctx context.Context, bloodReq *bloodsearchmodel.BloodRequestWithApplications) (*petmodel.Pet, string, string, error) {
 	recipientPet, err := h.petRepo.GetByID(ctx, bloodReq.BloodRequest.PetID, pet.PetPreloadOptions{})
 	if err != nil {
 		return nil, "", "", apperrors.Internal(err, "failed to get recipient pet")
