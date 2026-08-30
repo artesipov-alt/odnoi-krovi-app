@@ -28,6 +28,8 @@ const (
 	FieldPhone = "phone"
 	// FieldVerified holds the string denoting the verified field in the database.
 	FieldVerified = "verified"
+	// FieldVerifiedAt holds the string denoting the verified_at field in the database.
+	FieldVerifiedAt = "verified_at"
 	// FieldEmail holds the string denoting the email field in the database.
 	FieldEmail = "email"
 	// FieldOrganizationName holds the string denoting the organization_name field in the database.
@@ -117,6 +119,7 @@ var Columns = []string{
 	FieldFullName,
 	FieldPhone,
 	FieldVerified,
+	FieldVerifiedAt,
 	FieldEmail,
 	FieldOrganizationName,
 	FieldConsentPd,
@@ -238,6 +241,11 @@ func ByPhone(opts ...sql.OrderTermOption) OrderOption {
 // ByVerified orders the results by the verified field.
 func ByVerified(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldVerified, opts...).ToFunc()
+}
+
+// ByVerifiedAt orders the results by the verified_at field.
+func ByVerifiedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldVerifiedAt, opts...).ToFunc()
 }
 
 // ByEmail orders the results by the email field.

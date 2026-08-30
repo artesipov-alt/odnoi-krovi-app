@@ -29,6 +29,11 @@ func (User) Fields() []ent.Field {
 		// verified - указывает, верифицирован ли пользователь.
 		field.Bool("verified").
 			Default(false),
+		// verified_at - время верификации пользователя (подтверждение телефона).
+		// Используется для отложенных уведомлений (например, напоминание добавить питомца).
+		field.Time("verified_at").
+			Optional().
+			Nillable(),
 		// email - адрес электронной почты пользователя.
 		field.String("email").
 			Optional().

@@ -275,6 +275,7 @@ func (r *EntUserRepository) UpdatePhone(ctx context.Context, id string, phone st
 	err := c.User.UpdateOneID(id).
 		SetPhone(phone).
 		SetVerified(true).
+		SetVerifiedAt(time.Now()).
 		Exec(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {

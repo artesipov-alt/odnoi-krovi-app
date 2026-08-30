@@ -11605,6 +11605,7 @@ type UserMutation struct {
 	full_name                *string
 	phone                    *string
 	verified                 *bool
+	verified_at              *time.Time
 	email                    *string
 	organization_name        *string
 	consent_pd               *bool
@@ -11997,6 +11998,55 @@ func (m *UserMutation) OldVerified(ctx context.Context) (v bool, err error) {
 // ResetVerified resets all changes to the "verified" field.
 func (m *UserMutation) ResetVerified() {
 	m.verified = nil
+}
+
+// SetVerifiedAt sets the "verified_at" field.
+func (m *UserMutation) SetVerifiedAt(t time.Time) {
+	m.verified_at = &t
+}
+
+// VerifiedAt returns the value of the "verified_at" field in the mutation.
+func (m *UserMutation) VerifiedAt() (r time.Time, exists bool) {
+	v := m.verified_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldVerifiedAt returns the old "verified_at" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldVerifiedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldVerifiedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldVerifiedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldVerifiedAt: %w", err)
+	}
+	return oldValue.VerifiedAt, nil
+}
+
+// ClearVerifiedAt clears the value of the "verified_at" field.
+func (m *UserMutation) ClearVerifiedAt() {
+	m.verified_at = nil
+	m.clearedFields[user.FieldVerifiedAt] = struct{}{}
+}
+
+// VerifiedAtCleared returns if the "verified_at" field was cleared in this mutation.
+func (m *UserMutation) VerifiedAtCleared() bool {
+	_, ok := m.clearedFields[user.FieldVerifiedAt]
+	return ok
+}
+
+// ResetVerifiedAt resets all changes to the "verified_at" field.
+func (m *UserMutation) ResetVerifiedAt() {
+	m.verified_at = nil
+	delete(m.clearedFields, user.FieldVerifiedAt)
 }
 
 // SetEmail sets the "email" field.
@@ -12854,7 +12904,7 @@ func (m *UserMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UserMutation) Fields() []string {
-	fields := make([]string, 0, 17)
+	fields := make([]string, 0, 18)
 	if m.created_at != nil {
 		fields = append(fields, user.FieldCreatedAt)
 	}
@@ -12872,6 +12922,9 @@ func (m *UserMutation) Fields() []string {
 	}
 	if m.verified != nil {
 		fields = append(fields, user.FieldVerified)
+	}
+	if m.verified_at != nil {
+		fields = append(fields, user.FieldVerifiedAt)
 	}
 	if m.email != nil {
 		fields = append(fields, user.FieldEmail)
@@ -12926,6 +12979,8 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 		return m.Phone()
 	case user.FieldVerified:
 		return m.Verified()
+	case user.FieldVerifiedAt:
+		return m.VerifiedAt()
 	case user.FieldEmail:
 		return m.Email()
 	case user.FieldOrganizationName:
@@ -12969,6 +13024,8 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 		return m.OldPhone(ctx)
 	case user.FieldVerified:
 		return m.OldVerified(ctx)
+	case user.FieldVerifiedAt:
+		return m.OldVerifiedAt(ctx)
 	case user.FieldEmail:
 		return m.OldEmail(ctx)
 	case user.FieldOrganizationName:
@@ -13041,6 +13098,13 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetVerified(v)
+		return nil
+	case user.FieldVerifiedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetVerifiedAt(v)
 		return nil
 	case user.FieldEmail:
 		v, ok := value.(string)
@@ -13173,6 +13237,9 @@ func (m *UserMutation) ClearedFields() []string {
 	if m.FieldCleared(user.FieldPhone) {
 		fields = append(fields, user.FieldPhone)
 	}
+	if m.FieldCleared(user.FieldVerifiedAt) {
+		fields = append(fields, user.FieldVerifiedAt)
+	}
 	if m.FieldCleared(user.FieldEmail) {
 		fields = append(fields, user.FieldEmail)
 	}
@@ -13216,6 +13283,9 @@ func (m *UserMutation) ClearField(name string) error {
 		return nil
 	case user.FieldPhone:
 		m.ClearPhone()
+		return nil
+	case user.FieldVerifiedAt:
+		m.ClearVerifiedAt()
 		return nil
 	case user.FieldEmail:
 		m.ClearEmail()
@@ -13263,6 +13333,9 @@ func (m *UserMutation) ResetField(name string) error {
 		return nil
 	case user.FieldVerified:
 		m.ResetVerified()
+		return nil
+	case user.FieldVerifiedAt:
+		m.ResetVerifiedAt()
 		return nil
 	case user.FieldEmail:
 		m.ResetEmail()

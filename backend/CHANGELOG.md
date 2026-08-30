@@ -5,6 +5,33 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.29.0] - 2026-08-30
+
+### Добавлено
+
+- **Уведомление для верифицированных пользователей без питомцев (`user_verified_no_pets`).**
+  Через 24 часа после верификации (подтверждения телефона) пользователю, не добавившему
+  ни одного питомца, отправляется пуш «Получите полный доступ к Порталу!» с кнопкой
+  «Открыть приложение». Напоминание повторяется каждые 48 часов, лимита повторов нет —
+  пока пользователь не добавит питомца.
+  Тайминг считается от нового поля `users.verified_at` — фиксируется в `UpdatePhone`
+  в момент подтверждения телефона (раньше ставился только флаг `verified`). Дедупликация
+  и ритм повторов — через кеш уведомлений (`notif:sent:user_verified_no_pets:{userID}`, TTL 48ч).
+  **Требует ручной миграции на проде**: после деплоя и auto-migrate (добавит колонку)
+  применить `migrations/20260830000001_users_verified_at_backfill.sql` вручную (psql или Beetkeeper) —
+  бэкфилл `verified_at = created_at` для уже верифицированных пользователей; без него они не будут
+  получать уведомление, пока не пройдут верификацию повторно.
+  Затронутые файлы: `internal/infra/ent/schema/user.go`, `internal/infra/presistance/pg/user_repo_ent.go`,
+  `internal/domain/ports/event_publisher.go`, `internal/infra/scheduler/job/notification_queries.go`,
+  `internal/infra/scheduler/job/notification_job.go`, `tg-bot/src/events/notification/handleNotification.ts`,
+  `max-bot/src/events/notification/handleNotification.ts`.
+
+### Изменено
+
+- Ручной шаг из 3.28.1 (дроп старых полных уникальных индексов `users_phone_key` / `users_email_key`)
+  оформлен идемпотентной миграцией `migrations/20260830000002_drop_users_phone_email_unique_keys.sql` —
+  применяется вручную (psql или Beetkeeper), но дропать индексы руками больше не нужно.
+
 ## [3.28.1] - 2026-08-26
 
 ### Исправлено

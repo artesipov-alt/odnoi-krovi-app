@@ -17,6 +17,7 @@ const (
 	NotifRecipientAcceptedReminder12h  NotificationType = "recipient_accepted_reminder_12h"
 	NotifDonorAcceptedReminder12h      NotificationType = "donor_accepted_reminder_12h"
 	NotifRecipientAcceptedReminder24h  NotificationType = "recipient_accepted_reminder_24h"
+	NotifUserVerifiedNoPets            NotificationType = "user_verified_no_pets"
 )
 
 type Notification struct {

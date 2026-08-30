@@ -113,6 +113,20 @@ func (_c *UserCreate) SetNillableVerified(v *bool) *UserCreate {
 	return _c
 }
 
+// SetVerifiedAt sets the "verified_at" field.
+func (_c *UserCreate) SetVerifiedAt(v time.Time) *UserCreate {
+	_c.mutation.SetVerifiedAt(v)
+	return _c
+}
+
+// SetNillableVerifiedAt sets the "verified_at" field if the given value is not nil.
+func (_c *UserCreate) SetNillableVerifiedAt(v *time.Time) *UserCreate {
+	if v != nil {
+		_c.SetVerifiedAt(*v)
+	}
+	return _c
+}
+
 // SetEmail sets the "email" field.
 func (_c *UserCreate) SetEmail(v string) *UserCreate {
 	_c.mutation.SetEmail(v)
@@ -531,6 +545,10 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_spec.SetField(user.FieldVerified, field.TypeBool, value)
 		_node.Verified = value
 	}
+	if value, ok := _c.mutation.VerifiedAt(); ok {
+		_spec.SetField(user.FieldVerifiedAt, field.TypeTime, value)
+		_node.VerifiedAt = &value
+	}
 	if value, ok := _c.mutation.Email(); ok {
 		_spec.SetField(user.FieldEmail, field.TypeString, value)
 		_node.Email = value
@@ -795,6 +813,24 @@ func (u *UserUpsert) SetVerified(v bool) *UserUpsert {
 // UpdateVerified sets the "verified" field to the value that was provided on create.
 func (u *UserUpsert) UpdateVerified() *UserUpsert {
 	u.SetExcluded(user.FieldVerified)
+	return u
+}
+
+// SetVerifiedAt sets the "verified_at" field.
+func (u *UserUpsert) SetVerifiedAt(v time.Time) *UserUpsert {
+	u.Set(user.FieldVerifiedAt, v)
+	return u
+}
+
+// UpdateVerifiedAt sets the "verified_at" field to the value that was provided on create.
+func (u *UserUpsert) UpdateVerifiedAt() *UserUpsert {
+	u.SetExcluded(user.FieldVerifiedAt)
+	return u
+}
+
+// ClearVerifiedAt clears the value of the "verified_at" field.
+func (u *UserUpsert) ClearVerifiedAt() *UserUpsert {
+	u.SetNull(user.FieldVerifiedAt)
 	return u
 }
 
@@ -1117,6 +1153,27 @@ func (u *UserUpsertOne) SetVerified(v bool) *UserUpsertOne {
 func (u *UserUpsertOne) UpdateVerified() *UserUpsertOne {
 	return u.Update(func(s *UserUpsert) {
 		s.UpdateVerified()
+	})
+}
+
+// SetVerifiedAt sets the "verified_at" field.
+func (u *UserUpsertOne) SetVerifiedAt(v time.Time) *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.SetVerifiedAt(v)
+	})
+}
+
+// UpdateVerifiedAt sets the "verified_at" field to the value that was provided on create.
+func (u *UserUpsertOne) UpdateVerifiedAt() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateVerifiedAt()
+	})
+}
+
+// ClearVerifiedAt clears the value of the "verified_at" field.
+func (u *UserUpsertOne) ClearVerifiedAt() *UserUpsertOne {
+	return u.Update(func(s *UserUpsert) {
+		s.ClearVerifiedAt()
 	})
 }
 
@@ -1636,6 +1693,27 @@ func (u *UserUpsertBulk) SetVerified(v bool) *UserUpsertBulk {
 func (u *UserUpsertBulk) UpdateVerified() *UserUpsertBulk {
 	return u.Update(func(s *UserUpsert) {
 		s.UpdateVerified()
+	})
+}
+
+// SetVerifiedAt sets the "verified_at" field.
+func (u *UserUpsertBulk) SetVerifiedAt(v time.Time) *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.SetVerifiedAt(v)
+	})
+}
+
+// UpdateVerifiedAt sets the "verified_at" field to the value that was provided on create.
+func (u *UserUpsertBulk) UpdateVerifiedAt() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.UpdateVerifiedAt()
+	})
+}
+
+// ClearVerifiedAt clears the value of the "verified_at" field.
+func (u *UserUpsertBulk) ClearVerifiedAt() *UserUpsertBulk {
+	return u.Update(func(s *UserUpsert) {
+		s.ClearVerifiedAt()
 	})
 }
 

@@ -312,6 +312,7 @@ var (
 		{Name: "full_name", Type: field.TypeString, Nullable: true, Size: 255},
 		{Name: "phone", Type: field.TypeString, Nullable: true, Size: 20},
 		{Name: "verified", Type: field.TypeBool, Default: false},
+		{Name: "verified_at", Type: field.TypeTime, Nullable: true},
 		{Name: "email", Type: field.TypeString, Nullable: true, Size: 255},
 		{Name: "organization_name", Type: field.TypeString, Nullable: true, Size: 255},
 		{Name: "consent_pd", Type: field.TypeBool, Default: false},
@@ -332,7 +333,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "users_ref_locations_users",
-				Columns:    []*schema.Column{UsersColumns[17]},
+				Columns:    []*schema.Column{UsersColumns[18]},
 				RefColumns: []*schema.Column{RefLocationsColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -349,7 +350,7 @@ var (
 			{
 				Name:    "user_email",
 				Unique:  true,
-				Columns: []*schema.Column{UsersColumns[7]},
+				Columns: []*schema.Column{UsersColumns[8]},
 				Annotation: &entsql.IndexAnnotation{
 					Where: "deleted_at IS NULL",
 				},
