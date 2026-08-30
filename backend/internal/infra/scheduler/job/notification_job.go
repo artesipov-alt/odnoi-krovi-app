@@ -36,6 +36,8 @@ func (n *NotificationJob) Run(ctx context.Context) {
 	n.checkDonorNotAccepted(ctx)
 	n.checkAccepted12h(ctx)
 	n.checkAccepted24h(ctx)
+	n.checkVerifiedNoPets(ctx)
+	n.checkNotVerified(ctx)
 }
 
 func (n *NotificationJob) checkDonorNotAccepted(ctx context.Context) {
@@ -550,5 +552,114 @@ func (n *NotificationJob) checkAccepted24h(ctx context.Context) {
 	}
 	if err := rows.Err(); err != nil {
 		slog.Error("checkAccepted24h: rows iteration error", "err", err)
+	}
+}
+
+// checkVerifiedNoPets — верифицированные пользователи без питомцев.
+// Первое уведомление через 24ч после верификации, повтор каждые 48ч (дедупликация —
+// кеш с TTL 48ч), пока пользователь не добавит питомца. Лимита повторов нет.
+func (n *NotificationJob) checkVerifiedNoPets(ctx context.Context) {
+	rows, err := n.db.QueryContext(ctx, queryVerifiedNoPets)
+	if err != nil {
+		slog.Error("checkVerifiedNoPets: query failed", "err", err)
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var (
+			userID     string
+			telegramID sql.NullString
+			maxID      sql.NullString
+		)
+		if err := rows.Scan(&userID, &telegramID, &maxID); err != nil {
+			slog.Error("checkVerifiedNoPets: scan failed", "err", err)
+			continue
+		}
+
+		sent, err := n.cache.WasSent(ctx, ports.NotifUserVerifiedNoPets, userID)
+		if err != nil {
+			slog.Error("checkVerifiedNoPets: cache check failed", "userID", userID, "err", err)
+			continue
+		}
+		if sent {
+			continue
+		}
+
+		err = n.publisher.PublishNotification(ctx, ports.Notification{
+			Type: ports.NotifUserVerifiedNoPets,
+			Targets: ports.NotifTargets{
+				TelegramID: telegramID.String,
+				MaxID:      maxID.String,
+			},
+			Payload:   map[string]any{},
+			CreatedAt: time.Now(),
+		})
+		if err != nil {
+			slog.Error("checkVerifiedNoPets: publish failed", "userID", userID, "err", err)
+			continue
+		}
+
+		if err := n.cache.MarkSent(ctx, ports.NotifUserVerifiedNoPets, userID, 48*time.Hour); err != nil {
+			slog.Error("checkVerifiedNoPets: mark sent failed", "userID", userID, "err", err)
+		}
+	}
+	if err := rows.Err(); err != nil {
+		slog.Error("checkVerifiedNoPets: rows iteration error", "err", err)
+	}
+}
+
+// checkNotVerified — пользователи, не подтвердившие телефон.
+// Первое уведомление через 24ч после регистрации (created_at — первый /start в боте),
+// повтор каждые 48ч (дедупликация — кеш с TTL 48ч), пока не подтвердят телефон.
+// Лимита повторов нет.
+func (n *NotificationJob) checkNotVerified(ctx context.Context) {
+	rows, err := n.db.QueryContext(ctx, queryNotVerified)
+	if err != nil {
+		slog.Error("checkNotVerified: query failed", "err", err)
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var (
+			userID     string
+			telegramID sql.NullString
+			maxID      sql.NullString
+		)
+		if err := rows.Scan(&userID, &telegramID, &maxID); err != nil {
+			slog.Error("checkNotVerified: scan failed", "err", err)
+			continue
+		}
+
+		sent, err := n.cache.WasSent(ctx, ports.NotifUserNotVerified, userID)
+		if err != nil {
+			slog.Error("checkNotVerified: cache check failed", "userID", userID, "err", err)
+			continue
+		}
+		if sent {
+			continue
+		}
+
+		err = n.publisher.PublishNotification(ctx, ports.Notification{
+			Type: ports.NotifUserNotVerified,
+			Targets: ports.NotifTargets{
+				TelegramID: telegramID.String,
+				MaxID:      maxID.String,
+			},
+			Payload:   map[string]any{},
+			CreatedAt: time.Now(),
+		})
+		if err != nil {
+			slog.Error("checkNotVerified: publish failed", "userID", userID, "err", err)
+			continue
+		}
+
+		if err := n.cache.MarkSent(ctx, ports.NotifUserNotVerified, userID, 48*time.Hour); err != nil {
+			slog.Error("checkNotVerified: mark sent failed", "userID", userID, "err", err)
+		}
+	}
+	if err := rows.Err(); err != nil {
+		slog.Error("checkNotVerified: rows iteration error", "err", err)
 	}
 }

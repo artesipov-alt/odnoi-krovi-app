@@ -60,12 +60,17 @@ YYYYMMDDNNNNNN_name.sql
 5. **Порядок применения на окружениях**: dev → проверка → prod. Перед prod —
    бэкап.
 
+6. **Bootstrap vs one-off.** В `task db:migrate` входят только bootstrap-миграции
+   (справочники — они нужны и на свежем развёртывании). Разовые преобразования уже
+   существующей БД (бэкфиллы, дроп индексов) применяются вручную на каждое окружение —
+   через psql или Beetkeeper.
+
 ## Применение
 
 ### Через Taskfile (рекомендуемый способ)
 
 ```sh
-# Применить все миграции к локальной БД (по умолчанию ENV=local)
+# Применить bootstrap-миграции к локальной БД (по умолчанию ENV=local)
 task db:migrate
 
 # Применить к dev
@@ -111,3 +116,5 @@ psql "$(go run ./cmd/dburl dev)" \
 |---|---|
 | `20260728000001_regions_okato.sql` | Переход на коды ОКАТО субъектов РФ (89 регионов); замена старых ID `MSK`→`77`, `MO`→`50` во всех ссылках (ref_locations, blood_requests.regions, donor_preferences.preferred_location_ids, users.location_id). |
 | `20260728000002_breeds.sql` | Полный справочник пород (ref_breeds) для кошек и собак. |
+| `20260830000001_users_verified_at_backfill.sql` | Бэкфилл `users.verified_at` (момент верификации) для уже верифицированных пользователей: `verified_at = created_at`. Нужно для уведомления `user_verified_no_pets`. One-off, применяется вручную. |
+| `20260830000002_drop_users_phone_email_unique_keys.sql` | Дроп старых полных уникальных индексов `users_phone_key` / `users_email_key` (ручной шаг из 3.28.1, оформлен миграцией). Применять после того, как auto-migrate создал partial-индексы `user_phone` / `user_email`. One-off, применяется вручную. |
