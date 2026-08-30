@@ -37,6 +37,7 @@ func (n *NotificationJob) Run(ctx context.Context) {
 	n.checkAccepted12h(ctx)
 	n.checkAccepted24h(ctx)
 	n.checkVerifiedNoPets(ctx)
+	n.checkNotVerified(ctx)
 }
 
 func (n *NotificationJob) checkDonorNotAccepted(ctx context.Context) {
@@ -605,5 +606,60 @@ func (n *NotificationJob) checkVerifiedNoPets(ctx context.Context) {
 	}
 	if err := rows.Err(); err != nil {
 		slog.Error("checkVerifiedNoPets: rows iteration error", "err", err)
+	}
+}
+
+// checkNotVerified — пользователи, не подтвердившие телефон.
+// Первое уведомление через 24ч после регистрации (created_at — первый /start в боте),
+// повтор каждые 48ч (дедупликация — кеш с TTL 48ч), пока не подтвердят телефон.
+// Лимита повторов нет.
+func (n *NotificationJob) checkNotVerified(ctx context.Context) {
+	rows, err := n.db.QueryContext(ctx, queryNotVerified)
+	if err != nil {
+		slog.Error("checkNotVerified: query failed", "err", err)
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var (
+			userID     string
+			telegramID sql.NullString
+			maxID      sql.NullString
+		)
+		if err := rows.Scan(&userID, &telegramID, &maxID); err != nil {
+			slog.Error("checkNotVerified: scan failed", "err", err)
+			continue
+		}
+
+		sent, err := n.cache.WasSent(ctx, ports.NotifUserNotVerified, userID)
+		if err != nil {
+			slog.Error("checkNotVerified: cache check failed", "userID", userID, "err", err)
+			continue
+		}
+		if sent {
+			continue
+		}
+
+		err = n.publisher.PublishNotification(ctx, ports.Notification{
+			Type: ports.NotifUserNotVerified,
+			Targets: ports.NotifTargets{
+				TelegramID: telegramID.String,
+				MaxID:      maxID.String,
+			},
+			Payload:   map[string]any{},
+			CreatedAt: time.Now(),
+		})
+		if err != nil {
+			slog.Error("checkNotVerified: publish failed", "userID", userID, "err", err)
+			continue
+		}
+
+		if err := n.cache.MarkSent(ctx, ports.NotifUserNotVerified, userID, 48*time.Hour); err != nil {
+			slog.Error("checkNotVerified: mark sent failed", "userID", userID, "err", err)
+		}
+	}
+	if err := rows.Err(); err != nil {
+		slog.Error("checkNotVerified: rows iteration error", "err", err)
 	}
 }

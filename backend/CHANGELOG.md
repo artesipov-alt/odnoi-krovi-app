@@ -26,6 +26,22 @@
   `internal/infra/scheduler/job/notification_job.go`, `tg-bot/src/events/notification/handleNotification.ts`,
   `max-bot/src/events/notification/handleNotification.ts`.
 
+- **Уведомление для пользователей с неподтверждённым телефоном (`user_not_verified`).**
+  Через 24 часа после регистрации (первое нажатие /start в боте, `users.created_at`) пользователю,
+  не завершившему верификацию телефона, отправляется пуш «Получите полный доступ к Порталу!»
+  с кнопкой «Открыть приложение». Напоминание повторяется каждые 48 часов, лимита повторов нет —
+  пока пользователь не подтвердит телефон.
+  Дедупликация и ритм повторов — через кеш уведомлений (`notif:sent:user_not_verified:{userID}`, TTL 48ч).
+  Миграций не требует.
+  Затронутые файлы: `internal/domain/ports/event_publisher.go`, `internal/infra/scheduler/job/notification_queries.go`,
+  `internal/infra/scheduler/job/notification_job.go`, `tg-bot/src/events/notification/handleNotification.ts`,
+  `max-bot/src/events/notification/handleNotification.ts`.
+
+- **Реестр уведомлений `docs/notifications.md`.**
+  Единый источник правды по всем пушам: таблицы «когда приходит / как часто / когда перестаёт»
+  с человекочитаемыми названиями, полные тексты сообщений и чек-лист стоимости нового уведомления.
+  Обновляется в том же PR, что и само уведомление (закреплено в корневом `AGENTS.md`).
+
 ### Изменено
 
 - Ручной шаг из 3.28.1 (дроп старых полных уникальных индексов `users_phone_key` / `users_email_key`)

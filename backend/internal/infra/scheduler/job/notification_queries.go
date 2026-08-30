@@ -187,3 +187,18 @@ const queryVerifiedNoPets = `
 		  )
 		GROUP BY u.id
 `
+
+// queryNotVerified — пользователи, не подтвердившие телефон, регистрация старше 24ч.
+// created_at — момент первого /start в боте. Уведомление повторяется (дедупликация — кеш с TTL 48ч).
+const queryNotVerified = `
+		SELECT
+		    u.id,
+		    MAX(CASE WHEN i.provider = 'telegram_bot' THEN i.provider_user_id END) AS telegram_id,
+		    MAX(CASE WHEN i.provider = 'max_bot'      THEN i.provider_user_id END) AS max_id
+		FROM users u
+		LEFT JOIN user_identities i ON i.user_id = u.id
+		WHERE u.verified = false
+		  AND u.deleted_at IS NULL
+		  AND u.created_at <= NOW() - INTERVAL '24 hours'
+		GROUP BY u.id
+`
