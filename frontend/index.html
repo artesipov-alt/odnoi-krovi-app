@@ -33,9 +33,29 @@
             }
         </style>
 
-        <!-- Подключение внешних скриптов Telegram и MAX -->
+        <!-- Подключение внешних скриптов MAX -->
         <script src="https://st.max.ru/js/max-web-app.js"></script>
-        <script src="/tg-js/js/telegram-web-app.js"></script>
+
+        <!-- Проверка bridge перед загрузкой telegram-web-app.js -->
+        <script>
+            (async function() {
+                try {
+                    await fetch('https://bridge.1krovi.app', {
+                        method: 'HEAD',
+                        mode: 'no-cors',
+                        signal: AbortSignal.timeout(5000)
+                    });
+
+                    // Bridge доступен — загружаем telegram-web-app.js
+                    const s = document.createElement('script');
+
+                    s.src = '/tg-js/js/telegram-web-app.js';
+                    document.head.appendChild(s);
+                } catch (err) {
+                    console.warn('Bridge недоступен, telegram-web-app.js не загружен');
+                }
+            })();
+        </script>
     </head>
     <body>
         <!-- Прелоадер -->

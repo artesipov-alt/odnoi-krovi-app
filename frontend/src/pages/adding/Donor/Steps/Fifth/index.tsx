@@ -4,6 +4,7 @@ import Success from 'imgs/svg/success';
 import { FC } from 'react';
 
 import { PetType } from 'api/types';
+import Alert, { View } from 'components/Alert';
 import DatePicker from 'components/DatePicker';
 
 import { Analiz } from '../../types';
@@ -53,6 +54,11 @@ const Fifth: FC<Props> = ({
                 <br />
                 проведенных анализов
             </h2>
+            <Alert
+                className={styles.alert}
+                view={View.INFO_WITHOUT_ICON}
+                text='Можете пропустить этот шаг и указать анализы позже'
+            />
             {(isDog
                 ? [babesiosis, dirofilaria, hemoplasmosis, bartonellosis, ehrlichiosis, anaplasmosis]
                 : [leukemia, immunodeficiency, hemoplasmosis, bartonellosis]
