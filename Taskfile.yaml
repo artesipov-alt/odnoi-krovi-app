@@ -116,33 +116,25 @@ tasks:
       - rm -rf dist
       - bun run build
 
-  # Миграции базы данных (SQL-файлы из backend/migrations/)
-  # Применяются через psql. См. backend/migrations/README.md.
-  # ENV: local (по умолчанию), dev, prod.
+  # One-off миграции применяет runner (backend/cmd/migrate): он ведёт таблицу
+  # applied_migrations и применяет только ещё не применённые файлы.
+  # Bootstrap-справочники применяются через psql вручную, только на пустой БД.
+  # ENV: local (по умолчанию), dev, prod. См. backend/migrations/README.md.
   db:migrate:
-    desc: "Применить все SQL-миграции к БД (ENV=dev|prod|local, по умолчанию local)"
+    desc: "Применить pending one-off миграции к БД (ENV=dev|prod|local, по умолчанию local)"
     dir: backend
     cmds:
-      - >-
-        psql "$(go run ./cmd/dburl {{.ENV | default "local"}})" \
-          -v ON_ERROR_STOP=1 \
-          -f migrations/20260728000001_regions_okato.sql \
-          -f migrations/20260728000002_breeds.sql
+      - go run ./cmd/migrate {{.ENV | default "local"}}
 
-  db:migrate:regions:
-    desc: "Применить только миграцию регионов (ENV=dev|prod|local)"
+  db:migrate:bootstrap:
+    desc: "Наполнить справочники на НОВОЙ/пустой БД + пометить one-off как применённые"
     dir: backend
     cmds:
-      - >-
-        psql "$(go run ./cmd/dburl {{.ENV | default "local"}})" \
-          -v ON_ERROR_STOP=1 \
-          -f migrations/20260728000001_regions_okato.sql
-
-  db:migrate:breeds:
-    desc: "Применить только миграцию пород (ENV=dev|prod|local)"
-    dir: backend
-    cmds:
-      - >-
-        psql "$(go run ./cmd/dburl {{.ENV | default "local"}})" \
-          -v ON_ERROR_STOP=1 \
-          -f migrations/20260728000002_breeds.sql
+      - |
+        for f in migrations/bootstrap/*.sql; do
+          echo "Applying $f"
+          psql "$(go run ./cmd/dburl {{.ENV | default "local"}})" \
+            -v ON_ERROR_STOP=1 \
+            -f "$f" || exit 1
+        done
+      - go run ./cmd/migrate -baseline {{.ENV | default "local"}}

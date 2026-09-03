@@ -1,23 +1,14 @@
--- Миграция справочника регионов на коды ОКАТО (субъекты РФ).
+-- Bootstrap: справочник субъектов РФ (коды ОКАТО) в ref_locations.
 --
--- Что делает:
---   1. Вставляет полный реестр субъектов РФ (89 записей) в ref_locations.
---   2. Переводит старые строковые ID "MSK" -> "77" (г. Москва), "MO" -> "50" (Московская область)
---      во всех местах, где они хранятся:
---        - ref_locations.id (PK)
---        - blood_requests.regions (jsonb array)
---        - donor_preferences.preferred_location_ids (jsonb array)
---        - users.location_id (FK -> ref_locations.id)
---   3. Удаляет устаревшие записи ref_locations с id IN ('MSK','MO').
+-- Применяется вручную ТОЛЬКО на пустой/новой БД (новый сервер, перенос проекта):
+--   task db:migrate:bootstrap ENV=local|dev|prod
+-- На существующих окружениях уже применён; повторный запуск безопасен
+-- (ON CONFLICT DO NOTHING).
 --
--- Idempotent: повторный запуск безопасен (ON CONFLICT DO NOTHING, CASE-обновления
--- не меняют уже обновлённые значения).
---
--- Применять в одной транзакции (BEGIN/COMMIT). На prod — после бэкапа.
+-- Применять в одной транзакции (BEGIN/COMMIT).
 
 BEGIN;
 
--- 1. Вставка полного реестра субъектов РФ (коды ОКАТО).
 INSERT INTO ref_locations (id, name) VALUES
   ('01', 'Республика Адыгея (Адыгея)'),
   ('02', 'Республика Башкортостан'),
@@ -109,44 +100,5 @@ INSERT INTO ref_locations (id, name) VALUES
   ('94', 'Луганская Народная Республика'),
   ('95', 'Херсонская область')
 ON CONFLICT (id) DO NOTHING;
-
--- 2. Обновление jsonb-массива blood_requests.regions.
---    Заменяет элементы "MSK" -> "77", "MO" -> "50".
-UPDATE blood_requests
-SET regions = (
-  SELECT jsonb_agg(CASE
-    WHEN elem = 'MSK' THEN '77'
-    WHEN elem = 'MO'  THEN '50'
-    ELSE elem
-  END)
-  FROM jsonb_array_elements_text(regions) AS elem
-)
-WHERE regions IS NOT NULL
-  AND (regions::text LIKE '%MSK%' OR regions::text LIKE '%"MO"%');
-
--- 3. Обновление jsonb-массива donor_preferences.preferred_location_ids.
-UPDATE donor_preferences
-SET preferred_location_ids = (
-  SELECT jsonb_agg(CASE
-    WHEN elem = 'MSK' THEN '77'
-    WHEN elem = 'MO'  THEN '50'
-    ELSE elem
-  END)
-  FROM jsonb_array_elements_text(preferred_location_ids) AS elem
-)
-WHERE preferred_location_ids IS NOT NULL
-  AND (preferred_location_ids::text LIKE '%MSK%' OR preferred_location_ids::text LIKE '%"MO"%');
-
--- 4. Обновление users.location_id (FK -> ref_locations.id).
---    Должно идти ДО удаления старых записей ref_locations, иначе FK violation.
-UPDATE users
-SET location_id = CASE location_id
-    WHEN 'MSK' THEN '77'
-    WHEN 'MO'  THEN '50'
-END
-WHERE location_id IN ('MSK', 'MO');
-
--- 5. Удаление устаревших записей справочника.
-DELETE FROM ref_locations WHERE id IN ('MSK', 'MO');
 
 COMMIT;

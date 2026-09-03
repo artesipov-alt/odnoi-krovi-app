@@ -22,8 +22,9 @@ COPY backend/docs/ ./docs/
 COPY backend/docsui/ ./docsui/
 COPY backend/pkg/ ./pkg/
 
-# Сборка бинарника
+# Сборка бинарников: API-сервер и runner one-off миграций
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/api
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o migrate ./cmd/migrate
 
 
 # ---------- STAGE 2: runtime ----------
@@ -33,9 +34,12 @@ RUN apk --no-cache add ca-certificates curl
 
 WORKDIR /root/
 
-# Копируем бинарник и документацию
+# Копируем бинарники и документацию
 COPY --from=builder /build/backend/main .
+COPY --from=builder /build/backend/migrate .
 COPY --from=builder /build/backend/docs ./docs
+# SQL-миграции для runner-а (./migrate ищет migrations/one-off относительно WORKDIR)
+COPY backend/migrations ./migrations
 
 EXPOSE 3000
 CMD ["./main"]
