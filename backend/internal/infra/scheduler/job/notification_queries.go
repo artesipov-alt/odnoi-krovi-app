@@ -202,3 +202,32 @@ const queryNotVerified = `
 		  AND u.created_at <= NOW() - INTERVAL '24 hours'
 		GROUP BY u.id
 `
+
+// queryPetNoTreatments — питомцы без вакцинаций/обработок (устранимые стоп-факторы),
+// созданные более 24ч назад. Питомец попадает в выборку, если запись обработок
+// отсутствует или у неё не заполнена хотя бы одна из четырёх дат.
+// Один пуш на пользователя (самый старый неполный питомец), чтобы не слать
+// дубликаты владельцам нескольких неполных питомцев.
+// Уведомление повторяется (дедупликация — кеш с TTL 48ч), пока данные не будут заполнены.
+const queryPetNoTreatments = `
+		SELECT DISTINCT ON (p.user_id)
+		    p.user_id,
+		    MAX(CASE WHEN i.provider = 'telegram_bot' THEN i.provider_user_id END) AS telegram_id,
+		    MAX(CASE WHEN i.provider = 'max_bot'      THEN i.provider_user_id END) AS max_id
+		FROM pets p
+		JOIN users u ON u.id = p.user_id AND u.deleted_at IS NULL
+		LEFT JOIN user_identities i ON i.user_id = u.id
+		LEFT JOIN pet_treatments pt ON pt.id = p.treatment_id AND pt.deleted_at IS NULL
+		WHERE p.deleted_at IS NULL
+		  AND p.user_id IS NOT NULL
+		  AND p.created_at <= NOW() - INTERVAL '24 hours'
+		  AND (
+		      p.treatment_id IS NULL
+		      OR pt.rabies_vaccination_date IS NULL
+		      OR pt.infection_vaccination_date IS NULL
+		      OR pt.ectoparasite_treatment_date IS NULL
+		      OR pt.deworming_date IS NULL
+		  )
+		GROUP BY p.user_id, p.id, p.created_at
+		ORDER BY p.user_id, p.created_at
+`
