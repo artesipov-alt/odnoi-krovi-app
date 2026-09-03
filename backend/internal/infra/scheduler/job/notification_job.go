@@ -38,6 +38,7 @@ func (n *NotificationJob) Run(ctx context.Context) {
 	n.checkAccepted24h(ctx)
 	n.checkVerifiedNoPets(ctx)
 	n.checkNotVerified(ctx)
+	n.checkPetNoTreatments(ctx)
 }
 
 func (n *NotificationJob) checkDonorNotAccepted(ctx context.Context) {
@@ -661,5 +662,60 @@ func (n *NotificationJob) checkNotVerified(ctx context.Context) {
 	}
 	if err := rows.Err(); err != nil {
 		slog.Error("checkNotVerified: rows iteration error", "err", err)
+	}
+}
+
+// checkPetNoTreatments — питомцы без вакцинаций/обработок (устранимые стоп-факторы).
+// Первое уведомление через 24ч после создания питомца, повтор каждые 48ч (дедупликация —
+// кеш с TTL 48ч, ключ — владелец), пока данные по вакцинации и обработкам не будут заполнены.
+// Лимита повторов нет.
+func (n *NotificationJob) checkPetNoTreatments(ctx context.Context) {
+	rows, err := n.db.QueryContext(ctx, queryPetNoTreatments)
+	if err != nil {
+		slog.Error("checkPetNoTreatments: query failed", "err", err)
+		return
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var (
+			userID     string
+			telegramID sql.NullString
+			maxID      sql.NullString
+		)
+		if err := rows.Scan(&userID, &telegramID, &maxID); err != nil {
+			slog.Error("checkPetNoTreatments: scan failed", "err", err)
+			continue
+		}
+
+		sent, err := n.cache.WasSent(ctx, ports.NotifPetNoTreatments, userID)
+		if err != nil {
+			slog.Error("checkPetNoTreatments: cache check failed", "userID", userID, "err", err)
+			continue
+		}
+		if sent {
+			continue
+		}
+
+		err = n.publisher.PublishNotification(ctx, ports.Notification{
+			Type: ports.NotifPetNoTreatments,
+			Targets: ports.NotifTargets{
+				TelegramID: telegramID.String,
+				MaxID:      maxID.String,
+			},
+			Payload:   map[string]any{},
+			CreatedAt: time.Now(),
+		})
+		if err != nil {
+			slog.Error("checkPetNoTreatments: publish failed", "userID", userID, "err", err)
+			continue
+		}
+
+		if err := n.cache.MarkSent(ctx, ports.NotifPetNoTreatments, userID, 48*time.Hour); err != nil {
+			slog.Error("checkPetNoTreatments: mark sent failed", "userID", userID, "err", err)
+		}
+	}
+	if err := rows.Err(); err != nil {
+		slog.Error("checkPetNoTreatments: rows iteration error", "err", err)
 	}
 }
