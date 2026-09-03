@@ -40,7 +40,7 @@
         <script>
             (async function() {
                 try {
-                    await fetch('https://bridge.1krovi.app', {
+                    await fetch('https://bridge.1krovi.app/health', {
                         method: 'HEAD',
                         mode: 'no-cors',
                         signal: AbortSignal.timeout(5000)
