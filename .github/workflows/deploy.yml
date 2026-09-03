@@ -122,6 +122,11 @@ jobs:
             echo "$CR_PAT" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
 
             docker compose pull
+
+            # Применить pending one-off миграции (таблица applied_migrations в БД).
+            # На prod перед этим шагом — бэкап БД (см. backend/migrations/README.md).
+            docker compose run --rm --no-deps backend ./migrate prod
+
             docker compose up -d
 
             docker container prune -f --filter "until=24h"
