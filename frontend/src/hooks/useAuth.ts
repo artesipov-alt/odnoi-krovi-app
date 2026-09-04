@@ -25,10 +25,30 @@ export const useAuth = (): UserAuth => {
             signinData = await signinMax({ appInitData: window.WebApp.initData });
 
             localStorage.setItem('environment', 'max');
-        } else if (window.Telegram?.WebApp?.initData) {
-            signinData = await signinTg({ appInitData: window.Telegram.WebApp.initData });
+        } else {
+            try {
+                const healthResponse = await fetch('https://bridge.1krovi.app/health', {
+                    method: 'HEAD',
+                    signal: AbortSignal.timeout(5000),
+                });
 
-            localStorage.setItem('environment', 'tg');
+                if (healthResponse.ok) {
+                    const s = document.createElement('script');
+
+                    s.src = '/tg-js/js/telegram-web-app.js';
+                    document.head.appendChild(s);
+
+                    await new Promise((resolve) => setTimeout(resolve, 500));
+                }
+            } catch (e) {
+                console.warn('Bridge недоступен, telegram-web-app.js не загружен:', e);
+            }
+
+            if (window.Telegram?.WebApp?.initData) {
+                signinData = await signinTg({ appInitData: window.Telegram.WebApp.initData });
+
+                localStorage.setItem('environment', 'tg');
+            }
         }
 
         if (!signinData) {
