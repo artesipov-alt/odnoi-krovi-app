@@ -35,30 +35,6 @@
 
         <!-- Подключение внешних скриптов MAX -->
         <script src="https://st.max.ru/js/max-web-app.js"></script>
-
-        <!-- Health-check bridge перед загрузкой telegram-web-app.js -->
-        <script>
-            (function() {
-                try {
-                    const xhr = new XMLHttpRequest();
-
-                    xhr.open('GET', 'https://bridge.1krovi.app/health', false);
-                    xhr.timeout = 5000;
-                    xhr.send();
-
-                    if (xhr.status >= 200 && xhr.status < 300) {
-                        const s = document.createElement('script');
-
-                        s.src = '/tg-js/js/telegram-web-app.js';
-                        document.head.appendChild(s);
-                    } else {
-                        console.warn('Bridge вернул статус:', xhr.status);
-                    }
-                } catch (e) {
-                    console.warn('Health-check не прошел:', e);
-                }
-            })();
-        </script>
     </head>
     <body>
         <!-- Прелоадер -->
