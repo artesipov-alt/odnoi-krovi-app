@@ -33,6 +33,7 @@ export const useAuth = (): UserAuth => {
                 });
 
                 if (healthResponse.ok) {
+                    console.log(111);
                     const s = document.createElement('script');
 
                     s.src = '/tg-js/js/telegram-web-app.js';
