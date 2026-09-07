@@ -5,6 +5,18 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.29.1] - 2026-09-07
+
+### Изменено
+
+- **Порядок one-off миграций в деплое изменён: сначала старт backend, потом миграции.**
+  Ранее `./migrate` запускался до `up -d`, поэтому one-off, ссылающиеся на
+  колонки/индексы, которые Ent auto-migrate создаёт при старте backend,
+  падали с `column does not exist` (пример — бэкфилл `verified_at` в 3.29.0).
+  Теперь деплой-скрипт (`deploy.yml`, `deploy-dev.yml`) делает:
+  `up -d backend` → `./migrate` → `up -d`. Подробности —
+  `backend/migrations/README.md`.
+
 ## [3.29.0] - 2026-08-30
 
 ### Добавлено

@@ -123,8 +123,13 @@ jobs:
 
             docker compose pull
 
-            # Применить pending one-off миграции (таблица applied_migrations в БД).
-            # На prod перед этим шагом — бэкап БД (см. backend/migrations/README.md).
+            # 1. Стартуем backend: при старте Ent auto-migrate обновляет схему БД
+            #    (колонки/индексы), которые могут использовать one-off миграции.
+            # 2. Затем применяем pending one-off (таблица applied_migrations в БД).
+            #    На prod перед этим шагом — бэкап БД (см. backend/migrations/README.md).
+            # 3. Поднимаем остальные сервисы.
+            docker compose up -d backend
+
             docker compose run --rm --no-deps backend ./migrate prod
 
             docker compose up -d

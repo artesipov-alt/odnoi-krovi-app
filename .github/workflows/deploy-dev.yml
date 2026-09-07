@@ -111,8 +111,13 @@ jobs:
             echo "$CR_PAT" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
             docker compose -f docker-compose.dev.yml pull
 
-            # Применить pending one-off миграции (таблица applied_migrations в БД);
-            # при ошибке деплой останавливается до перезапуска сервисов
+            # 1. Стартуем backend: при старте Ent auto-migrate обновляет схему БД
+            #    (колонки/индексы), которые могут использовать one-off миграции.
+            # 2. Затем применяем pending one-off (таблица applied_migrations в БД);
+            #    при ошибке деплой останавливается до перезапуска остальных сервисов.
+            # 3. Поднимаем остальные сервисы.
+            docker compose -f docker-compose.dev.yml up -d backend
+
             docker compose -f docker-compose.dev.yml run --rm --no-deps backend ./migrate dev
 
             docker compose -f docker-compose.dev.yml up -d
