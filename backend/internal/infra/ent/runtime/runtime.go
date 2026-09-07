@@ -325,27 +325,27 @@ func init() {
 	// user.DefaultVerified holds the default value on creation for the verified field.
 	user.DefaultVerified = userDescVerified.Default.(bool)
 	// userDescEmail is the schema descriptor for email field.
-	userDescEmail := userFields[3].Descriptor()
+	userDescEmail := userFields[4].Descriptor()
 	// user.EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	user.EmailValidator = userDescEmail.Validators[0].(func(string) error)
 	// userDescOrganizationName is the schema descriptor for organization_name field.
-	userDescOrganizationName := userFields[4].Descriptor()
+	userDescOrganizationName := userFields[5].Descriptor()
 	// user.OrganizationNameValidator is a validator for the "organization_name" field. It is called by the builders before save.
 	user.OrganizationNameValidator = userDescOrganizationName.Validators[0].(func(string) error)
 	// userDescConsentPd is the schema descriptor for consent_pd field.
-	userDescConsentPd := userFields[5].Descriptor()
+	userDescConsentPd := userFields[6].Descriptor()
 	// user.DefaultConsentPd holds the default value on creation for the consent_pd field.
 	user.DefaultConsentPd = userDescConsentPd.Default.(bool)
 	// userDescAllowGeo is the schema descriptor for allow_geo field.
-	userDescAllowGeo := userFields[7].Descriptor()
+	userDescAllowGeo := userFields[8].Descriptor()
 	// user.DefaultAllowGeo holds the default value on creation for the allow_geo field.
 	user.DefaultAllowGeo = userDescAllowGeo.Default.(bool)
 	// userDescOriginSource is the schema descriptor for origin_source field.
-	userDescOriginSource := userFields[11].Descriptor()
+	userDescOriginSource := userFields[12].Descriptor()
 	// user.OriginSourceValidator is a validator for the "origin_source" field. It is called by the builders before save.
 	user.OriginSourceValidator = userDescOriginSource.Validators[0].(func(string) error)
 	// userDescPrioritySearchCount is the schema descriptor for priority_search_count field.
-	userDescPrioritySearchCount := userFields[12].Descriptor()
+	userDescPrioritySearchCount := userFields[13].Descriptor()
 	// user.DefaultPrioritySearchCount holds the default value on creation for the priority_search_count field.
 	user.DefaultPrioritySearchCount = userDescPrioritySearchCount.Default.(int)
 	// userDescID is the schema descriptor for id field.

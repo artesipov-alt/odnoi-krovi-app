@@ -25,8 +25,8 @@ const Alert: FC<Props> = ({ text, className, reason, view = View.WARNING }) => {
     };
 
     return (
-        <div className={cn(styles.alert, className)}>
-            <div className={cn(styles.wrapper, { [styles.infoWithoutIcon]: view === View.INFO_WITHOUT_ICON })}>
+        <div className={cn(styles.alert, className, { [styles.infoWithoutIcon]: view === View.INFO_WITHOUT_ICON })}>
+            <div className={cn(styles.wrapper)}>
                 <div className={cn(styles.logo, { [styles.infoWithoutIcon]: view === View.INFO_WITHOUT_ICON })}>
                     <Caution />
                 </div>

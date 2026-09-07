@@ -5,6 +5,71 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.29.0] - 2026-08-30
+
+### Добавлено
+
+- **Уведомление для верифицированных пользователей без питомцев (`user_verified_no_pets`).**
+  Через 24 часа после верификации (подтверждения телефона) пользователю, не добавившему
+  ни одного питомца, отправляется пуш «Получите полный доступ к Порталу!» с кнопкой
+  «Открыть приложение». Напоминание повторяется каждые 48 часов, лимита повторов нет —
+  пока пользователь не добавит питомца.
+  Тайминг считается от нового поля `users.verified_at` — фиксируется в `UpdatePhone`
+  в момент подтверждения телефона (раньше ставился только флаг `verified`). Дедупликация
+  и ритм повторов — через кеш уведомлений (`notif:sent:user_verified_no_pets:{userID}`, TTL 48ч).
+  **Требует ручной миграции на проде**: после деплоя и auto-migrate (добавит колонку)
+  применить `migrations/20260830000001_users_verified_at_backfill.sql` вручную (psql или Beetkeeper) —
+  бэкфилл `verified_at = created_at` для уже верифицированных пользователей; без него они не будут
+  получать уведомление, пока не пройдут верификацию повторно.
+  Затронутые файлы: `internal/infra/ent/schema/user.go`, `internal/infra/presistance/pg/user_repo_ent.go`,
+  `internal/domain/ports/event_publisher.go`, `internal/infra/scheduler/job/notification_queries.go`,
+  `internal/infra/scheduler/job/notification_job.go`, `tg-bot/src/events/notification/handleNotification.ts`,
+  `max-bot/src/events/notification/handleNotification.ts`.
+
+- **Уведомление для пользователей с неподтверждённым телефоном (`user_not_verified`).**
+  Через 24 часа после регистрации (первое нажатие /start в боте, `users.created_at`) пользователю,
+  не завершившему верификацию телефона, отправляется пуш «Получите полный доступ к Порталу!»
+  с кнопкой «Открыть приложение». Напоминание повторяется каждые 48 часов, лимита повторов нет —
+  пока пользователь не подтвердит телефон.
+  Дедупликация и ритм повторов — через кеш уведомлений (`notif:sent:user_not_verified:{userID}`, TTL 48ч).
+  Миграций не требует.
+  Затронутые файлы: `internal/domain/ports/event_publisher.go`, `internal/infra/scheduler/job/notification_queries.go`,
+  `internal/infra/scheduler/job/notification_job.go`, `tg-bot/src/events/notification/handleNotification.ts`,
+  `max-bot/src/events/notification/handleNotification.ts`.
+
+- **Реестр уведомлений `docs/notifications.md`.**
+  Единый источник правды по всем пушам: таблицы «когда приходит / как часто / когда перестаёт»
+  с человекочитаемыми названиями, полные тексты сообщений и чек-лист стоимости нового уведомления.
+  Обновляется в том же PR, что и само уведомление (закреплено в корневом `AGENTS.md`).
+
+### Изменено
+
+- Ручной шаг из 3.28.1 (дроп старых полных уникальных индексов `users_phone_key` / `users_email_key`)
+  оформлен идемпотентной миграцией `migrations/20260830000002_drop_users_phone_email_unique_keys.sql` —
+  применяется вручную (psql или Beetkeeper), но дропать индексы руками больше не нужно.
+
+## [3.28.1] - 2026-08-26
+
+### Исправлено
+
+- **Баг: soft-deleted пользователь блокировал повторную регистрацию по тому же `phone`/`email` (duplicate key value violates unique constraint `users_phone_key`).**
+  Поля `phone` и `email` в схеме `User` имели `Unique()` на уровне поля — это создавало полный `UNIQUE INDEX` без условия, поэтому soft-deleted запись с заполненным `phone`/`email` блокировала `UpdatePhone` для нового пользователя с тем же номером (`GetByPhone` через soft-delete-интерсептор не находил удалённую запись → код шёл в ветку «телефон свободен» → `UPDATE` падал по уникальности).
+  `Unique()` убран с полей `phone` и `email`; вместо него добавлены **partial unique indexes** в `User.Indexes()` с условием `WHERE deleted_at IS NULL` через `entsql.IndexWhere`. Теперь уникальность `phone`/`email` обеспечивается только среди живых записей, а soft-deleted не блокируют повторную регистрацию. История по `phone`/`email` в удалённых записях сохраняется для аналитики.
+  **Требует ручной миграции на проде**: после деплоя и auto-migrate (создаст partial indexes) дропнуть старые полные индексы — `DROP INDEX IF EXISTS users_phone_key; DROP INDEX IF EXISTS users_email_key;`.
+  Затронутые файлы: `internal/infra/ent/schema/user.go`.
+
+## [3.28.0] - 2026-08-26
+
+### Исправлено
+
+- **Баг: при удалении пользователя (soft-delete) повторный вход через мессенджер плодил клоны пользователей и завершался 404.**
+  `Delete` делал soft-delete только записи `users`, оставляя `user_identities` живыми. При повторном `/start` `ExistsByProvider` находил старую identity → код шёл в ветку «пользователь существует» → финальный `GetByID` падал с 404 (soft-deleted user отфильтрован интерсептором). Если же identity удаляли вручную — `UpsertUserIdentity` через `ON CONFLICT` апдейтил soft-deleted строку, не очищая `deleted_at`, и `GetByProvider` тоже падал 404, но перед этим успевал создать нового user и UTM.
+  Теперь `Delete` в рамках одной транзакции:
+  - **hard-delete** `user_identities` (служебная связка, не бизнес-данные) — чтобы `ON CONFLICT` в `UpsertUserIdentity` не resurrect-ил soft-deleted identity;
+  - **soft-delete** `user_utm_history`, `donor_preferences`, `pets` и `users` через `SoftDeleteHook` (бизнес-данные, restorable).
+  `DeleteHandler` обёрнут в `txManager.WithTx` для атомарности.
+  Затронутые файлы: `internal/infra/presistance/pg/user_repo_ent.go`, `internal/application/user/cmd/delete.go`, `cmd/api/main.go`.
+  
 ## [3.27.1] - 2026-08-27
 
 ### Исправлено

@@ -32,6 +32,8 @@ type User struct {
 	Phone string `json:"phone,omitempty"`
 	// Verified holds the value of the "verified" field.
 	Verified bool `json:"verified,omitempty"`
+	// VerifiedAt holds the value of the "verified_at" field.
+	VerifiedAt *time.Time `json:"verified_at,omitempty"`
 	// Email holds the value of the "email" field.
 	Email string `json:"email,omitempty"`
 	// OrganizationName holds the value of the "organization_name" field.
@@ -150,7 +152,7 @@ func (*User) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case user.FieldID, user.FieldFullName, user.FieldPhone, user.FieldEmail, user.FieldOrganizationName, user.FieldLocationID, user.FieldRole, user.FieldOriginSource:
 			values[i] = new(sql.NullString)
-		case user.FieldCreatedAt, user.FieldUpdatedAt, user.FieldDeletedAt, user.FieldLastSeenAt:
+		case user.FieldCreatedAt, user.FieldUpdatedAt, user.FieldDeletedAt, user.FieldVerifiedAt, user.FieldLastSeenAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -209,6 +211,13 @@ func (_m *User) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field verified", values[i])
 			} else if value.Valid {
 				_m.Verified = value.Bool
+			}
+		case user.FieldVerifiedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field verified_at", values[i])
+			} else if value.Valid {
+				_m.VerifiedAt = new(time.Time)
+				*_m.VerifiedAt = value.Time
 			}
 		case user.FieldEmail:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -366,6 +375,11 @@ func (_m *User) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("verified=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Verified))
+	builder.WriteString(", ")
+	if v := _m.VerifiedAt; v != nil {
+		builder.WriteString("verified_at=")
+		builder.WriteString(v.Format(time.ANSIC))
+	}
 	builder.WriteString(", ")
 	builder.WriteString("email=")
 	builder.WriteString(_m.Email)

@@ -110,6 +110,11 @@ jobs:
             git reset --hard origin/dev
             echo "$CR_PAT" | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
             docker compose -f docker-compose.dev.yml pull
+
+            # Применить pending one-off миграции (таблица applied_migrations в БД);
+            # при ошибке деплой останавливается до перезапуска сервисов
+            docker compose -f docker-compose.dev.yml run --rm --no-deps backend ./migrate dev
+
             docker compose -f docker-compose.dev.yml up -d
             docker container prune -f --filter "until=24h"
             docker network prune -f

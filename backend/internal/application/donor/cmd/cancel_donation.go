@@ -60,6 +60,9 @@ func (h *CancelDonationHandler) Handle(ctx context.Context, resID string, reason
 	if donorResponse.IsCompleted() {
 		return apperrors.BadRequest("donor response status is invalid").WithMessage("cannot cancel a completed donation")
 	}
+	if donorResponse.IsInactive() {
+		return apperrors.BadRequest("donor response status is invalid").WithMessage("donor response is already cancelled or rejected")
+	}
 
 	// Получаем данные донора
 	donorPet, err := h.petRepo.GetByID(ctx, donorResponse.DonorID, pet.PetPreloadOptions{})

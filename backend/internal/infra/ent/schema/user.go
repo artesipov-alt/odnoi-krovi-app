@@ -6,6 +6,7 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/index"
 )
 
 // User определяет схему для сущности User.
@@ -24,15 +25,18 @@ func (User) Fields() []ent.Field {
 		// phone - номер телефона пользователя.
 		field.String("phone").
 			Optional().
-			Unique().
 			MaxLen(20),
 		// verified - указывает, верифицирован ли пользователь.
 		field.Bool("verified").
 			Default(false),
+		// verified_at - время верификации пользователя (подтверждение телефона).
+		// Используется для отложенных уведомлений (например, напоминание добавить питомца).
+		field.Time("verified_at").
+			Optional().
+			Nillable(),
 		// email - адрес электронной почты пользователя.
 		field.String("email").
 			Optional().
-			Unique().
 			MaxLen(255),
 		// organization_name - название организации пользователя.
 		field.String("organization_name").
@@ -96,6 +100,20 @@ func (User) Edges() []ent.Edge {
 func (User) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		StandardMixin{Prefix: UserPrefix},
+	}
+}
+
+// Indexes of the User.
+// phone and email are unique only among non-deleted users, so that a soft-deleted
+// record does not block re-registration with the same phone/email.
+func (User) Indexes() []ent.Index {
+	return []ent.Index{
+		index.Fields("phone").
+			Unique().
+			Annotations(entsql.IndexWhere("deleted_at IS NULL")),
+		index.Fields("email").
+			Unique().
+			Annotations(entsql.IndexWhere("deleted_at IS NULL")),
 	}
 }
 

@@ -47,7 +47,7 @@ backend/
 │   ├── config/             # Server, DB (Ent), Redis, CORS конфигурация
 │   ├── enums/              # Сгенерированные Ent enum-константы
 │   └── logger/             # Настройка slog + Charm Bracelet
-├── migrations/             # SQL-миграции данных (справочники, одноразовые преобразования)
+├── migrations/             # SQL-миграции: bootstrap/ (справочники для пустой БД), one-off/ (корректировки существующих БД)
 ├── docs/
 │   └── openapi.json        # Сгенерированная OpenAPI 3.1 спецификация
 └── docsui/                 # Scalar docs UI встраивание
@@ -55,12 +55,13 @@ backend/
 
 ## Миграции базы данных
 
-Разделены два слоя (см. [migrations/README.md](migrations/README.md)):
+Разделены два слоя SQL-миграций + Ent auto-migrate (см. [migrations/README.md](migrations/README.md)):
 
 - **Schema migrations (DDL)** — Ent auto-migrate при старте приложения (`config.RunMigrations`). Создаёт/изменяет таблицы, индексы, колонки.
-- **Data migrations (SQL)** — файлы в `migrations/`, применяются вручную через `task db:migrate` (ENV=local|dev|prod). Справочники (`ref_locations`, `ref_breeds`) и одноразовые преобразования данных.
+- **Bootstrap-миграции (SQL)** — `migrations/bootstrap/`, наполнение пустой БД справочниками (`ref_locations`, `ref_breeds`). Применяются вручную один раз при создании проекта / переносе на новый сервер: `task db:migrate:bootstrap` (psql + baseline one-off).
+- **One-off миграции (SQL)** — `migrations/one-off/`, разовые корректировки существующих БД (бэкфиллы, дроп индексов). Применяются на каждом деплое runner-ом `backend/cmd/migrate` через `task db:migrate ENV=dev|prod|local`: таблица `applied_migrations` в БД, применяются только pending-файлы.
 
-Seeds в коде не используются — заменены idempotent SQL-миграциями.
+Seeds в коде не используются — заменены bootstrap SQL-миграциями.
 
 ## Bounded Contexts (Domain)
 

@@ -275,6 +275,7 @@ func (r *EntUserRepository) UpdatePhone(ctx context.Context, id string, phone st
 	err := c.User.UpdateOneID(id).
 		SetPhone(phone).
 		SetVerified(true).
+		SetVerifiedAt(time.Now()).
 		Exec(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
@@ -438,15 +439,55 @@ func (r *EntUserRepository) UpsertDonorPreference(ctx context.Context, userID st
 	return nil
 }
 
-// Delete deletes a user by their ID (soft delete via SoftDeleteMixin)
+// Delete deletes a user by their ID.
+// Identities are hard-deleted (service linkage data) so that a subsequent login
+// by the same provider creates a fresh profile instead of resurrecting a
+// soft-deleted identity via ON CONFLICT.
+// UTM history, pets, donor preference and the user record itself are soft-deleted
+// via SoftDeleteHook (business data, restorable).
+// All operations run within a single transaction (see DeleteHandler).
 func (r *EntUserRepository) Delete(ctx context.Context, id string) error {
 	if id == "" {
 		return errors.New("invalid user ID")
 	}
 
-	// Soft delete via SoftDeleteMixin hook
-	err := r.client(ctx).User.DeleteOneID(id).Exec(ctx)
+	c := r.client(ctx)
+	ctxWithSkip := schema.SkipSoftDelete(ctx)
 
+	// Hard-delete identities (FK constraint + avoids ON CONFLICT resurrecting soft-deleted rows)
+	_, err := c.UserIdentity.Delete().
+		Where(useridentity.HasUserWith(entuser.ID(id))).
+		Exec(ctxWithSkip)
+	if err != nil {
+		return fmt.Errorf("failed to delete user identities: %w", err)
+	}
+
+	// Soft-delete UTM history (business data, restorable)
+	_, err = c.UtmHistory.Delete().
+		Where(utmhistory.HasUserWith(entuser.ID(id))).
+		Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to soft-delete UTM history: %w", err)
+	}
+
+	// Soft-delete donor preference (business data, restorable)
+	_, err = c.DonorPreference.Delete().
+		Where(donorpreference.HasUserWith(entuser.ID(id))).
+		Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to soft-delete donor preference: %w", err)
+	}
+
+	// Soft-delete pets (business data, restorable)
+	_, err = c.Pet.Delete().
+		Where(pet.UserIDEQ(id)).
+		Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to soft-delete pets: %w", err)
+	}
+
+	// Soft-delete user via SoftDeleteHook
+	err = c.User.DeleteOneID(id).Exec(ctx)
 	if err != nil {
 		if ent.IsNotFound(err) {
 			return fmt.Errorf("user with id %s not found", id)
