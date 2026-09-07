@@ -33,6 +33,7 @@ func (r *statusRecorder) WriteHeader(code int) {
 
 // errorAlert — payload, отправляемый на вебхук.
 type errorAlert struct {
+	Env     string `json:"env"`
 	Method  string `json:"method"`
 	Path    string `json:"path"`
 	Status  int    `json:"status"`
@@ -44,7 +45,7 @@ type errorAlert struct {
 // Должен стоять первым в цепочке (вне sloghttp.Recovery), чтобы ловить
 // в том числе 500, записанные Recovery при панике.
 // Пустой url полностью выключает middleware.
-func ErrorWebhookMiddleware(url string) func(http.Handler) http.Handler {
+func ErrorWebhookMiddleware(url, env string) func(http.Handler) http.Handler {
 	if url == "" {
 		return func(next http.Handler) http.Handler { return next }
 	}
@@ -70,6 +71,7 @@ func ErrorWebhookMiddleware(url string) func(http.Handler) http.Handler {
 			}
 
 			alert := errorAlert{
+				Env:     env,
 				Method:  r.Method,
 				Path:    r.URL.Path,
 				Status:  rec.status,

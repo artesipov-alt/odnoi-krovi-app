@@ -331,7 +331,7 @@ func main() {
 		// Порядок: ErrorWebhook -> Recovery -> CORS -> BasicAuth -> Auth -> Logging -> Mux
 		server.Use(
 			// Первым (внешним) — чтобы ловить 5xx, включая записанные Recovery при панике
-			middleware.ErrorWebhookMiddleware(errorWebhookURL),
+			middleware.ErrorWebhookMiddleware(errorWebhookURL, env),
 			sloghttp.Recovery,
 			config.DefaultCorsHandler(env, miniappDomain),
 			middleware.BasicAuthMiddleware("/api/docs", "/api/openapi.json"),

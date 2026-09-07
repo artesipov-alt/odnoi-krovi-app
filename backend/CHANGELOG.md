@@ -11,7 +11,7 @@
 
 - **Алерты о 5xx на внешний вебхук (`ERROR_WEBHOOK_URL`).**
   Новый middleware `ErrorWebhookMiddleware` отправляет JSON-алерт
-  (`method`, `path`, `status`, `trace_id`, `time`) на произвольный URL,
+  (`env`, `method`, `path`, `status`, `trace_id`, `time`) на произвольный URL,
   если ответ API получил статус 5xx — включая 500, записанные
   `sloghttp.Recovery` при панике (middleware стоит первым, вне Recovery).
   Отправка асинхронная (воркер + буферизированная очередь на 10) и не
