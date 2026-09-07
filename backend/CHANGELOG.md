@@ -5,6 +5,25 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.30.0] - 2026-09-07
+
+### Добавлено
+
+- **Алерты о 5xx на внешний вебхук (`ERROR_WEBHOOK_URL`).**
+  Новый middleware `ErrorWebhookMiddleware` отправляет JSON-алерт
+  (`method`, `path`, `status`, `trace_id`, `time`) на произвольный URL,
+  если ответ API получил статус 5xx — включая 500, записанные
+  `sloghttp.Recovery` при панике (middleware стоит первым, вне Recovery).
+  Отправка асинхронная (воркер + буферизированная очередь на 10) и не
+  блокирует ответ клиенту; при переполнении очереди алерт отбрасывается
+  с `Warn` в лог. Таймаут на вебхук — 5s. Пустая переменная
+  `ERROR_WEBHOOK_URL` полностью выключает функциональность.
+  Переменная проброшена в контейнер backend в `docker-compose.yml` и
+  `docker-compose.dev.yml` (по умолчанию пустая).
+  Затронутые файлы: `cmd/api/main.go`,
+  `internal/transport/http/middleware/error_webhook_mw.go`,
+  `docker-compose.yml`, `docker-compose.dev.yml`.
+
 ## [3.29.1] - 2026-09-07
 
 ### Изменено

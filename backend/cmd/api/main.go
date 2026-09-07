@@ -64,7 +64,7 @@ type Options struct {
 
 // AppVersion — версия приложения. Единая точка контроля версией бэкенда.
 // Меняй здесь и добавляй запись в CHANGELOG.md.
-const AppVersion = "3.29.1"
+const AppVersion = "3.30.0"
 
 func main() {
 	var humapi huma.API
@@ -74,7 +74,8 @@ func main() {
 		// Загрузка переменных окружения из .env файла
 		godotenv.Load("../.env")
 		env := config.GetEnv("ENV", "development")
-		miniappDomain := os.Getenv("MINIAPP_DOMAIN") // Получаем домен мини-приложения
+		miniappDomain := os.Getenv("MINIAPP_DOMAIN")      // Получаем домен мини-приложения
+		errorWebhookURL := os.Getenv("ERROR_WEBHOOK_URL") // Произвольный URL для алертов о 5xx; пусто — выключено
 
 		// Заменяем стандартный слог логером от Charm Bracelet.
 		logger.SetupSlogDefaultLogger(os.Getenv("LOG_LEVEL"))
@@ -327,8 +328,10 @@ func main() {
 		server := config.NewServer(options.Port, rootMux)
 
 		// Применяем middleware с использованием метода Use
-		// Порядок: Recovery -> CORS -> BasicAuth -> Auth -> Logging -> Mux
+		// Порядок: ErrorWebhook -> Recovery -> CORS -> BasicAuth -> Auth -> Logging -> Mux
 		server.Use(
+			// Первым (внешним) — чтобы ловить 5xx, включая записанные Recovery при панике
+			middleware.ErrorWebhookMiddleware(errorWebhookURL),
 			sloghttp.Recovery,
 			config.DefaultCorsHandler(env, miniappDomain),
 			middleware.BasicAuthMiddleware("/api/docs", "/api/openapi.json"),
