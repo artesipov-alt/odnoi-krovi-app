@@ -33,9 +33,39 @@
             }
         </style>
 
-        <!-- Подключение внешних скриптов Telegram и MAX -->
-        <script src="https://st.max.ru/js/max-web-app.js"></script>
-        <script src="https://telegram.org/js/telegram-web-app.js"></script>
+        <!-- Загрузка SDK платформы: Telegram или MAX -->
+        <script>
+            (function () {
+                var SDK_TIMEOUT = 5000; // мс, дальше стартуем без SDK
+
+                var isTelegram =
+                    location.hash.indexOf('#tgWebApp') === 0 ||
+                    /telegram\.org/.test(document.referrer);
+
+                var url = isTelegram
+                    ? 'https://telegram.org/js/telegram-web-app.js'
+                    : 'https://st.max.ru/js/max-web-app.js';
+
+                window.__sdkReady = new Promise(function (resolve) {
+                    var settled = false;
+
+                    var done = function () {
+                        if (settled) return;
+                        settled = true;
+                        clearTimeout(timer);
+                        resolve();
+                    };
+
+                    var timer = setTimeout(done, SDK_TIMEOUT);
+
+                    var script = document.createElement('script');
+                    script.src = url;
+                    script.onload = done;
+                    script.onerror = done;
+                    document.head.appendChild(script);
+                });
+            })();
+        </script>
     </head>
     <body>
         <!-- Прелоадер -->
@@ -63,10 +93,12 @@
             }
 
             // Скрыть по завершении загрузки основного модуля
-            import('/src/main.tsx').finally(() => {
-                const elapsed = Date.now() - startTime;
-                const remaining = Math.max(0, MIN_SPLASH_DURATION - elapsed);
-                setTimeout(hideSplash, remaining);
+            window.__sdkReady.finally(function () {
+                import('/src/main.tsx').finally(() => {
+                    const elapsed = Date.now() - startTime;
+                    const remaining = Math.max(0, MIN_SPLASH_DURATION - elapsed);
+                    setTimeout(hideSplash, remaining);
+                });
             });
 
             // Гарантированное скрытие через 10 секунд, даже если что-то пошло не так
