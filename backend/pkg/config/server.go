@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"slices"
 
@@ -17,8 +18,12 @@ type MyServer struct {
 func NewServer(port int, mux http.Handler) *MyServer {
 	return &MyServer{
 		&http.Server{
-			Addr:    fmt.Sprintf(":%d", port),
-			Handler: mux,
+			Addr:              fmt.Sprintf(":%d", port),
+			Handler:           mux,
+			ReadTimeout:       15 * time.Second,
+			ReadHeaderTimeout: 5 * time.Second,
+			WriteTimeout:      30 * time.Second,
+			IdleTimeout:       90 * time.Second,
 		},
 	}
 }

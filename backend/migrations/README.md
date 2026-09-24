@@ -104,6 +104,19 @@ ENV=prod task db:migrate:bootstrap   # на новом сервере
 
 ## One-off: применение на каждом деплое
 
+Порядок важен: one-off миграции могут ссылаться на схему (колонки, индексы),
+которую создаёт Ent auto-migrate при старте backend. Поэтому backend **сначала**
+запускается (обновляя схему), и только потом применяются one-off:
+
+```sh
+docker compose up -d backend     # 1. Ent auto-migrate обновляет схему БД
+docker compose run --rm --no-deps backend ./migrate   # 2. one-off поверх свежей схемы
+docker compose up -d             # 3. остальные сервисы
+```
+
+Локально (`task db:migrate`) это неактуально — локальный backend обычно уже
+запускался и схема актуальна.
+
 ```sh
 task db:migrate              # локальная БД (ENV=local по умолчанию)
 ENV=dev task db:migrate      # перед деплоем на dev
@@ -126,16 +139,23 @@ Runner:
 
 Деплой на push (`.github/workflows/deploy-dev.yml`, `deploy.yml`) применяет
 one-off миграции автоматически: в backend-образ вместе с API-бинарником
-собран `migrate` и SQL-файлы, а в SSH-скрипте деплоя перед `up -d`:
+собран `migrate` и SQL-файлы, а в SSH-скрипте деплоя порядок такой:
 
 ```sh
-docker compose run --rm --no-deps backend ./migrate dev    # dev
-docker compose run --rm --no-deps backend ./migrate prod   # prod (после бэкапа!)
+docker compose up -d backend                                # 1. Ent auto-migrate (схема)
+docker compose run --rm --no-deps backend ./migrate dev     # 2. one-off (ENV=dev|prod)
+docker compose up -d                                        # 3. остальные сервисы
 ```
 
 Одноразовый контейнер наследует env сервиса `backend` (DB_HOST, DB_NAME и т.д.).
-Если миграция падает — деплой останавливается до перезапуска сервисов,
+Если миграция падает — деплой останавливается до перезапуска остальных сервисов,
 и в логах workflow видно, какой файл не применился.
+
+> Историческая заметка: до 09.2026 миграции применялись до старта backend.
+> Это работало, пока one-off не зависели от новых колонок Ent; когда появилась
+> такая зависимость (`verified_at` в 3.29.0), runner падал с
+> `column does not exist`. Порядок «backend → migrate → остальное» устраняет
+> класс таких ошибок целиком.
 
 На новом сервере перед первым деплоем нужно один раз выполнить bootstrap
 (см. ниже) — иначе первый запуск runner-а применит все one-off на пустой БД

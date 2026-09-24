@@ -5,6 +5,39 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 и проект следует [Семантическому Версионированию](https://semver.org/lang/ru/).
 
+## [3.30.0] - 2026-09-07
+
+### Добавлено
+
+- **Алерты о 5xx на внешний вебхук (`ERROR_WEBHOOK_URL`).**
+  Новый middleware `ErrorWebhookMiddleware` отправляет JSON-алерт
+  (`env`, `method`, `path`, `status`, `error`, `trace_id`, `time`) на произвольный URL,
+  если ответ API получил статус 5xx — включая 500, записанные
+  `sloghttp.Recovery` при панике (middleware стоит первым, вне Recovery).
+  В `error` попадает сниппет тела ответа (до 1 КБ — например, `detail`
+  из JSON-ошибки Huma), а при панике — её текст.
+  Отправка асинхронная (воркер + буферизированная очередь на 10) и не
+  блокирует ответ клиенту; при переполнении очереди алерт отбрасывается
+  с `Warn` в лог. Таймаут на вебхук — 5s. Пустая переменная
+  `ERROR_WEBHOOK_URL` полностью выключает функциональность.
+  Переменная проброшена в контейнер backend в `docker-compose.yml` и
+  `docker-compose.dev.yml` (по умолчанию пустая).
+  Затронутые файлы: `cmd/api/main.go`,
+  `internal/transport/http/middleware/error_webhook_mw.go`,
+  `docker-compose.yml`, `docker-compose.dev.yml`.
+
+## [3.29.1] - 2026-09-07
+
+### Изменено
+
+- **Порядок one-off миграций в деплое изменён: сначала старт backend, потом миграции.**
+  Ранее `./migrate` запускался до `up -d`, поэтому one-off, ссылающиеся на
+  колонки/индексы, которые Ent auto-migrate создаёт при старте backend,
+  падали с `column does not exist` (пример — бэкфилл `verified_at` в 3.29.0).
+  Теперь деплой-скрипт (`deploy.yml`, `deploy-dev.yml`) делает:
+  `up -d backend` → `./migrate` → `up -d`. Подробности —
+  `backend/migrations/README.md`.
+
 ## [3.29.0] - 2026-08-30
 
 ### Добавлено
