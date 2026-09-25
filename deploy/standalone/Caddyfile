@@ -1,0 +1,27 @@
+# Caddyfile для standalone-пакета: портал доступен по http://localhost
+# без доменов и TLS (в отличие от продакшена).
+:80 {
+    root * /srv
+    encode gzip zstd
+
+    # API маршруты -> backend
+    handle /api/* {
+        reverse_proxy backend:3000
+    }
+
+    # Health check -> backend (проверка установки: http://localhost/health)
+    handle /health {
+        reverse_proxy backend:3000
+    }
+
+    # SPA routing
+    handle {
+        try_files {path} {path}/ /index.html
+        file_server
+    }
+
+    log {
+        output stdout
+        format console
+    }
+}

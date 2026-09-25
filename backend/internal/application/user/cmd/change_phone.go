@@ -38,6 +38,9 @@ func (h *ChangePhoneHandler) Handle(ctx context.Context, userID string, phone st
 	}
 
 	// отправляем OTP через Twin24
+	if h.otpSender == nil {
+		return fmt.Errorf("change phone: send otp: OTP-провайдер не сконфигурирован (TWIN24_* переменные окружения)")
+	}
 	if err := h.otpSender.SendOTP(ctx, phone, otpCode); err != nil {
 		// не удаляем OTP из Redis, чтобы можно было попробовать снова
 		return fmt.Errorf("change phone: send otp: %w", err)

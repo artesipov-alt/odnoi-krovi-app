@@ -1,0 +1,114 @@
+# Standalone-пакет экземпляра ПО «Одной Крови» для проверки экспертом
+# (включение в реестр российского ПО, п. 11 «а» и «д»).
+#
+# Полностью автономное окружение: PostgreSQL, Redis, backend, frontend.
+# Внешние сервисы продакшена (S3, Twin24, боты) заменены локальными
+# заглушками: файлы хранятся на диске (FILE_STORAGE_MODE=local),
+# OTP-звонки отключены.
+#
+# Запуск: docker compose -f docker-compose.standalone.yml up -d
+# Портал: http://localhost
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: odnoi
+      POSTGRES_PASSWORD: odnoi
+      POSTGRES_DB: odnoi_krovi
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odnoi -d odnoi_krovi"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+  backend:
+    image: odnoi-krovi-app/backend:standalone
+    environment:
+      ENV: production
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: odnoi
+      DB_PASSWORD: odnoi
+      DB_NAME: odnoi_krovi
+      DB_SSLMODE: disable
+      JWT_SECRET_KEY: standalone-demo-secret-not-for-production
+      SERVER_PORT: 3000
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MINIAPP_DOMAIN: http://localhost
+      FILE_STORAGE_MODE: local
+      LOCAL_STORAGE_DIR: /data/media
+    volumes:
+      - media:/data/media
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # Одноразовый контейнер: применяет справочники (bootstrap SQL) и
+  # демонстрационные данные. Запускается после healthcheck backend,
+  # потому что схему БД создает Ent при старте backend.
+  seed:
+    image: postgres:16-alpine
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      PGHOST: postgres
+      PGUSER: odnoi
+      PGPASSWORD: odnoi
+      PGDATABASE: odnoi_krovi
+    volumes:
+      - ../../backend/migrations/bootstrap:/bootstrap:ro
+      - ./demo_data.sql:/demo_data.sql:ro
+      - ./photos:/photos:ro
+      - media:/media
+    command:
+      - sh
+      - -c
+      - |
+        psql -v ON_ERROR_STOP=1 \
+          -f /bootstrap/20260728000001_ref_locations.sql \
+          -f /bootstrap/20260728000002_breeds.sql \
+          -f /demo_data.sql
+        # Фото демо-питомцев: файлы в media-volume размает backend (localfs)
+        seed_photo() {
+          mkdir -p "/media/pets/2026/$$1/photos"
+          cp "/photos/$$2" "/media/pets/2026/$$1/photos/1.jpg"
+        }
+        seed_photo PET-DEMO00001 reks.jpg
+        seed_photo PET-DEMO00002 barsik.jpg
+        seed_photo PET-DEMO00003 bim.jpg
+        seed_photo PET-DEMO00004 luna.jpg
+        seed_photo PET-DEMO00005 murka.jpg
+        echo "Seed: справочники и демо-данные применены"
+    restart: "no"
+
+  frontend:
+    image: odnoi-krovi-app/frontend:standalone
+    ports:
+      - "80:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  media:

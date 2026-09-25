@@ -36,10 +36,12 @@ import (
 	userquery "github.com/artesipov-alt/odnoi-krovi-app/internal/application/user/query"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bloodsearch"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/bonus"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/filestorage"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/domain/ports"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/otp/twin24"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/cache"
+	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/localfs"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/pg"
 	"github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/redis/notification"
 	otp "github.com/artesipov-alt/odnoi-krovi-app/internal/infra/presistance/redis/otp"
@@ -147,7 +149,17 @@ func main() {
 		bonusRepo := pg.NewEntBonusRepository(db)
 		rawQueryRepo := pg.NewRawQueryRepository(rawdb)
 
-		fileStorage := s3.NewS3Storage(nil).WithDefaults()
+		// Файловое хранилище: S3 (прод) или локальный диск (FILE_STORAGE_MODE=local,
+		// standalone-пакет для экспертизы и локальная разработка без S3).
+		var fileStorage filestorage.Repository
+		if config.GetEnv("FILE_STORAGE_MODE", "") == "local" {
+			localStorage := localfs.NewFromEnv()
+			localStorage.RegisterRoutes(apiMux)
+			fileStorage = localStorage
+			slog.Info("Файловое хранилище: локальный диск", "dir", os.Getenv("LOCAL_STORAGE_DIR"))
+		} else {
+			fileStorage = s3.NewS3Storage(nil).WithDefaults()
+		}
 		txManager := presistance.NewTxManager(db)
 
 		// Инициализация сервисов.
@@ -335,7 +347,7 @@ func main() {
 			sloghttp.Recovery,
 			config.DefaultCorsHandler(env, miniappDomain),
 			middleware.BasicAuthMiddleware("/api/docs", "/api/openapi.json"),
-			middleware.AuthMiddleware(tokenGenerator, env, "/api/v1/auth", "/api/docs", "/api/openapi.json", "/health"),
+			middleware.AuthMiddleware(tokenGenerator, env, "/api/v1/auth", "/api/docs", "/api/openapi.json", "/api/v1/files", "/health"),
 			sloghttp.NewWithConfig(slog.Default(), sloghttp.Config{WithResponseBody: true, WithRequestID: true, Filters: []sloghttp.Filter{sloghttp.AcceptStatusGreaterThanOrEqual(400)}}),
 			middleware.TraceIDResponseMiddleware,
 		)
